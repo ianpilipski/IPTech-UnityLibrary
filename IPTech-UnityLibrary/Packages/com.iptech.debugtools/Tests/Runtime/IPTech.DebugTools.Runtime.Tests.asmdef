@@ -1,0 +1,1 @@
+{"name":"IPTech.DebugTools.Runtime.Tests","references":["IPTech.DebugTools.Runtime"],"optionalUnityReferences":["TestAssemblies"],"includePlatforms":[],"excludePlatforms":[],"allowUnsafeCode":false,"overrideReferences":false,"precompiledReferences":[],"autoReferenced":true,"defineConstraints":[],"versionDefines":[],"noEngineReferences":false}
