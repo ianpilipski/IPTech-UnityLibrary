@@ -1,0 +1,1 @@
+{"name":"IPTech.Splines.Editor","references":["IPTech.Splines.Runtime"],"optionalUnityReferences":[],"includePlatforms":["Editor"],"excludePlatforms":[],"allowUnsafeCode":false,"overrideReferences":false,"precompiledReferences":[],"autoReferenced":true,"defineConstraints":[],"versionDefines":[],"noEngineReferences":false}

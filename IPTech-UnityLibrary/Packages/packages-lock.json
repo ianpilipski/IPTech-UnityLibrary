@@ -28,6 +28,14 @@
       "dependencies": {},
       "url": "https://registry.npmjs.com"
     },
+    "com.iptech.splines": {
+      "version": "file:com.iptech.splines",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.iptech.debugtools": "0.0.1"
+      }
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
