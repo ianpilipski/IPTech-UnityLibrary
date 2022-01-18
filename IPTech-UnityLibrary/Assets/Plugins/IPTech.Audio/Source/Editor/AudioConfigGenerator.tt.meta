@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+guid: 5f1ced6345bac4f22a6093d0602d7b19
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 46cc7ee87913b4a1f948f98bde8f4146, type: 3}
+  CustomTool: 1
+  CustomToolNamespace: IPTech.Audio.EditorExtensions

@@ -1,0 +1,10 @@
+{
+    "name": "IPTech.Model",
+    "references": [
+        "IPTech.Types"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
