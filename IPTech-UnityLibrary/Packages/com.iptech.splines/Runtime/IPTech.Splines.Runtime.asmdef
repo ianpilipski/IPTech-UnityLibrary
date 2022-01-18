@@ -1,0 +1,15 @@
+{
+    "name": "IPTech.Splines.Runtime",
+    "references": [
+        "GUID:a07cd7ea9aab54c488043fc9926f8390"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
