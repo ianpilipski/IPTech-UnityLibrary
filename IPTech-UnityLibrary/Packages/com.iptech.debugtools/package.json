@@ -1,10 +1,10 @@
 {
-	"name":"com.iptech.debugtools",
-	"displayName":"IPTech.DebugTools",
-	"version":"0.0.1",
-	"unity":"",
-	"keywords":["iptech"],
-	"category":"editor",
-	"description":"",
-	"dependencies":{}
+  "name": "com.iptech.debugtools",
+  "displayName": "IPTech.DebugTools",
+  "version": "0.0.1",
+  "unity": "2019.4",
+  "keywords": [
+    "iptech"
+  ],
+  "category": "editor"
 }

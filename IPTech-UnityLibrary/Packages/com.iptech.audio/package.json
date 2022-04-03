@@ -1,0 +1,13 @@
+{
+  "name": "com.iptech.audio",
+  "displayName": "IPTech.Audio",
+  "version": "0.0.1",
+  "unity": "2019.4",
+  "keywords": [],
+  "category": "",
+  "dependencies": {
+    "com.iptech.editorextensions": "0.0.1"
+  },
+  "samples": [],
+  "description": "Audio tools for unity"
+}
