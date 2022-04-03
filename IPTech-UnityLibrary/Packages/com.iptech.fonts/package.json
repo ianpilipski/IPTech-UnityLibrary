@@ -1,0 +1,13 @@
+{
+	"name": "com.iptech.fonts",
+	"displayName":"IPTech.Fonts",
+	"version": "0.0.1",
+    "unity": "2019.4",
+    "keywords": ["iptech", "package", "fonts"],
+    "category": "editor",
+	"description": "font library",
+	"hideInEditor": false,
+    "dependencies": {
+    }
+
+}
