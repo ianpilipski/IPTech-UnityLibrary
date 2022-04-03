@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "com.iptech.audio": {
+      "version": "file:com.iptech.audio",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.iptech.editorextensions": "0.0.1"
+      }
+    },
     "com.iptech.coroutines": {
       "version": "2.0.0",
       "depth": 0,
@@ -11,6 +19,18 @@
     },
     "com.iptech.debugtools": {
       "version": "file:com.iptech.debugtools",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.iptech.editorextensions": {
+      "version": "file:com.iptech.editorextensions",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.iptech.fonts": {
+      "version": "file:com.iptech.fonts",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}
