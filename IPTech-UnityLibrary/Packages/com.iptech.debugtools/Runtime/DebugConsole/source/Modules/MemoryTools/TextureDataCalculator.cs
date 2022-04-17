@@ -113,12 +113,12 @@ namespace IPTech.DebugConsoleService
                     case TextureImporterFormat.Alpha8:                      return TextureFormat.Alpha8;
                     case TextureImporterFormat.ARGB16:                      return TextureFormat.ARGB4444;
                     case TextureImporterFormat.ARGB32:                      return TextureFormat.ARGB32;
-                    case TextureImporterFormat.ASTC_RGBA_10x10:             return TextureFormat.ASTC_RGB_10x10;
-                    case TextureImporterFormat.ASTC_RGBA_12x12:             return TextureFormat.ASTC_RGBA_12x12;
-                    case TextureImporterFormat.ASTC_RGB_4x4:                return TextureFormat.ASTC_RGB_4x4;
-                    case TextureImporterFormat.ASTC_RGB_5x5:                return TextureFormat.ASTC_RGB_5x5;
-                    case TextureImporterFormat.ASTC_RGB_6x6:                return TextureFormat.ASTC_RGB_6x6;
-                    case TextureImporterFormat.ASTC_RGB_8x8:                return TextureFormat.ASTC_RGB_8x8;
+                    case TextureImporterFormat.ASTC_10x10:             return TextureFormat.ASTC_10x10;
+                    case TextureImporterFormat.ASTC_12x12:             return TextureFormat.ASTC_12x12;
+                    case TextureImporterFormat.ASTC_4x4:                return TextureFormat.ASTC_4x4;
+                    case TextureImporterFormat.ASTC_5x5:                return TextureFormat.ASTC_5x5;
+                    case TextureImporterFormat.ASTC_6x6:                return TextureFormat.ASTC_6x6;
+                    case TextureImporterFormat.ASTC_8x8:                return TextureFormat.ASTC_8x8;
                     case TextureImporterFormat.DXT1:                        return TextureFormat.DXT1;
                     case TextureImporterFormat.DXT1Crunched:                return TextureFormat.DXT1Crunched;
                     case TextureImporterFormat.DXT5:                        return TextureFormat.DXT5;
@@ -204,12 +204,12 @@ namespace IPTech.DebugConsoleService
                 case TextureFormat.Alpha8:
                 case TextureFormat.ARGB32:
                 case TextureFormat.ARGB4444:
-                case TextureFormat.ASTC_RGBA_10x10:
-                case TextureFormat.ASTC_RGBA_12x12:
-                case TextureFormat.ASTC_RGBA_4x4:
-                case TextureFormat.ASTC_RGBA_5x5:
-                case TextureFormat.ASTC_RGBA_6x6:
-                case TextureFormat.ASTC_RGBA_8x8:
+                case TextureFormat.ASTC_10x10:
+                case TextureFormat.ASTC_12x12:
+                case TextureFormat.ASTC_4x4:
+                case TextureFormat.ASTC_5x5:
+                case TextureFormat.ASTC_6x6:
+                case TextureFormat.ASTC_8x8:
                 case TextureFormat.BGRA32:
                 case TextureFormat.DXT5:
                 case TextureFormat.DXT5Crunched:

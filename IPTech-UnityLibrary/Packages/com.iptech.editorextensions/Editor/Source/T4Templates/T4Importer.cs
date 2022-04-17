@@ -1,10 +1,10 @@
 ﻿using System;
 using UnityEditor;
-using UnityEditor.Experimental.AssetImporters;
+
 
 namespace IPTech.EditorExtensions {
-	[ScriptedImporter(1, "tt")]
-	public class T4Importer : ScriptedImporter {
+	[UnityEditor.AssetImporters.ScriptedImporter(1, "tt")]
+	public class T4Importer : UnityEditor.AssetImporters.ScriptedImporter {
 		public enum ProcessingType {
 			Generator,
 			Preprocessor
@@ -13,7 +13,7 @@ namespace IPTech.EditorExtensions {
 		public ProcessingType CustomTool;
 		public string CustomToolNamespace;
 
-		public override void OnImportAsset(AssetImportContext ctx) {
+		public override void OnImportAsset(UnityEditor.AssetImporters.AssetImportContext ctx) {
 			//AssetDatabase.
 		}
 	}
