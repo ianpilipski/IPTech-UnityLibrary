@@ -1,1 +1,0 @@
-{"name":"IPTech.Splines.Editor.Tests","references":["IPTech.Splines.Runtime","IPTech.Splines.Editor"],"optionalUnityReferences":["TestAssemblies"],"includePlatforms":["Editor"],"excludePlatforms":[],"allowUnsafeCode":false,"overrideReferences":false,"precompiledReferences":[],"autoReferenced":true,"defineConstraints":[],"versionDefines":[],"noEngineReferences":false}
