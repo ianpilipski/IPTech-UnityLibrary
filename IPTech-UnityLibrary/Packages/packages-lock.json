@@ -6,6 +6,12 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "com.iptech.buildtool": {
+      "version": "file:com.iptech.buildtool",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.iptech.coroutines": {
       "version": "file:com.iptech.coroutines",
       "depth": 0,
