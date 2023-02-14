@@ -1,5 +1,6 @@
 {
-    "name": "IPTech.Module.Editor",
+    "name": "IPTech.PackageCreator.Editor",
+    "rootNamespace": "",
     "references": [
         "IPTech.Module.Runtime"
     ],

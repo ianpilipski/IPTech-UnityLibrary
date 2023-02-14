@@ -1,5 +1,5 @@
 ﻿
-namespace IPTech.Module.Editor {
+namespace IPTech.PackageCreator.Editor {
     using System;
     using System.Collections.Generic;
     using System.IO;
