@@ -2,12 +2,12 @@
 using UnityEditor;
 using System;
 
-namespace IPTech.Module.Editor {
+namespace IPTech.PackageCreator.Editor {
 	
 	public class CreatePackageModalWindow : EditorWindow {
 		PackageInfo packageInfo;
 
-		[MenuItem(Constants.MenuName + "/Package/Create")]
+		[MenuItem("Assets/Create/IPTech/New Package")]
 		static void Menu() {
 			var win = EditorWindow.GetWindow<CreatePackageModalWindow>(true, "Create Package");
             var winSize = new Vector2(320, 120);
@@ -17,10 +17,14 @@ namespace IPTech.Module.Editor {
 		}
 
 		void Awake() {
+			var prodName = Application.productName;
+			if(string.IsNullOrEmpty(prodName)) {
+				prodName = "noname";
+            }
 			packageInfo = new PackageInfo() {
-				name = "com.iptech.newpackage",
-				AssemblyDefName = "IPTech.NewPackage",
-				displayName = "IPTech.NewPackage",
+				name = $"com.{prodName.ToLower()}.newpackage",
+				AssemblyDefName = $"{prodName}.NewPackage",
+				displayName = $"{prodName}.NewPackage",
 			};
 		}
 
