@@ -68,9 +68,15 @@ namespace IPTech.DebugConsoleService.InGameConsole
 
         private void InitializeCommandInput() {
             this.commandInputField.onEndEdit.AddListener(  _ => {
+#if ENABLE_LEGACY_INPUT_MANAGER
                 if(Input.GetButtonDown("Submit")) {
                     ExecuteCommand();
                 }
+#else
+               if(UnityEngine.InputSystem.Keyboard.current.enterKey.isPressed) {
+                    ExecuteCommand();
+               }
+#endif
             });
         }
         
@@ -101,11 +107,19 @@ namespace IPTech.DebugConsoleService.InGameConsole
 
         private void UpdateCommandInputFieldAutoComplete() {
             if(this.commandInputField.isFocused) {
+#if ENABLE_LEGACY_INPUT_MANAGER
                 if(Input.GetKeyUp(KeyCode.UpArrow)) {
                     prevCommand();
                 } else if(Input.GetKeyUp(KeyCode.DownArrow)) {
                     nextCommand();
                 }
+#else
+                if(UnityEngine.InputSystem.Keyboard.current.upArrowKey.wasPressedThisFrame) {
+                    prevCommand();
+                } else if(UnityEngine.InputSystem.Keyboard.current.downArrowKey.wasPressedThisFrame) {
+                    nextCommand();
+                }
+#endif
             }
         }
 
@@ -145,15 +159,15 @@ namespace IPTech.DebugConsoleService.InGameConsole
 			}
 		}
 
-		#region IInitializePotentialDragHandler implementation
+#region IInitializePotentialDragHandler implementation
 
 		public void OnInitializePotentialDrag(PointerEventData eventData) {
 			eventData.useDragThreshold = false;
 		}
 
-		#endregion
+#endregion
 
-		#region IDragHandler implementation
+#region IDragHandler implementation
 
 		public void OnDrag(PointerEventData eventData) {
 			if(!this.MayDrag(eventData)) {
@@ -162,15 +176,15 @@ namespace IPTech.DebugConsoleService.InGameConsole
 			this.UpdateDrag(eventData, eventData.pressEventCamera);
 		}
 
-		#endregion
+#endregion
 
-		#region IEndDragHandler implementation
+#region IEndDragHandler implementation
 
 		public void OnEndDrag(PointerEventData eventData) {
 			this.isDragging = false;
 		}
 
-		#endregion
+#endregion
 
 		private bool MayDrag(PointerEventData eventData) {
 			return this.isActiveAndEnabled && eventData.button == PointerEventData.InputButton.Left;

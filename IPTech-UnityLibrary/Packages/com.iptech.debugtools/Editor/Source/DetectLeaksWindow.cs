@@ -135,7 +135,6 @@ namespace IPTech.DebugTools {
                             if (GUILayout.Button(new GUIContent("S", "Select"), GUILayout.Width(20f)))
                                 Selection.activeGameObject = obj;
 
-                            // TODO
                             if (GUILayout.Button(new GUIContent("C", "Clear missing scripts"), GUILayout.Width(20f))) {
                                 if (!EditorUtility.DisplayDialog("You wish", "Ha ! you thought it would be that easy didn't ya ? You'll have to remove it yourself pal !", "Ok :'(", "More info on UA"))
                                     Application.OpenURL("http://answers.unity3d.com/questions/15225/how-do-i-remove-null-components-ie-missingmono-scr.html");
