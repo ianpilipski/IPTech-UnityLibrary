@@ -4,9 +4,9 @@ name: CI Build
 # events but only for the master branch
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
   workflow_dispatch:
 
 env:
@@ -25,7 +25,7 @@ jobs:
         unityVersion:
           - 2021.3.0f1
         testMode:
-          - all
+          - editmode
     steps:
       - uses: actions/checkout@v2
         with:
@@ -42,7 +42,8 @@ jobs:
           testMode: ${{ matrix.testMode }}
           artifactsPath: ${{ matrix.testMode }}-artifacts
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v2
+        if: always()
         with:
           name: Test results for ${{ matrix.testMode }}
           path: ${{ steps.tests.outputs.artifactsPath }}
