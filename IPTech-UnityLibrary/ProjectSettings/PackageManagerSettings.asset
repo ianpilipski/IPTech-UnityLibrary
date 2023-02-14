@@ -25,19 +25,11 @@ MonoBehaviour:
     m_Scopes: []
     m_IsDefault: 1
     m_Capabilities: 7
-  - m_Id: scoped:IPTech
-    m_Name: IPTech
-    m_Url: https://registry.npmjs.com
-    m_Scopes:
-    - com.iptech
-    - iptech
-    m_IsDefault: 0
-    m_Capabilities: 0
   m_UserSelectedRegistryName: 
   m_UserAddingNewScopedRegistry: 0
   m_RegistryInfoDraft:
     m_Modified: 0
     m_ErrorMessage: 
-    m_UserModificationsInstanceId: -852
-    m_OriginalInstanceId: -854
+    m_UserModificationsInstanceId: -826
+    m_OriginalInstanceId: -830
   m_LoadAssets: 0

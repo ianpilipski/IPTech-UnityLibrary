@@ -10,5 +10,9 @@
 ],
   "dependencies": {
     "com.iptech.debugtools": "0.0.1"
+  },
+  "author": {
+    "name": "Ian Pilipski",
+    "url": "https://github.com/ianpilipski/IPTech-UnityLibrary.git"
   }
 }
