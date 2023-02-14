@@ -6,5 +6,9 @@
   "keywords": [],
   "category": "",
   "samples": [],
-  "description": "Audio tools for unity"
+  "description": "Audio tools for unity",
+  "author": {
+    "name": "Ian Pilipski",
+    "url": "https://github.com/ianpilipski/IPTech-UnityLibrary.git"
+  }
 }

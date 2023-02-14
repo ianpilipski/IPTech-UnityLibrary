@@ -7,13 +7,12 @@
       "dependencies": {}
     },
     "com.iptech.coroutines": {
-      "version": "2.0.0",
+      "version": "file:com.iptech.coroutines",
       "depth": 0,
-      "source": "registry",
+      "source": "embedded",
       "dependencies": {
-        "com.iptech.nsubstitute": "1.0.1"
-      },
-      "url": "https://registry.npmjs.com"
+        "com.iptech.nsubstitute": "2.0.4"
+      }
     },
     "com.iptech.debugtools": {
       "version": "file:com.iptech.debugtools",
@@ -34,11 +33,10 @@
       "dependencies": {}
     },
     "com.iptech.nsubstitute": {
-      "version": "1.0.1",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://registry.npmjs.com"
+      "version": "file:com.iptech.nsubstitute",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
     },
     "com.iptech.packagecreator": {
       "version": "file:com.iptech.packagecreator",

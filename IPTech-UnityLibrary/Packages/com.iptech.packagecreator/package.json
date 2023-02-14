@@ -8,6 +8,10 @@
 	"description": "Easily create new unity packages",
 	"hideInEditor": false,
     "dependencies": {
+    },
+    "author": {
+        "name": "Ian Pilipski",
+        "url": "https://github.com/ianpilipski/IPTech-UnityLibrary.git"
     }
 
 }
