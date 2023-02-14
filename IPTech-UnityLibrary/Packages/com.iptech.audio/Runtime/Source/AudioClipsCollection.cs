@@ -15,7 +15,7 @@ namespace IPTech.Audio {
 
 		private void OnValidate() {
 			if(AudioClips == null || AudioClips.Length==0) {
-				Debug.LogError("AudioClips can not be null or empty.");
+				Debug.LogError("AudioClips can not be null or empty.", this);
 			}
 		}
 	}
