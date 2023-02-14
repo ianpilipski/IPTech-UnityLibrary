@@ -31,7 +31,6 @@ namespace IPTech.DebugConsoleService
 			}
         }
 
-        // HACK until we have a service locator or availability to construct this object before the locator is available.
         public static void PreRegisterCommand(string commandString, DebugCommandCallback commandCallback, string category, string help = null) {
             CommandInfo cmd = CommandInfo.CreateCommand(commandString, commandCallback, category, help);
             DebugConsoleService.preRegisteredCommands.Add(commandString, cmd);

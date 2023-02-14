@@ -195,7 +195,7 @@ namespace IPTech.DebugConsoleService.InGameConsole
 			this.inGameConsoleView.Output(message);
 		}
 
-        private void Notify(string message) {
+        public void Notify(string message) {
             if(!string.IsNullOrEmpty(message)) {
                 message = TakeLastLines(message, 10);
                 this.inGameConsoleView.Notify(message);
