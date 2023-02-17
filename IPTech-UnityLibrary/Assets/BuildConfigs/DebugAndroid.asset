@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 789043d1e9b564e41ac8c0228bafba3f, type: 3}
   m_Name: DebugAndroid
   m_EditorClassIdentifier: 
-  OutputPath: 
-  BuildTarget: 0
-  DevelopmentBuild: 0
+  OutputPath: build/DebugAndroid/mygame.apk
+  BuildTarget: 13
+  DevelopmentBuild: 1
   AddGradleWrapper: 0

@@ -12,11 +12,23 @@ namespace IPTech.BuildTool {
         public BuildTarget BuildTarget;
         public bool DevelopmentBuild;
         public bool AddGradleWrapper;
+        public bool UsesNonExemptEncryption;
+        public string BundleId;
 
+        protected virtual void OnEnable() {
+            if(string.IsNullOrEmpty(BundleId)) {
+                BundleId = PlayerSettings.GetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup);
+            }
+        }
         public override void Build(IDictionary<string, string> args) {
             AssertEditorPlatformMatchesBuildTarget();
-            using(new ConfigureGradleWrapperScope(AddGradleWrapper)) {
+            
+            using(new CurrentBuildSettings.Scoped()) {
+                CurrentBuildSettings.Inst.AddGradlewWrapper = AddGradleWrapper;
+                CurrentBuildSettings.Inst.UsesNonExemptEncryption = UsesNonExemptEncryption;
+
                 SetBuildNumber(args);
+                SetBundleId(args);
                 BuildPlayerOptions options = GetBuildPlayerOptions(args);
                 BuildReport buildReport = BuildPipeline.BuildPlayer(options);
                 if(buildReport.summary.result != BuildResult.Succeeded) {
@@ -31,6 +43,10 @@ namespace IPTech.BuildTool {
                 PlayerSettings.iOS.buildNumber = val;
                 PlayerSettings.Android.bundleVersionCode = int.Parse(val);
             }
+        }
+
+        protected void SetBundleId(IDictionary<string,string> args) {
+            PlayerSettings.SetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup, BundleId);
         }
 
         protected virtual BuildPlayerOptions GetBuildPlayerOptions(IDictionary<string, string> args) {
@@ -73,17 +89,6 @@ namespace IPTech.BuildTool {
             }
         }
 
-        protected class ConfigureGradleWrapperScope : IDisposable {
-            readonly bool origSetting;
-
-            public ConfigureGradleWrapperScope(bool enabled) {
-                origSetting = AndroidBuildProcessor.Enabled;
-                AndroidBuildProcessor.Enabled = enabled;
-            }
-
-            public void Dispose() {
-                AndroidBuildProcessor.Enabled = origSetting;
-            }
-        }
+        
     }
 }

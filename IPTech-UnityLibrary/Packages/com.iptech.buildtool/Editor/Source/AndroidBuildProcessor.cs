@@ -8,8 +8,6 @@ using UnityEngine;
 
 namespace IPTech.BuildTool {
     public class AndroidBuildProcessor : IPreprocessBuildWithReport, IPostGenerateGradleAndroidProject {
-		public static bool Enabled = true;
-
 		const string MSG_CREATE_GRADLE_SETTINGS = "Adding a placeholder settings.gradle file so this project will build without detecting the parent gradle project during warmup";
 		const string GRADLE_SETTINGS = "// placeholder settings.gradle file so that this gradle project does not detect the parent gradle project during warmup\n" +
 			"include 'StagingArea'\n" +
@@ -20,13 +18,11 @@ namespace IPTech.BuildTool {
 		public int callbackOrder { get { return int.MinValue; } }
 
 		public void OnPostGenerateGradleAndroidProject(string path) {
-			if(!Enabled) return;
-
 			ConditionallyAddGradleWrapper(path);
 		}
 
 		void ConditionallyAddGradleWrapper(string path) {
-			if(BuildToolsSettings.Inst.AddGradleWrapper) {
+			if(CurrentBuildSettings.Inst.AddGradlewWrapper) {
 				try {
 					string outputPath = CalculateWrapperOutputPath();
 					AndroidTools.AddGradleWrapperToPath(outputPath);
@@ -51,7 +47,7 @@ namespace IPTech.BuildTool {
 		}
 
 		public void OnPreprocessBuild(BuildReport report) {
-			if(!Enabled) return;
+			if(!CurrentBuildSettings.Inst.AddGradlewWrapper) return;
 
 			try {
 				buildReport = report;
