@@ -9,6 +9,7 @@ namespace IPTech.BuildTool {
 
         public string DefaultConfigPath = "BuildConfigs";
         public bool AddGradleWrapper;
+        public bool UsesNonExemptEncryption;
 
         private BuildToolsSettings() {
             AddGradleWrapper = true;
