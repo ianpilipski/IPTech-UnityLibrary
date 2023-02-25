@@ -7,7 +7,11 @@ using UnityEngine;
 namespace IPTech.BuildTool {
     public static class Builder {
         public static void Build() {
-            var args = ParseCommandlineArgs();
+            BuildWithArguments(Environment.CommandLine);
+        }
+
+        public static void BuildWithArguments(string commandlineArguments) {
+            var args = ParseCommandlineArgs(commandlineArguments);
             if(args.TryGetValue("-buildConfig", out string configName)) {
                 ExecuteBuildForConfigName(configName, args);
             } else {
@@ -27,10 +31,9 @@ namespace IPTech.BuildTool {
             throw new Exception($"Could not find BuildConfig with the name {configName}");
         }
 
-        static IDictionary<string,string> ParseCommandlineArgs() {
+        static IDictionary<string,string> ParseCommandlineArgs(string cmdLine) {
             Dictionary<string, string> retVal = new Dictionary<string, string>();
 
-            var cmdLine = Environment.CommandLine;
             if(!string.IsNullOrEmpty(cmdLine)) {
                 var args = cmdLine.Split('-');
                 

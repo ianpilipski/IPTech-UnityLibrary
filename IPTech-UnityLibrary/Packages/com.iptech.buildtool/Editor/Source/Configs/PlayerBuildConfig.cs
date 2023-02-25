@@ -12,6 +12,7 @@ namespace IPTech.BuildTool {
         public BuildTarget BuildTarget;
         public bool DevelopmentBuild;
         public bool AddGradleWrapper;
+        public bool ExportGradleProject;
         public bool UsesNonExemptEncryption;
         public string BundleId;
 
@@ -27,8 +28,7 @@ namespace IPTech.BuildTool {
                 CurrentBuildSettings.Inst.AddGradlewWrapper = AddGradleWrapper;
                 CurrentBuildSettings.Inst.UsesNonExemptEncryption = UsesNonExemptEncryption;
 
-                SetBuildNumber(args);
-                SetBundleId(args);
+                ModifyEditorProperties(args);
                 BuildPlayerOptions options = GetBuildPlayerOptions(args);
                 BuildReport buildReport = BuildPipeline.BuildPlayer(options);
                 if(buildReport.summary.result != BuildResult.Succeeded) {
@@ -37,7 +37,12 @@ namespace IPTech.BuildTool {
             }
         }
 
-        
+        protected virtual void ModifyEditorProperties(IDictionary<string,string> args) {
+            SetBuildNumber(args);
+            SetBundleId(args);
+            EditorUserBuildSettings.exportAsGoogleAndroidProject = ExportGradleProject;
+        }
+
         protected void SetBuildNumber(IDictionary<string,string> args) {
             if(args.TryGetValue("-buildNumber", out string val)) {
                 PlayerSettings.iOS.buildNumber = val;
@@ -84,11 +89,17 @@ namespace IPTech.BuildTool {
     
 
         protected void AssertEditorPlatformMatchesBuildTarget() {
-            if(EditorUserBuildSettings.activeBuildTarget!=BuildTarget) {
-                throw new System.Exception("The editor buildTarget does not match the buildConfig buildTarget, launch the editor with -buildTarget");
+            if(!CanBuildWithCurrentEditorBuildTarget()) {
+                throw new System.Exception($"The editor buildTarget does not match the buildConfig buildTarget.\n" +
+                    $"Editor: {EditorUserBuildSettings.activeBuildTarget}\n" +
+                    $"BuildConfig:{BuildTarget}\n"+
+                    "Switch or launch the editor with -buildTarget");
             }
         }
 
-        
+        public override bool CanBuildWithCurrentEditorBuildTarget() {
+            return EditorUserBuildSettings.activeBuildTarget == BuildTarget;
+        }
+
     }
 }

@@ -16,9 +16,12 @@ namespace IPTech.BuildTool {
         int selectedBuildType;
         string[] buildTypeNames;
 
-        [SerializeField]
-        List<int> stateList;
+        [SerializeField] List<int> stateList;
+        [SerializeField] bool isDirty;
+        [SerializeField] string buildArgments;
+
         bool needsRefresh;
+        bool isBuilding;
 
         [MenuItem("Window/IPTech/Build Tool")]
         public static void ShowWindow() {
@@ -38,6 +41,12 @@ namespace IPTech.BuildTool {
         void ReloadConfigs() {
             var bcs = Resources.FindObjectsOfTypeAll<BuildConfig>();
             buildConfigs = bcs.ToList();
+            for(int i=buildConfigs.Count-1;i>=0;i--) {
+                var bc = buildConfigs[i];
+                if(!AssetDatabase.TryGetGUIDAndLocalFileIdentifier(bc.GetInstanceID(), out string _, out long __)) {
+                    buildConfigs.RemoveAt(i);
+                }
+            }
             needsRefresh = false;
         }
 
@@ -76,6 +85,8 @@ namespace IPTech.BuildTool {
             EditorGUI.BeginChangeCheck();
             BuildToolsSettings.Inst.AddGradleWrapper = EditorGUILayout.Toggle("Add Gradle Wrapper To Unity Builds", BuildToolsSettings.Inst.AddGradleWrapper);
             BuildToolsSettings.Inst.DefaultConfigPath = EditorGUILayout.TextField("Default Config Path", BuildToolsSettings.Inst.DefaultConfigPath);
+            BuildToolsSettings.Inst.BuildInEditorArguments = EditorGUILayout.TextField("Build in editor arguments", BuildToolsSettings.Inst.BuildInEditorArguments);
+
             if(EditorGUI.EndChangeCheck()) {
                 BuildToolsSettings.Save();
             }
@@ -90,16 +101,24 @@ namespace IPTech.BuildTool {
                         continue;
                     }
                     bool isExpanded = stateList.Contains(bc.GetInstanceID());
-                    
-                    var newExpanded = EditorGUILayout.Foldout(isExpanded, bc.name);
-                    if(newExpanded != isExpanded) {
-                        if(isExpanded) {
-                            stateList.Remove(bc.GetInstanceID());
-                        } else {
-                            stateList.Add(bc.GetInstanceID());
+
+                    bool newExpanded = isExpanded;
+                    using(new EditorGUILayout.HorizontalScope()) {
+                        newExpanded = EditorGUILayout.Foldout(isExpanded, bc.name);
+                        if(newExpanded != isExpanded) {
+                            if(isExpanded) {
+                                stateList.Remove(bc.GetInstanceID());
+                            } else {
+                                stateList.Add(bc.GetInstanceID());
+                            }
+                            isExpanded = newExpanded;
                         }
-                        isExpanded = newExpanded;
+                        if(!isExpanded) {
+                            DrawBuildButton(bc);
+                            DrawDeleteBuildConfigButton(bc);
+                        }
                     }
+
 
                     if(isExpanded) {
                         using(new EditorGUI.IndentLevelScope()) {
@@ -113,6 +132,12 @@ namespace IPTech.BuildTool {
                             }
                             var ed = Editor.CreateEditor(bc);
                             ed.OnInspectorGUI();
+                            isDirty = isDirty || EditorUtility.IsDirty(bc.GetInstanceID());
+                            using(new EditorGUILayout.HorizontalScope()) {
+                                GUILayout.FlexibleSpace();
+                                DrawBuildButton(bc);
+                                DrawDeleteBuildConfigButton(bc);
+                            }
                         }
                     }
                 }
@@ -125,28 +150,116 @@ namespace IPTech.BuildTool {
                         selectedBuildType = 0;
                         CreateNewBuildType(t);
                     }
+                    using(new EditorGUI.DisabledScope(!isDirty)) {
+                        if(GUILayout.Button("Save")) {
+                            foreach(var bc in buildConfigs) {
+                                if(AssetDatabase.TryGetGUIDAndLocalFileIdentifier(bc.GetInstanceID(), out string guid, out long _)) {
+                                    AssetDatabase.SaveAssetIfDirty(new GUID(guid));
+                                }
+                            }
+                            isDirty = false;
+                        }
+                    }
                 }
             }
         }
 
-        void CreateNewBuildType(Type type) {
-            BuildConfig newConfig = (BuildConfig)ScriptableObject.CreateInstance(type.FullName);
-            AssetDatabase.CreateAsset(newConfig, GetNewBuildConfigAssetPath());
-            AssetDatabase.SaveAssets();
+        void DrawDeleteBuildConfigButton(BuildConfig bc) {
+            if(GUILayout.Button("delete", GUILayout.Width(75))) {
+                DeleteBuildConfig(bc);
+            }
+        }
+
+        void DeleteBuildConfig(BuildConfig bc) {
             EditorApplication.delayCall += () => {
-                ReloadConfigs();
+                string path = AssetDatabase.GetAssetPath(bc);
+                AssetDatabase.DeleteAsset(path);
+                buildConfigs.Remove(bc);
             };
         }
 
-        string GetNewBuildConfigAssetPath() {
-            int counter = 0;
-            string newName = "BuildConfig.asset";
-            while(File.Exists(Path.Combine(Application.dataPath, BuildToolsSettings.Inst.DefaultConfigPath, newName))) {
-                counter++;
-                newName = $"BuildConfig_{counter}";
+        void DrawBuildButton(BuildConfig bc) {
+            using(new EditorGUI.DisabledScope(isBuilding || !bc.CanBuildWithCurrentEditorBuildTarget())) {
+                if(GUILayout.Button("build", GUILayout.Width(75))) {
+                    isBuilding = true;
+                    EditorApplication.delayCall += () => PerformBuild(bc);
+                }
             }
-            return Path.Combine("Assets", BuildToolsSettings.Inst.DefaultConfigPath, newName);
         }
 
+        void PerformBuild(BuildConfig bc) {
+            try {
+                string path = AssetDatabase.GetAssetPath(bc);
+                GUID guid = AssetDatabase.GUIDFromAssetPath(path);
+                AssetDatabase.SaveAssetIfDirty(guid);
+
+                string args = $"-buildConfig {bc.name} {buildArgments}";
+                Builder.BuildWithArguments(args);
+            } catch(Exception e) {
+                Debug.LogException(e);
+                EditorUtility.DisplayDialog("Error Building", e.Message, "Ok");
+            } finally {
+                isBuilding = false;
+            }
+        }
+
+        void CreateNewBuildType(Type type) {
+            string name = EditorUtility.SaveFilePanel("Config Name", Path.Combine("Assets", GetBuildConfigFolderPath()), "NewBuildConfig", ".asset");
+            if(!string.IsNullOrEmpty(name)) {
+                if(TryGetAssetRelativeBuildConfigPath(name, out string destFolder)) {
+                    destFolder = Path.Combine("Assets", destFolder);
+                    var fileName = GetSanitizedFileName(name);
+                    if(!File.Exists(Path.Combine(destFolder, fileName))) {
+                        UpdateDefaultBuildConfigPath(destFolder);
+
+                        BuildConfig newConfig = (BuildConfig)ScriptableObject.CreateInstance(type.FullName);
+                        if(!Directory.Exists(destFolder)) {
+                            Directory.CreateDirectory(destFolder);
+                        }
+                        AssetDatabase.CreateAsset(newConfig, Path.Combine(destFolder, fileName + ".asset"));
+                        AssetDatabase.SaveAssets();
+                        EditorApplication.delayCall += () => {
+                            ReloadConfigs();
+                        };
+                    } else {
+                        EditorUtility.DisplayDialog("File Already Exists", "That file already exists, you must supply a unique file name.", "Ok");
+                    }
+                } else {
+                    EditorUtility.DisplayDialog("Invalid Path", "You must supply a path within the unity project assets folder.", "Ok");
+                }
+            }
+        }
+
+        bool TryGetAssetRelativeBuildConfigPath(string newFullPath, out string relativePath) {
+            string destFolder = Path.GetDirectoryName(newFullPath);
+            var dataPath = Path.GetFullPath(Application.dataPath);
+            if(destFolder.StartsWith(dataPath)) {
+                if(destFolder.Length > dataPath.Length) {
+                    relativePath = destFolder.Substring(dataPath.Length + 1);
+                } else {
+                    relativePath = "";
+                }
+                return true;
+            }
+            relativePath = null;
+            return false;
+        }
+
+        void UpdateDefaultBuildConfigPath(string newRelativePath) {
+            BuildToolsSettings.Inst.DefaultConfigPath = newRelativePath;
+            BuildToolsSettings.Save();
+        }
+
+        string GetBuildConfigFolderPath() {
+            return Path.Combine("Assets", BuildToolsSettings.Inst.DefaultConfigPath);
+        }
+
+        string GetSanitizedFileName(string newFilePath) {
+            var fileName = Path.GetFileName(newFilePath);
+            if(fileName.ToUpper().EndsWith(".ASSET")) {
+                fileName = fileName.Substring(0, fileName.Length - ".asset".Length);
+            }
+            return fileName;
+        }
     }
 }
