@@ -29,6 +29,8 @@ namespace IPTech.BuildTool {
             readonly string buildNumber;
             readonly int bundleVersionCode;
             readonly string applicationIdentifier;
+            readonly iOSSdkVersion iOSSdkVersion;
+            readonly int overrideMaxTextureSize;
 
             public Scoped() {
                 if(_inst==null) {
@@ -40,6 +42,8 @@ namespace IPTech.BuildTool {
                 buildNumber = PlayerSettings.iOS.buildNumber;
                 bundleVersionCode = PlayerSettings.Android.bundleVersionCode;
                 applicationIdentifier = PlayerSettings.GetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup);
+                iOSSdkVersion = PlayerSettings.iOS.sdkVersion;
+                overrideMaxTextureSize = EditorUserBuildSettings.overrideMaxTextureSize;
             }
 
             public void Dispose() {
@@ -49,6 +53,8 @@ namespace IPTech.BuildTool {
                 PlayerSettings.iOS.buildNumber = buildNumber;
                 PlayerSettings.Android.bundleVersionCode = bundleVersionCode;
                 PlayerSettings.SetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup, applicationIdentifier);
+                PlayerSettings.iOS.sdkVersion = iOSSdkVersion;
+                EditorUserBuildSettings.overrideMaxTextureSize = overrideMaxTextureSize;
             }
         }
     }

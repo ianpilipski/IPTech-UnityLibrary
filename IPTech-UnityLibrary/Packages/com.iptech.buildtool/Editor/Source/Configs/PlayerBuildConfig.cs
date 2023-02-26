@@ -15,6 +15,18 @@ namespace IPTech.BuildTool {
         public bool ExportGradleProject;
         public bool UsesNonExemptEncryption;
         public string BundleId;
+        public iOSSdkVersion TargetSDK;
+        public EMaxTextureSize OverrideMaxTextureSize;
+
+        public enum EMaxTextureSize {
+            NoOverride = 0,
+            Max64 = 64,
+            Max128 = 128,
+            Max256 = 256,
+            Max512 = 512,
+            Max1024 = 1024,
+            Max2048 = 2048
+        }
 
         protected virtual void OnEnable() {
             if(string.IsNullOrEmpty(BundleId)) {
@@ -41,6 +53,8 @@ namespace IPTech.BuildTool {
             SetBuildNumber(args);
             SetBundleId(args);
             EditorUserBuildSettings.exportAsGoogleAndroidProject = ExportGradleProject;
+            PlayerSettings.iOS.sdkVersion = TargetSDK;
+            EditorUserBuildSettings.overrideMaxTextureSize = (int)OverrideMaxTextureSize;
         }
 
         protected void SetBuildNumber(IDictionary<string,string> args) {
