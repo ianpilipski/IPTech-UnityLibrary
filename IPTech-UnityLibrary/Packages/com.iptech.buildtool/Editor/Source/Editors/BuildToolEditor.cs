@@ -20,6 +20,7 @@ namespace IPTech.BuildTool {
         [SerializeField] List<int> stateList;
         [SerializeField] bool isDirty;
         [SerializeField] string buildArgments;
+        [SerializeField] Vector2 scrollPos;
 
         bool needsRefresh;
         bool isBuilding;
@@ -92,6 +93,7 @@ namespace IPTech.BuildTool {
 
             EditorGUILayout.LabelField("Build Tool Settings");
             EditorGUI.BeginChangeCheck();
+            BuildToolsSettings.Inst.UsesNonExemptEncryption = EditorGUILayout.Toggle("Uses Non Exempt Encryption", BuildToolsSettings.Inst.UsesNonExemptEncryption);
             BuildToolsSettings.Inst.AddGradleWrapper = EditorGUILayout.Toggle("Add Gradle Wrapper To Unity Builds", BuildToolsSettings.Inst.AddGradleWrapper);
             BuildToolsSettings.Inst.DefaultConfigPath = EditorGUILayout.TextField("Default Config Path", BuildToolsSettings.Inst.DefaultConfigPath);
             BuildToolsSettings.Inst.BuildInEditorArguments = EditorGUILayout.TextField("Build in editor arguments", BuildToolsSettings.Inst.BuildInEditorArguments);
@@ -101,7 +103,10 @@ namespace IPTech.BuildTool {
 
             EditorGUILayout.Separator();
             EditorGUILayout.LabelField("Build Configs");
-            DrawBuildConfigs();
+            using(var sv = new EditorGUILayout.ScrollViewScope(scrollPos, GUILayout.ExpandHeight(true))) {
+                DrawBuildConfigs();
+                scrollPos = sv.scrollPosition;
+            }
 
             EditorGUILayout.Separator();
             DrawFooter();
