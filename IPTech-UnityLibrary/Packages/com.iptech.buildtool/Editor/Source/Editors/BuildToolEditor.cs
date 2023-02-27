@@ -7,14 +7,15 @@ using UnityEditor;
 using UnityEngine;
 
 namespace IPTech.BuildTool {
-    public class BuildConfigEditor : EditorWindow {
+    public class BuildToolEditor : EditorWindow {
         const string CREATE_NEW = "Create New";
-        static BuildConfigEditor instance;
+        static BuildToolEditor instance;
 
         List<BuildConfig> buildConfigs;
         List<Type> buildTypes;
         int selectedBuildType;
         string[] buildTypeNames;
+        Dictionary<BuildConfig, Editor> editors = new Dictionary<BuildConfig, Editor>();
 
         [SerializeField] List<int> stateList;
         [SerializeField] bool isDirty;
@@ -25,7 +26,7 @@ namespace IPTech.BuildTool {
 
         [MenuItem("Window/IPTech/Build Tool")]
         public static void ShowWindow() {
-            instance = EditorWindow.GetWindow<BuildConfigEditor>("Build Tool");
+            instance = EditorWindow.GetWindow<BuildToolEditor>("Build Tool");
             instance.Show();
         }
 
@@ -39,15 +40,24 @@ namespace IPTech.BuildTool {
 
 
         void ReloadConfigs() {
-            var bcs = Resources.FindObjectsOfTypeAll<BuildConfig>();
-            buildConfigs = bcs.ToList();
-            for(int i=buildConfigs.Count-1;i>=0;i--) {
-                var bc = buildConfigs[i];
-                if(!AssetDatabase.TryGetGUIDAndLocalFileIdentifier(bc.GetInstanceID(), out string _, out long __)) {
-                    buildConfigs.RemoveAt(i);
+            ClearBuildConfigs();
+            PopulateBuildConfigs();
+            needsRefresh = false;
+
+            void ClearBuildConfigs() {
+                if(buildConfigs == null) {
+                    buildConfigs = new List<BuildConfig>();
+                } else {
+                    buildConfigs.Clear();
                 }
             }
-            needsRefresh = false;
+
+            void PopulateBuildConfigs() {
+                var bcguids = AssetDatabase.FindAssets("t:IPTech.BuildTool.BuildConfig");
+                foreach(var guid in bcguids) {
+                    buildConfigs.Add((BuildConfig)AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath(guid)));
+                }
+            }
         }
 
         void GenerateBuildConfigTypeDropDown() {
@@ -81,67 +91,83 @@ namespace IPTech.BuildTool {
             }
 
             EditorGUILayout.LabelField("Build Tool Settings");
-
             EditorGUI.BeginChangeCheck();
             BuildToolsSettings.Inst.AddGradleWrapper = EditorGUILayout.Toggle("Add Gradle Wrapper To Unity Builds", BuildToolsSettings.Inst.AddGradleWrapper);
             BuildToolsSettings.Inst.DefaultConfigPath = EditorGUILayout.TextField("Default Config Path", BuildToolsSettings.Inst.DefaultConfigPath);
             BuildToolsSettings.Inst.BuildInEditorArguments = EditorGUILayout.TextField("Build in editor arguments", BuildToolsSettings.Inst.BuildInEditorArguments);
-
             if(EditorGUI.EndChangeCheck()) {
                 BuildToolsSettings.Save();
             }
 
             EditorGUILayout.Separator();
-
             EditorGUILayout.LabelField("Build Configs");
-            using(new EditorGUI.IndentLevelScope()) {
-                foreach(var bc in buildConfigs) {
-                    if(bc == null) {
-                        needsRefresh = true;
-                        continue;
-                    }
-                    bool isExpanded = stateList.Contains(bc.GetInstanceID());
+            DrawBuildConfigs();
 
-                    bool newExpanded = isExpanded;
-                    using(new EditorGUILayout.HorizontalScope()) {
-                        newExpanded = EditorGUILayout.Foldout(isExpanded, bc.name);
-                        if(newExpanded != isExpanded) {
-                            if(isExpanded) {
-                                stateList.Remove(bc.GetInstanceID());
-                            } else {
-                                stateList.Add(bc.GetInstanceID());
-                            }
-                            isExpanded = newExpanded;
+            EditorGUILayout.Separator();
+            DrawFooter();
+
+            void DrawBuildConfigs() {
+                using(new EditorGUI.IndentLevelScope()) {
+                    foreach(var bc in buildConfigs) {
+                        if(bc == null) {
+                            needsRefresh = true;
+                            continue;
                         }
-                        if(!isExpanded) {
-                            DrawBuildButton(bc);
-                            DrawDeleteBuildConfigButton(bc);
-                        }
-                    }
+                        bool isExpanded = stateList.Contains(bc.GetInstanceID());
 
-
-                    if(isExpanded) {
-                        using(new EditorGUI.IndentLevelScope()) {
-                            var rect = EditorGUILayout.GetControlRect();
-                            var offset = (EditorGUI.indentLevel * 15F);
-                            rect.x = rect.x + offset;
-                            rect.width = rect.width - offset;
-                            if(GUI.Button(rect, AssetDatabase.GetAssetPath(bc.GetInstanceID()))) {
-                                //Selection.objects = new UnityEngine.Object[] { bc };
-                                EditorGUIUtility.PingObject(bc.GetInstanceID());
+                        bool newExpanded = isExpanded;
+                        using(new EditorGUILayout.HorizontalScope()) {
+                            newExpanded = EditorGUILayout.Foldout(isExpanded, bc.name);
+                            if(newExpanded != isExpanded) {
+                                if(isExpanded) {
+                                    stateList.Remove(bc.GetInstanceID());
+                                } else {
+                                    stateList.Add(bc.GetInstanceID());
+                                }
+                                isExpanded = newExpanded;
                             }
-                            var ed = Editor.CreateEditor(bc);
-                            ed.OnInspectorGUI();
-                            isDirty = isDirty || EditorUtility.IsDirty(bc.GetInstanceID());
-                            using(new EditorGUILayout.HorizontalScope()) {
-                                GUILayout.FlexibleSpace();
+                            if(!isExpanded) {
                                 DrawBuildButton(bc);
                                 DrawDeleteBuildConfigButton(bc);
                             }
                         }
+
+                        if(isExpanded) {
+                            using(new EditorGUI.IndentLevelScope()) {
+                                var rect = EditorGUILayout.GetControlRect();
+                                var offset = (EditorGUI.indentLevel * 15F);
+                                rect.x = rect.x + offset;
+                                rect.width = rect.width - offset;
+                                if(GUI.Button(rect, AssetDatabase.GetAssetPath(bc.GetInstanceID()))) {
+                                    //Selection.objects = new UnityEngine.Object[] { bc };
+                                    EditorGUIUtility.PingObject(bc.GetInstanceID());
+                                }
+                                var ed = GetEditor(bc);                               
+                                ed.OnInspectorGUI();
+                                //ed.serializedObject.ApplyModifiedProperties();
+                                isDirty = isDirty || EditorUtility.IsDirty(bc.GetInstanceID());
+                                using(new EditorGUILayout.HorizontalScope()) {
+                                    GUILayout.FlexibleSpace();
+                                    DrawBuildButton(bc);
+                                    DrawDeleteBuildConfigButton(bc);
+                                }
+                            }
+                        }
                     }
                 }
+            }
 
+            Editor GetEditor(BuildConfig bc) {
+                if(editors.TryGetValue(bc, out Editor ed)) {
+                    return ed;
+                }
+
+                var newEd = Editor.CreateEditor(bc);
+                editors.Add(bc, newEd);
+                return newEd;
+            }
+
+            void DrawFooter() {
                 using(new EditorGUILayout.HorizontalScope()) {
                     GUILayout.FlexibleSpace();
                     selectedBuildType = EditorGUILayout.Popup(selectedBuildType, buildTypeNames);
