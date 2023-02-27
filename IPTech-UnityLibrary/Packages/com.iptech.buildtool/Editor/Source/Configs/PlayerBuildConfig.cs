@@ -11,25 +11,15 @@ namespace IPTech.BuildTool {
         public string OutputPath;
         public BuildTarget BuildTarget;
         public bool DevelopmentBuild;
-        public bool AddGradleWrapper;
-        public bool UsesNonExemptEncryption;
-        public string BundleId;
         
         Stack<ConfigModifier> undoModifiers = new Stack<ConfigModifier>();
 
-        protected virtual void OnEnable() {
-            if(string.IsNullOrEmpty(BundleId)) {
-                BundleId = PlayerSettings.GetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup);
-            }
-        }
+        
         public override void Build(IDictionary<string, string> args) {
             AssertEditorPlatformMatchesBuildTarget();
 
             using(new CurrentBuildSettings.Scoped()) {
                 try {
-                    CurrentBuildSettings.Inst.AddGradlewWrapper = AddGradleWrapper;
-                    CurrentBuildSettings.Inst.UsesNonExemptEncryption = UsesNonExemptEncryption;
-
                     ModifyEditorProperties(args);
                     BuildPlayerOptions options = GetBuildPlayerOptions(args);
                     BuildReport buildReport = BuildPipeline.BuildPlayer(options);
@@ -46,17 +36,20 @@ namespace IPTech.BuildTool {
 
         protected virtual void ModifyEditorProperties(IDictionary<string,string> args) {
             SetBuildNumber(args);
-            SetBundleId(args);
             
             foreach(var cm in ConfigModifiers) {
                 try {
-                    cm.ModifyProject();
-                    undoModifiers.Push(cm);
+                    ApplyModification(cm);
                 } catch {
                     UndoModifications(false);
                     throw;
                 }
             }
+        }
+
+        void ApplyModification(ConfigModifier modifier) {
+            modifier.ModifyProject();
+            undoModifiers.Push(modifier);
         }
 
         void UndoModifications(bool throwOnError = true) {
@@ -81,10 +74,6 @@ namespace IPTech.BuildTool {
                 PlayerSettings.iOS.buildNumber = val;
                 PlayerSettings.Android.bundleVersionCode = int.Parse(val);
             }
-        }
-
-        protected void SetBundleId(IDictionary<string,string> args) {
-            PlayerSettings.SetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup, BundleId);
         }
 
         protected virtual BuildPlayerOptions GetBuildPlayerOptions(IDictionary<string, string> args) {

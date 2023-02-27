@@ -24,28 +24,18 @@ namespace IPTech.BuildTool {
         }
 
         public class Scoped : IDisposable {
-            readonly CurrentBuildSettings origInst;
             readonly string buildNumber;
             readonly int bundleVersionCode;
-            readonly string applicationIdentifier;
             
             public Scoped() {
-                if(_inst==null) {
-                    _ = Inst;
-                }
-                origInst = (CurrentBuildSettings)_inst.MemberwiseClone();
-
                 buildNumber = PlayerSettings.iOS.buildNumber;
                 bundleVersionCode = PlayerSettings.Android.bundleVersionCode;
-                applicationIdentifier = PlayerSettings.GetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup);
             }
 
             public void Dispose() {
-                _inst = origInst;
-
                 PlayerSettings.iOS.buildNumber = buildNumber;
                 PlayerSettings.Android.bundleVersionCode = bundleVersionCode;
-                PlayerSettings.SetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup, applicationIdentifier);
+                
             }
         }
     }
