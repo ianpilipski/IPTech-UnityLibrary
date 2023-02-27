@@ -31,7 +31,7 @@ namespace IPTech.BuildTool {
             readonly string applicationIdentifier;
             readonly iOSSdkVersion iOSSdkVersion;
             readonly int overrideMaxTextureSize;
-
+            
             public Scoped() {
                 if(_inst==null) {
                     _ = Inst;

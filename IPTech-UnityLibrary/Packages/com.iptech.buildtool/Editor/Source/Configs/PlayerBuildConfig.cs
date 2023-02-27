@@ -28,6 +28,8 @@ namespace IPTech.BuildTool {
             Max2048 = 2048
         }
 
+        Stack<ConfigModifier> undoModifiers = new Stack<ConfigModifier>();
+
         protected virtual void OnEnable() {
             if(string.IsNullOrEmpty(BundleId)) {
                 BundleId = PlayerSettings.GetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup);
@@ -35,16 +37,22 @@ namespace IPTech.BuildTool {
         }
         public override void Build(IDictionary<string, string> args) {
             AssertEditorPlatformMatchesBuildTarget();
-            
-            using(new CurrentBuildSettings.Scoped()) {
-                CurrentBuildSettings.Inst.AddGradlewWrapper = AddGradleWrapper;
-                CurrentBuildSettings.Inst.UsesNonExemptEncryption = UsesNonExemptEncryption;
 
-                ModifyEditorProperties(args);
-                BuildPlayerOptions options = GetBuildPlayerOptions(args);
-                BuildReport buildReport = BuildPipeline.BuildPlayer(options);
-                if(buildReport.summary.result != BuildResult.Succeeded) {
-                    throw new System.Exception("Build Failed");
+            using(new CurrentBuildSettings.Scoped()) {
+                try {
+                    CurrentBuildSettings.Inst.AddGradlewWrapper = AddGradleWrapper;
+                    CurrentBuildSettings.Inst.UsesNonExemptEncryption = UsesNonExemptEncryption;
+
+                    ModifyEditorProperties(args);
+                    BuildPlayerOptions options = GetBuildPlayerOptions(args);
+                    BuildReport buildReport = BuildPipeline.BuildPlayer(options);
+                    if(buildReport.summary.result != BuildResult.Succeeded) {
+                        throw new System.Exception("Build Failed");
+                    }
+
+                    UndoModifications();
+                } finally {
+                    UndoModifications(false);
                 }
             }
         }
@@ -55,6 +63,33 @@ namespace IPTech.BuildTool {
             EditorUserBuildSettings.exportAsGoogleAndroidProject = ExportGradleProject;
             PlayerSettings.iOS.sdkVersion = TargetSDK;
             EditorUserBuildSettings.overrideMaxTextureSize = (int)OverrideMaxTextureSize;
+
+            foreach(var cm in ConfigModifiers) {
+                try {
+                    cm.ModifyProject();
+                    undoModifiers.Push(cm);
+                } catch {
+                    UndoModifications(false);
+                    throw;
+                }
+            }
+        }
+
+        void UndoModifications(bool throwOnError = true) {
+            bool hadError = false;
+            while(undoModifiers.Count>0) {
+                var cm = undoModifiers.Pop();
+                try {
+                    cm.RestoreProject();
+                } catch(Exception e) {
+                    hadError = true;
+                    Debug.LogException(e);
+                }
+            }
+
+            if(hadError && throwOnError) {
+                throw new Exception("Failed to undo some of the project modifications!!!!");
+            }
         }
 
         protected void SetBuildNumber(IDictionary<string,string> args) {
@@ -70,19 +105,23 @@ namespace IPTech.BuildTool {
 
         protected virtual BuildPlayerOptions GetBuildPlayerOptions(IDictionary<string, string> args) {
             return new BuildPlayerOptions {
-                locationPathName = GetOutputPath(),
+                locationPathName = GetOutputPath(args),
                 options = GetBuildOptions(),
                 scenes = GetScenes(),
                 target = BuildTarget
             };
         }
         
-        protected string GetOutputPath() {
+        protected string GetOutputPath(IDictionary<string,string> args) {
             string retVal = OutputPath;
+            
+            if(args.TryGetValue("-outputDir", out string value)) {
+                retVal = value;
+            }
+
             if(string.IsNullOrEmpty(retVal)) {
                 retVal = $"build/{name}";
             }
-
             return retVal;
         }
 
