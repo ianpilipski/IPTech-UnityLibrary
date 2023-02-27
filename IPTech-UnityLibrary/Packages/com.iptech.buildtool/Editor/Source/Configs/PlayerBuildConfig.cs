@@ -20,8 +20,8 @@ namespace IPTech.BuildTool {
 
             using(new CurrentBuildSettings.Scoped()) {
                 try {
-                    ModifyEditorProperties(args);
                     BuildPlayerOptions options = GetBuildPlayerOptions(args);
+                    options = ModifyEditorProperties(args, options);
                     BuildReport buildReport = BuildPipeline.BuildPlayer(options);
                     if(buildReport.summary.result != BuildResult.Succeeded) {
                         throw new System.Exception("Build Failed");
@@ -34,22 +34,25 @@ namespace IPTech.BuildTool {
             }
         }
 
-        protected virtual void ModifyEditorProperties(IDictionary<string,string> args) {
+        protected virtual BuildPlayerOptions ModifyEditorProperties(IDictionary<string,string> args, BuildPlayerOptions options) {
             SetBuildNumber(args);
             
             foreach(var cm in ConfigModifiers) {
                 try {
-                    ApplyModification(cm);
+                    options = ApplyModification(cm, options);
                 } catch {
                     UndoModifications(false);
                     throw;
                 }
             }
+            return options;
         }
 
-        void ApplyModification(ConfigModifier modifier) {
+        BuildPlayerOptions ApplyModification(ConfigModifier modifier, BuildPlayerOptions options) {
+            Debug.Log($"[IPTech.BuildTool] {modifier.name} modifying build properties.");
             modifier.ModifyProject();
             undoModifiers.Push(modifier);
+            return modifier.ModifyBuildPlayerOptions(options);
         }
 
         void UndoModifications(bool throwOnError = true) {
@@ -57,6 +60,7 @@ namespace IPTech.BuildTool {
             while(undoModifiers.Count>0) {
                 var cm = undoModifiers.Pop();
                 try {
+                    Debug.Log($"[IPTech.BuildTool] {cm.name} restoring build properties.");
                     cm.RestoreProject();
                 } catch(Exception e) {
                     hadError = true;
