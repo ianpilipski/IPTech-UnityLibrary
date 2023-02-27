@@ -14,7 +14,6 @@ namespace IPTech.BuildTool {
         public bool AddGradleWrapper;
         public bool UsesNonExemptEncryption;
         public string BundleId;
-        public iOSSdkVersion TargetSDK;
         public EMaxTextureSize OverrideMaxTextureSize;
 
         public enum EMaxTextureSize {
@@ -59,7 +58,6 @@ namespace IPTech.BuildTool {
         protected virtual void ModifyEditorProperties(IDictionary<string,string> args) {
             SetBuildNumber(args);
             SetBundleId(args);
-            PlayerSettings.iOS.sdkVersion = TargetSDK;
             EditorUserBuildSettings.overrideMaxTextureSize = (int)OverrideMaxTextureSize;
 
             foreach(var cm in ConfigModifiers) {
