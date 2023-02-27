@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 
 namespace IPTech.BuildTool {
-    public class ConfigModifierOverideMaxTextureSize : ConfigModifier {
+    public class ConfigModifierOverrideMaxTextureSize : ConfigModifier {
         public EMaxTextureSize OverrideMaxTextureSize;
 
         public enum EMaxTextureSize {
