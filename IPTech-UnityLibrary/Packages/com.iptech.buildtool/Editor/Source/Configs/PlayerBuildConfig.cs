@@ -14,18 +14,7 @@ namespace IPTech.BuildTool {
         public bool AddGradleWrapper;
         public bool UsesNonExemptEncryption;
         public string BundleId;
-        public EMaxTextureSize OverrideMaxTextureSize;
-
-        public enum EMaxTextureSize {
-            NoOverride = 0,
-            Max64 = 64,
-            Max128 = 128,
-            Max256 = 256,
-            Max512 = 512,
-            Max1024 = 1024,
-            Max2048 = 2048
-        }
-
+        
         Stack<ConfigModifier> undoModifiers = new Stack<ConfigModifier>();
 
         protected virtual void OnEnable() {
@@ -58,8 +47,7 @@ namespace IPTech.BuildTool {
         protected virtual void ModifyEditorProperties(IDictionary<string,string> args) {
             SetBuildNumber(args);
             SetBundleId(args);
-            EditorUserBuildSettings.overrideMaxTextureSize = (int)OverrideMaxTextureSize;
-
+            
             foreach(var cm in ConfigModifiers) {
                 try {
                     cm.ModifyProject();
