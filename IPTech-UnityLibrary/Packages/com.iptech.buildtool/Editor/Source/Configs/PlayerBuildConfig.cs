@@ -12,7 +12,6 @@ namespace IPTech.BuildTool {
         public BuildTarget BuildTarget;
         public bool DevelopmentBuild;
         public bool AddGradleWrapper;
-        public bool ExportGradleProject;
         public bool UsesNonExemptEncryption;
         public string BundleId;
         public iOSSdkVersion TargetSDK;
@@ -60,7 +59,6 @@ namespace IPTech.BuildTool {
         protected virtual void ModifyEditorProperties(IDictionary<string,string> args) {
             SetBuildNumber(args);
             SetBundleId(args);
-            EditorUserBuildSettings.exportAsGoogleAndroidProject = ExportGradleProject;
             PlayerSettings.iOS.sdkVersion = TargetSDK;
             EditorUserBuildSettings.overrideMaxTextureSize = (int)OverrideMaxTextureSize;
 

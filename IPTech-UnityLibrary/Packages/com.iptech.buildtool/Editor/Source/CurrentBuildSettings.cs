@@ -25,7 +25,6 @@ namespace IPTech.BuildTool {
 
         public class Scoped : IDisposable {
             readonly CurrentBuildSettings origInst;
-            readonly bool exportAsGoogleAndroidProject;
             readonly string buildNumber;
             readonly int bundleVersionCode;
             readonly string applicationIdentifier;
@@ -38,7 +37,6 @@ namespace IPTech.BuildTool {
                 }
                 origInst = (CurrentBuildSettings)_inst.MemberwiseClone();
 
-                exportAsGoogleAndroidProject = EditorUserBuildSettings.exportAsGoogleAndroidProject;
                 buildNumber = PlayerSettings.iOS.buildNumber;
                 bundleVersionCode = PlayerSettings.Android.bundleVersionCode;
                 applicationIdentifier = PlayerSettings.GetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup);
@@ -49,7 +47,6 @@ namespace IPTech.BuildTool {
             public void Dispose() {
                 _inst = origInst;
 
-                EditorUserBuildSettings.exportAsGoogleAndroidProject = exportAsGoogleAndroidProject;
                 PlayerSettings.iOS.buildNumber = buildNumber;
                 PlayerSettings.Android.bundleVersionCode = bundleVersionCode;
                 PlayerSettings.SetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup, applicationIdentifier);
