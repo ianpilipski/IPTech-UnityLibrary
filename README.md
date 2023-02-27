@@ -9,6 +9,7 @@ Modify your Packages/manifest.json file to include the package you would like.
 ```
 dependencies {
     "com.iptech.audio": "https://github.com/ianpilipski/IPTech-UnityLibrary.git?path=/IPTech-UnityLibrary/Packages/com.iptech.audio",
+    "com.iptech.buildtool": "https://github.com/ianpilipski/IPTech-UnityLibrary.git?path=/IPTech-UnityLibrary/Packages/com.iptech.buildtool",
     "com.iptech.coroutines": "https://github.com/ianpilipski/IPTech-UnityLibrary.git?path=/IPTech-UnityLibrary/Packages/com.iptech.coroutines",
     "com.iptech.debugtools": "https://github.com/ianpilipski/IPTech-UnityLibrary.git?path=/IPTech-UnityLibrary/Packages/com.iptech.debugtools",
     "com.iptech.fonts": "https://github.com/ianpilipski/IPTech-UnityLibrary.git?path=/IPTech-UnityLibrary/Packages/com.iptech.fonts",
