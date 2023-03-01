@@ -13,13 +13,15 @@ namespace IPTech.BuildTool {
         public bool DevelopmentBuild;
         
         Stack<ConfigModifier> undoModifiers = new Stack<ConfigModifier>();
-
+        List<ConfigModifier> configModifiers;
         
         public override void Build(IDictionary<string, string> args) {
             AssertEditorPlatformMatchesBuildTarget();
-
+            
             using(new CurrentBuildSettings.Scoped()) {
                 try {
+                    InstanceConfigModifiers();
+
                     BuildPlayerOptions options = GetBuildPlayerOptions(args);
                     options = ModifyEditorProperties(args, options);
                     BuildReport buildReport = BuildPipeline.BuildPlayer(options);
@@ -30,14 +32,32 @@ namespace IPTech.BuildTool {
                     UndoModifications();
                 } finally {
                     UndoModifications(false);
+                    DestroyConfigModifierInstances();
+                    AssetDatabase.SaveAssets();
                 }
             }
+        }
+
+        void InstanceConfigModifiers() {
+            configModifiers = new List<ConfigModifier>();
+            foreach(var cm in LoadConfigModifiers()) {
+                var inst = (ConfigModifier)ScriptableObject.Instantiate(cm);
+                inst.hideFlags = HideFlags.DontUnloadUnusedAsset | HideFlags.HideAndDontSave;
+                configModifiers.Add(inst);
+            }
+        }
+
+        void DestroyConfigModifierInstances() {
+            foreach(var cm in configModifiers) {
+                DestroyImmediate(cm);
+            }
+            configModifiers = null;
         }
 
         protected virtual BuildPlayerOptions ModifyEditorProperties(IDictionary<string,string> args, BuildPlayerOptions options) {
             SetBuildNumber(args);
             
-            foreach(var cm in ConfigModifiers) {
+            foreach(var cm in configModifiers) {
                 try {
                     options = ApplyModification(cm, options);
                 } catch {
