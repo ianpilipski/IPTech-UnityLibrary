@@ -20,7 +20,7 @@ namespace IPTech.BuildTool {
         }
 
         void RefreshSubAssets() {
-            subAssets = ((BuildConfig)target).ConfigModifiers.ToList();
+            subAssets = ((BuildConfig)target).LoadConfigModifiers().ToList();
         }
 
         bool TryGetEditor(ConfigModifier obj, int index, out Editor editor) {

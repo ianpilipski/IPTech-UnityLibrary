@@ -7,17 +7,15 @@ using System.Linq;
 namespace IPTech.BuildTool
 {
     public abstract class BuildConfig : ScriptableObject {
-        public IEnumerable<ConfigModifier> ConfigModifiers {
-            get {
-                var subs = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this));
-                foreach(var sub in subs) {
-                    if(sub != null) {
-                        if(sub.GetType().IsSubclassOf(typeof(ConfigModifier))) {
-                            yield return (ConfigModifier)sub;
-                        }
-                    } else {
-                        Debug.LogError("found sub that was null - scriptable object is missing, was it removed?");
+        public IEnumerable<ConfigModifier> LoadConfigModifiers() {
+            var subs = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this));
+            foreach(var sub in subs) {
+                if(sub != null) {
+                    if(sub.GetType().IsSubclassOf(typeof(ConfigModifier))) {
+                        yield return (ConfigModifier)sub;
                     }
+                } else {
+                    Debug.LogError("found sub that was null - scriptable object is missing, was it removed?");
                 }
             }
         }
