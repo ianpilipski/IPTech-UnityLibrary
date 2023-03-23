@@ -33,9 +33,9 @@ namespace IPTech.BuildTool {
 
         static IDictionary<string,string> ParseCommandlineArgs(string cmdLine) {
             Dictionary<string, string> retVal = new Dictionary<string, string>();
-
+            
             if(!string.IsNullOrEmpty(cmdLine)) {
-                var args = cmdLine.Split('-');
+                var args = cmdLine.Split(" -");
                 
                 foreach(var arg in args) {
                     string key = arg;
