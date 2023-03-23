@@ -14,5 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   OutputPath: build/DebugiOS/xcode-project
   BuildTarget: 9
-  DevelopmentBuild: 1
-  AddGradleWrapper: 0
+  BuildOptions: 1

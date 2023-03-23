@@ -15,12 +15,12 @@ namespace IPTech.BuildTool {
             }
         }
 
-        public override void ModifyProject() {
+        public override void ModifyProject(BuildTarget buildTarget) {
             origValue = PlayerSettings.GetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup);
             PlayerSettings.SetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup, ApplicationIdentifier);
         }
 
-        public override void RestoreProject() {
+        public override void RestoreProject(BuildTarget buildTarget) {
             PlayerSettings.SetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup, origValue);
         }
     }

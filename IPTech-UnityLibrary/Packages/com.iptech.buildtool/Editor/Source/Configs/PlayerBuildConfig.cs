@@ -10,8 +10,8 @@ namespace IPTech.BuildTool {
     public class PlayerBuildConfig : BuildConfig {
         public string OutputPath;
         public BuildTarget BuildTarget;
-        public bool DevelopmentBuild;
-        
+        public BuildOptions BuildOptions;
+
         Stack<ConfigModifier> undoModifiers = new Stack<ConfigModifier>();
         List<ConfigModifier> configModifiers;
         
@@ -70,7 +70,7 @@ namespace IPTech.BuildTool {
 
         BuildPlayerOptions ApplyModification(ConfigModifier modifier, BuildPlayerOptions options) {
             Debug.Log($"[IPTech.BuildTool] {modifier.name} modifying build properties.");
-            modifier.ModifyProject();
+            modifier.ModifyProject(BuildTarget);
             undoModifiers.Push(modifier);
             return modifier.ModifyBuildPlayerOptions(options);
         }
@@ -81,7 +81,7 @@ namespace IPTech.BuildTool {
                 var cm = undoModifiers.Pop();
                 try {
                     Debug.Log($"[IPTech.BuildTool] {cm.name} restoring build properties.");
-                    cm.RestoreProject();
+                    cm.RestoreProject(BuildTarget);
                 } catch(Exception e) {
                     hadError = true;
                     Debug.LogException(e);
@@ -103,7 +103,7 @@ namespace IPTech.BuildTool {
         protected virtual BuildPlayerOptions GetBuildPlayerOptions(IDictionary<string, string> args) {
             return new BuildPlayerOptions {
                 locationPathName = GetOutputPath(args),
-                options = GetBuildOptions(),
+                options = BuildOptions,
                 scenes = GetScenes(),
                 target = BuildTarget
             };
@@ -120,17 +120,6 @@ namespace IPTech.BuildTool {
                 retVal = $"build/{name}";
             }
             return retVal;
-        }
-
-        protected BuildOptions GetBuildOptions() {
-            BuildOptions options = BuildOptions.None;
-            options |= DevelopmentBuild ? BuildOptions.Development : BuildOptions.None;
-            options |= EditorUserBuildSettings.symlinkSources ? BuildOptions.SymlinkSources : BuildOptions.None;
-            options |= EditorUserBuildSettings.connectProfiler ? BuildOptions.ConnectWithProfiler : BuildOptions.None;
-            options |= EditorUserBuildSettings.buildWithDeepProfilingSupport ? BuildOptions.EnableDeepProfilingSupport : BuildOptions.None;
-            options |= EditorUserBuildSettings.allowDebugging ? BuildOptions.AllowDebugging : BuildOptions.None;
-            options |= EditorUserBuildSettings.buildScriptsOnly ? BuildOptions.BuildScriptsOnly : BuildOptions.None;
-            return options;
         }
 
         protected virtual string[] GetScenes() {

@@ -19,12 +19,12 @@ namespace IPTech.BuildTool {
 
         int origValue;
 
-        public override void ModifyProject() {
+        public override void ModifyProject(BuildTarget buildTarget) {
             origValue = EditorUserBuildSettings.overrideMaxTextureSize;
             EditorUserBuildSettings.overrideMaxTextureSize = (int)OverrideMaxTextureSize;
         }
 
-        public override void RestoreProject() {
+        public override void RestoreProject(BuildTarget buildTarget) {
             EditorUserBuildSettings.overrideMaxTextureSize = origValue;
         }
     }
