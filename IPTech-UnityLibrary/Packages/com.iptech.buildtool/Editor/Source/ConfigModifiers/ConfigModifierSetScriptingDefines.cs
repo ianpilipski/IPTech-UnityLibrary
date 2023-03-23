@@ -2,25 +2,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using UnityEditor.Build;
 using System.Linq;
 
 namespace IPTech.BuildTool {
     public class ConfigModifierSetScriptingDefines : ConfigModifier {
         public List<string> ScriptingDefines;
 
-        public override void ModifyProject() {
+        string[] previousScriptingDefines;
+
+        public override void ModifyProject(BuildTarget buildTarget) {
+            previousScriptingDefines = EditorUserBuildSettings.activeScriptCompilationDefines;
+            PlayerSettings.SetScriptingDefineSymbols(GetNamedBuildTarget(buildTarget), ScriptingDefines.ToArray());
         }
 
-        public override void RestoreProject() {
+        public override void RestoreProject(BuildTarget buildTarget) {
+            PlayerSettings.SetScriptingDefineSymbols(GetNamedBuildTarget(buildTarget), previousScriptingDefines);
         }
 
-        public override BuildPlayerOptions ModifyBuildPlayerOptions(BuildPlayerOptions options) {
-            if(options.extraScriptingDefines != null && options.extraScriptingDefines.Length > 0) {
-                options.extraScriptingDefines = options.extraScriptingDefines.Concat(ScriptingDefines).ToArray();
-            } else {
-                options.extraScriptingDefines = ScriptingDefines.ToArray();
-            }
-            return options;
+        NamedBuildTarget GetNamedBuildTarget(BuildTarget buildTarget) {
+            var btGroup = BuildPipeline.GetBuildTargetGroup(buildTarget);
+            var namedBuildTarget = NamedBuildTarget.FromBuildTargetGroup(btGroup);
+            return namedBuildTarget;
         }
     }
 }

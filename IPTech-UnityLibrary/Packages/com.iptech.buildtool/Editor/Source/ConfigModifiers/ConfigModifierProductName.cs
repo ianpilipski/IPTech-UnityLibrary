@@ -15,12 +15,12 @@ namespace IPTech.BuildTool {
             }
         }
 
-        public override void ModifyProject() {
+        public override void ModifyProject(BuildTarget buildTarget) {
             orignalValue = PlayerSettings.productName;
             PlayerSettings.productName = ProductName;
         }
 
-        public override void RestoreProject() {
+        public override void RestoreProject(BuildTarget buildTarget) {
             PlayerSettings.productName = orignalValue;
         }
     }

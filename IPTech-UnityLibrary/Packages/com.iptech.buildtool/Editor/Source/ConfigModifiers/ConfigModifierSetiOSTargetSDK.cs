@@ -9,12 +9,12 @@ namespace IPTech.BuildTool {
 
         iOSSdkVersion origValue;
 
-        public override void ModifyProject() {
+        public override void ModifyProject(BuildTarget buildTarget) {
             origValue = PlayerSettings.iOS.sdkVersion;
             PlayerSettings.iOS.sdkVersion = TargetSDK;
         }
 
-        public override void RestoreProject() {
+        public override void RestoreProject(BuildTarget buildTarget) {
             PlayerSettings.iOS.sdkVersion = origValue;
         }
     }

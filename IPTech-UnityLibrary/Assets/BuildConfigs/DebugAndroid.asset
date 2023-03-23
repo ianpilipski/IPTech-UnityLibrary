@@ -14,5 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   OutputPath: build/DebugAndroid/mygame.apk
   BuildTarget: 13
-  DevelopmentBuild: 1
-  AddGradleWrapper: 0
+  BuildOptions: 2097153
