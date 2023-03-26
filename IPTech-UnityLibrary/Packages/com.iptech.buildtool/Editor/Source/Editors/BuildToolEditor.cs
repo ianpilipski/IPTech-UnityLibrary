@@ -19,8 +19,8 @@ namespace IPTech.BuildTool {
 
         [SerializeField] List<int> stateList;
         [SerializeField] bool isDirty;
-        [SerializeField] string buildArgments;
         [SerializeField] Vector2 scrollPos;
+        [SerializeField] List<string> buildArguments;
 
         bool needsRefresh;
         bool isBuilding;
@@ -32,6 +32,8 @@ namespace IPTech.BuildTool {
         }
 
         private void OnEnable() {
+            buildArguments = BuildToolsSettings.Inst.BuildInEditorArguments;
+
             if(stateList == null) stateList = new List<int>();
 
             buildTypes = new List<Type>();
@@ -92,12 +94,18 @@ namespace IPTech.BuildTool {
             }
 
             EditorGUILayout.LabelField("Build Tool Settings");
+            var sbts = new SerializedObject(this);
+            var sp = sbts.FindProperty("buildArguments");
             EditorGUI.BeginChangeCheck();
             BuildToolsSettings.Inst.UsesNonExemptEncryption = EditorGUILayout.Toggle("Uses Non Exempt Encryption", BuildToolsSettings.Inst.UsesNonExemptEncryption);
             BuildToolsSettings.Inst.AddGradleWrapper = EditorGUILayout.Toggle("Add Gradle Wrapper To Unity Builds", BuildToolsSettings.Inst.AddGradleWrapper);
             BuildToolsSettings.Inst.DefaultConfigPath = EditorGUILayout.TextField("Default Config Path", BuildToolsSettings.Inst.DefaultConfigPath);
-            BuildToolsSettings.Inst.BuildInEditorArguments = EditorGUILayout.TextField("Build in editor arguments", BuildToolsSettings.Inst.BuildInEditorArguments);
+            //BuildToolsSettings.Inst.BuildInEditorArguments =   EditorGUILayout.ObjectField( "Build in editor arguments", BuildToolsSettings.Inst.BuildInEditorArguments);
+            EditorGUILayout.PropertyField(sp, new GUIContent(sp.displayName));
+            
             if(EditorGUI.EndChangeCheck()) {
+                sbts.ApplyModifiedProperties();
+                BuildToolsSettings.Inst.BuildInEditorArguments = buildArguments;
                 BuildToolsSettings.Save();
             }
 
@@ -224,8 +232,10 @@ namespace IPTech.BuildTool {
                 GUID guid = AssetDatabase.GUIDFromAssetPath(path);
                 AssetDatabase.SaveAssetIfDirty(guid);
 
-                string args = $"-buildConfig {bc.name} {buildArgments}";
-                Builder.BuildWithArguments(args);
+                var argsWithBuildConfig = new List<string>(buildArguments);
+                argsWithBuildConfig.Add("-buildConfig");
+                argsWithBuildConfig.Add(bc.name);
+                Builder.BuildWithArguments(argsWithBuildConfig.ToArray());
             } catch(Exception e) {
                 Debug.LogException(e);
                 EditorUtility.DisplayDialog("Error Building", e.Message, "Ok");

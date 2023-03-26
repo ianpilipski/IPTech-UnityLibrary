@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -10,7 +11,7 @@ namespace IPTech.BuildTool {
         public string DefaultConfigPath = "BuildConfigs";
         public bool AddGradleWrapper;
         public bool UsesNonExemptEncryption;
-        public string BuildInEditorArguments = "-buildNumber 0001";
+        public List<string> BuildInEditorArguments = new List<string>() { "-buildNumber", "0001" };
 
         private BuildToolsSettings() {
             AddGradleWrapper = true;

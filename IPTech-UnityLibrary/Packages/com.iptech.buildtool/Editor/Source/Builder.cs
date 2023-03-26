@@ -7,10 +7,10 @@ using UnityEngine;
 namespace IPTech.BuildTool {
     public static class Builder {
         public static void Build() {
-            BuildWithArguments(Environment.CommandLine);
+            BuildWithArguments(Environment.GetCommandLineArgs());
         }
 
-        public static void BuildWithArguments(string commandlineArguments) {
+        public static void BuildWithArguments(string[] commandlineArguments) {
             var args = ParseCommandlineArgs(commandlineArguments);
             if(args.TryGetValue("-buildConfig", out string configName)) {
                 ExecuteBuildForConfigName(configName, args);
@@ -31,22 +31,29 @@ namespace IPTech.BuildTool {
             throw new Exception($"Could not find BuildConfig with the name {configName}");
         }
 
-        static IDictionary<string,string> ParseCommandlineArgs(string cmdLine) {
+        static IDictionary<string,string> ParseCommandlineArgs(string[] cmdLineArgs) {
             Dictionary<string, string> retVal = new Dictionary<string, string>();
             
-            if(!string.IsNullOrEmpty(cmdLine)) {
-                var args = cmdLine.Split(" -");
-                
-                foreach(var arg in args) {
-                    string key = arg;
-                    string val = "";
-                    var i = arg.IndexOf(' ');
-                    if(i>0) {
-                        key = arg.Substring(0, i);
-                        val = arg.Substring(i, arg.Length - i).Trim();
-                    }
+            if(cmdLineArgs.Length>0) {
+                var args = cmdLineArgs;
 
-                    retVal["-" + key] = val;
+                string prevArg = null;
+                int i = 0;
+                foreach(var arg in args) {
+                    if(i == 0) {
+                        retVal["executable"] = arg;
+                    } else {
+                        if(arg.StartsWith("-")) {
+                            retVal[arg] = "";
+                            prevArg = arg;
+                        } else {
+                            if(prevArg != null) {
+                                retVal[prevArg] = arg;
+                                prevArg = null;
+                            }
+                        }
+                    }
+                    i++;
                 }
             }
             return retVal;
