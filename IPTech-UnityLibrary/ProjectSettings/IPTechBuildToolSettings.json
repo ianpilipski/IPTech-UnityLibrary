@@ -1,1 +1,1 @@
-{"DefaultConfigPath":"BuildConfigs","AddGradleWrapper":false}
+{"DefaultConfigPath":"BuildConfigs","AddGradleWrapper":false,"UsesNonExemptEncryption":false,"BuildInEditorArguments":["-buildNumber","0001"]}
