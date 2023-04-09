@@ -24,6 +24,7 @@ namespace IPTech.BuildTool {
         bool isInst;
         Type propType;
         string toolTipAttributeText;
+        float toolTipHeight;
 
         public AllowRefOrInstPropertyDrawer() {
             propertyHeights = new Dictionary<string, float>();
@@ -72,7 +73,10 @@ namespace IPTech.BuildTool {
                         foreach(var attrib in attribs) {
                             if(attrib is TooltipAttribute tt) {
                                 toolTipAttributeText = tt.tooltip;
-                                propHeight += NEXT_PROP_HEIGHT;
+                                var hss = EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).GetStyle("helpBox");
+                                toolTipHeight = hss.CalcHeight(new GUIContent(toolTipAttributeText), Mathf.Max(EditorGUIUtility.currentViewWidth - 100, 100));
+                                propHeight += toolTipHeight + PROP_MARGIN;
+                                //propHeight += NEXT_PROP_HEIGHT;
                                 break;
                             }
                         }
@@ -145,7 +149,7 @@ namespace IPTech.BuildTool {
                         if(p.propertyPath == "m_Script") {
                             if(!string.IsNullOrEmpty(toolTipAttributeText)) {
                                 pos.y = pos.y + lastProperyHeight;
-                                lastProperyHeight = NEXT_PROP_HEIGHT;
+                                lastProperyHeight = toolTipHeight + PROP_MARGIN;
                                 pos.height = lastProperyHeight - PROP_MARGIN;
                                 EditorGUI.HelpBox(pos, toolTipAttributeText, MessageType.Info);
                             }
