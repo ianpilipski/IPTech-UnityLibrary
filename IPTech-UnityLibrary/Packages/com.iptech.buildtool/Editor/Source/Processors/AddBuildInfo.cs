@@ -4,6 +4,7 @@ using UnityEditor.Build.Reporting;
 using UnityEngine;
 
 namespace IPTech.BuildTool.Processors {
+	[Tooltip("This will add and IPTechBuildInfo.asset file to your Asset/Resources folder. It contains build information you can retrieve at runtime.")]
     public class AddBuildInfo : BuildProcessor {
         public override void PreprocessBuild(BuildReport report) {
 			IPTechBuildInfo buildInfo = IPTechBuildInfo.LoadFromResources() ?? CreateNewIPTechBuildInfo();
