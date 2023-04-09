@@ -16,12 +16,15 @@ namespace IPTech.BuildTool {
         int selectedBuildType;
         string[] buildTypeNames;
         Dictionary<BuildConfig, Editor> editors = new Dictionary<BuildConfig, Editor>();
-        Vector2 scrollPos;
+        Vector2 buildConfigsScrollPos;
+        Vector2 settingsScrollPos;
+        GUIStyle leftAlignedButton;
+        GUIStyle helpBoxStyle;
 
         [SerializeField] List<int> stateList;
         [SerializeField] bool isDirty;
-        [SerializeField] Vector2 mainScrollPos;
-        
+        [SerializeField] int activeTab;
+
         bool needsRefresh;
         static bool isBuilding;
 
@@ -40,6 +43,15 @@ namespace IPTech.BuildTool {
 
             ReloadConfigs();
             GenerateBuildConfigTypeDropDown();
+
+            leftAlignedButton = new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).button);
+            leftAlignedButton.alignment = TextAnchor.MiddleLeft;
+            leftAlignedButton.fixedHeight = 30F;
+
+            helpBoxStyle = new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).GetStyle("helpBox"));
+            helpBoxStyle.alignment = leftAlignedButton.alignment;
+            helpBoxStyle.fixedHeight = leftAlignedButton.fixedHeight;
+            helpBoxStyle.fontSize = leftAlignedButton.fontSize;
         }
 
 
@@ -88,48 +100,72 @@ namespace IPTech.BuildTool {
         }
 
         private void OnGUI() {
-            if(Event.current.type == EventType.Layout) {
-                if(needsRefresh) {
-                    ReloadConfigs();
-                }
-            }
+            ConditionallyReloadConfigs();
+            DrawSettingsTab();
+            DrawBuildConfigsTab();
+            
 
-            EditorGUILayout.LabelField("Build Tool Settings");
-
-            using(var ss = new EditorGUILayout.ScrollViewScope(mainScrollPos)) {
-                mainScrollPos = ss.scrollPosition;
-
-                EditorGUI.BeginChangeCheck();
-                buildToolSettingsSerializedObject.Update();
-                var sp = buildToolSettingsSerializedObject.GetIterator();
-                sp.NextVisible(true);
-                do {
-                    if(sp.propertyPath == "m_Script") continue;
-                    if(sp.propertyType == SerializedPropertyType.Boolean) {
-                        float origWidth = EditorGUIUtility.labelWidth;
-                        EditorGUIUtility.labelWidth = 250;
-                        EditorGUILayout.PropertyField(sp);
-                        EditorGUIUtility.labelWidth = origWidth;
-                    } else {
-                        EditorGUILayout.PropertyField(sp);
+            void ConditionallyReloadConfigs() {
+                if(Event.current.type == EventType.Layout) {
+                    if(needsRefresh) {
+                        ReloadConfigs();
                     }
-                } while(sp.NextVisible(false));
-
-                if(EditorGUI.EndChangeCheck()) {
-                    buildToolSettingsSerializedObject.ApplyModifiedProperties();
-                    BuildToolsSettings.instance.Save();
-                }
-
-                EditorGUILayout.Separator();
-                EditorGUILayout.LabelField("Build Configs");
-                using(var sv = new EditorGUILayout.ScrollViewScope(scrollPos, GUILayout.ExpandHeight(true))) {
-                    DrawBuildConfigs();
-                    scrollPos = sv.scrollPosition;
                 }
             }
 
-            EditorGUILayout.Separator();
-            DrawFooter();
+            void DrawSettingsTab() {
+                const string title = "Build Tool Settings";
+                if(activeTab==0) {
+                    EditorGUILayout.LabelField(title, helpBoxStyle);
+                    //EditorGUILayout.HelpBox(title, MessageType.None);
+                    using(var ss = new EditorGUILayout.ScrollViewScope(settingsScrollPos, GUILayout.ExpandHeight(true))) {
+                        settingsScrollPos = ss.scrollPosition;
+
+                        EditorGUI.BeginChangeCheck();
+                        buildToolSettingsSerializedObject.Update();
+                        var sp = buildToolSettingsSerializedObject.GetIterator();
+                        sp.NextVisible(true);
+                        do {
+                            if(sp.propertyPath == "m_Script") continue;
+                            if(sp.propertyType == SerializedPropertyType.Boolean) {
+                                float origWidth = EditorGUIUtility.labelWidth;
+                                EditorGUIUtility.labelWidth = 250;
+                                EditorGUILayout.PropertyField(sp);
+                                EditorGUIUtility.labelWidth = origWidth;
+                            } else {
+                                EditorGUILayout.PropertyField(sp);
+                            }
+                        } while(sp.NextVisible(false));
+
+                        if(EditorGUI.EndChangeCheck()) {
+                            buildToolSettingsSerializedObject.ApplyModifiedProperties();
+                            BuildToolsSettings.instance.Save();
+                        }
+                    }
+                } else {
+                    if(GUILayout.Button(title, leftAlignedButton)) {
+                        activeTab = 0;
+                    }
+                }
+            }
+
+            void DrawBuildConfigsTab() {
+                const string title = "Build Configs";
+                if(activeTab == 1) {
+                    EditorGUILayout.LabelField(title, helpBoxStyle);
+
+                    using(var sv = new EditorGUILayout.ScrollViewScope(buildConfigsScrollPos, GUILayout.ExpandHeight(true))) {
+                        DrawBuildConfigs();
+                        buildConfigsScrollPos = sv.scrollPosition;
+                    }
+                    EditorGUILayout.Separator();
+                    DrawFooter();
+                } else {
+                    if(GUILayout.Button(title, leftAlignedButton)) {
+                        activeTab = 1;
+                    }
+                }
+            }
 
             void DrawBuildConfigs() {
                 using(new EditorGUI.IndentLevelScope()) {
