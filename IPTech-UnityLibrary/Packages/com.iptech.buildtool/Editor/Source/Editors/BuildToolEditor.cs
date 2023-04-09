@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -16,14 +16,16 @@ namespace IPTech.BuildTool {
         int selectedBuildType;
         string[] buildTypeNames;
         Dictionary<BuildConfig, Editor> editors = new Dictionary<BuildConfig, Editor>();
+        Vector2 scrollPos;
 
         [SerializeField] List<int> stateList;
         [SerializeField] bool isDirty;
-        [SerializeField] Vector2 scrollPos;
-        [SerializeField] List<string> buildArguments;
-
+        [SerializeField] Vector2 mainScrollPos;
+        
         bool needsRefresh;
-        bool isBuilding;
+        static bool isBuilding;
+
+        SerializedObject buildToolSettingsSerializedObject;
 
         [MenuItem("Window/IPTech/Build Tool")]
         public static void ShowWindow() {
@@ -32,11 +34,10 @@ namespace IPTech.BuildTool {
         }
 
         private void OnEnable() {
-            buildArguments = BuildToolsSettings.Inst.BuildInEditorArguments;
-
+            buildToolSettingsSerializedObject = new SerializedObject(BuildToolsSettings.instance);
             if(stateList == null) stateList = new List<int>();
-
             buildTypes = new List<Type>();
+
             ReloadConfigs();
             GenerateBuildConfigTypeDropDown();
         }
@@ -94,26 +95,37 @@ namespace IPTech.BuildTool {
             }
 
             EditorGUILayout.LabelField("Build Tool Settings");
-            var sbts = new SerializedObject(this);
-            var sp = sbts.FindProperty("buildArguments");
-            EditorGUI.BeginChangeCheck();
-            BuildToolsSettings.Inst.UsesNonExemptEncryption = EditorGUILayout.Toggle("Uses Non Exempt Encryption", BuildToolsSettings.Inst.UsesNonExemptEncryption);
-            BuildToolsSettings.Inst.AddGradleWrapper = EditorGUILayout.Toggle("Add Gradle Wrapper To Unity Builds", BuildToolsSettings.Inst.AddGradleWrapper);
-            BuildToolsSettings.Inst.DefaultConfigPath = EditorGUILayout.TextField("Default Config Path", BuildToolsSettings.Inst.DefaultConfigPath);
-            //BuildToolsSettings.Inst.BuildInEditorArguments =   EditorGUILayout.ObjectField( "Build in editor arguments", BuildToolsSettings.Inst.BuildInEditorArguments);
-            EditorGUILayout.PropertyField(sp, new GUIContent(sp.displayName));
-            
-            if(EditorGUI.EndChangeCheck()) {
-                sbts.ApplyModifiedProperties();
-                BuildToolsSettings.Inst.BuildInEditorArguments = buildArguments;
-                BuildToolsSettings.Save();
-            }
 
-            EditorGUILayout.Separator();
-            EditorGUILayout.LabelField("Build Configs");
-            using(var sv = new EditorGUILayout.ScrollViewScope(scrollPos, GUILayout.ExpandHeight(true))) {
-                DrawBuildConfigs();
-                scrollPos = sv.scrollPosition;
+            using(var ss = new EditorGUILayout.ScrollViewScope(mainScrollPos)) {
+                mainScrollPos = ss.scrollPosition;
+
+                EditorGUI.BeginChangeCheck();
+                buildToolSettingsSerializedObject.Update();
+                var sp = buildToolSettingsSerializedObject.GetIterator();
+                sp.NextVisible(true);
+                do {
+                    if(sp.propertyPath == "m_Script") continue;
+                    if(sp.propertyType == SerializedPropertyType.Boolean) {
+                        float origWidth = EditorGUIUtility.labelWidth;
+                        EditorGUIUtility.labelWidth = 250;
+                        EditorGUILayout.PropertyField(sp);
+                        EditorGUIUtility.labelWidth = origWidth;
+                    } else {
+                        EditorGUILayout.PropertyField(sp);
+                    }
+                } while(sp.NextVisible(false));
+
+                if(EditorGUI.EndChangeCheck()) {
+                    buildToolSettingsSerializedObject.ApplyModifiedProperties();
+                    BuildToolsSettings.instance.Save();
+                }
+
+                EditorGUILayout.Separator();
+                EditorGUILayout.LabelField("Build Configs");
+                using(var sv = new EditorGUILayout.ScrollViewScope(scrollPos, GUILayout.ExpandHeight(true))) {
+                    DrawBuildConfigs();
+                    scrollPos = sv.scrollPosition;
+                }
             }
 
             EditorGUILayout.Separator();
@@ -226,13 +238,14 @@ namespace IPTech.BuildTool {
             }
         }
 
-        void PerformBuild(BuildConfig bc) {
+        public static void PerformBuild(BuildConfig bc) {
             try {
+                isBuilding = true;
                 string path = AssetDatabase.GetAssetPath(bc);
                 GUID guid = AssetDatabase.GUIDFromAssetPath(path);
                 AssetDatabase.SaveAssetIfDirty(guid);
 
-                var argsWithBuildConfig = new List<string>(buildArguments);
+                var argsWithBuildConfig = new List<string>(BuildToolsSettings.instance.BuildInEditorArguments);
                 argsWithBuildConfig.Add("-buildConfig");
                 argsWithBuildConfig.Add(bc.name);
                 Builder.BuildWithArguments(argsWithBuildConfig.ToArray());
@@ -287,12 +300,12 @@ namespace IPTech.BuildTool {
         }
 
         void UpdateDefaultBuildConfigPath(string newRelativePath) {
-            BuildToolsSettings.Inst.DefaultConfigPath = newRelativePath;
-            BuildToolsSettings.Save();
+            BuildToolsSettings.instance.DefaultConfigPath = newRelativePath;
+            BuildToolsSettings.instance.Save();
         }
 
         string GetBuildConfigFolderPath() {
-            return Path.Combine("Assets", BuildToolsSettings.Inst.DefaultConfigPath);
+            return Path.Combine("Assets", BuildToolsSettings.instance.DefaultConfigPath);
         }
 
         string GetSanitizedFileName(string newFilePath) {

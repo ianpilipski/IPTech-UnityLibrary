@@ -1,1 +1,10 @@
-{"name":"com.iptech.buildtool","displayName":"IPTech.BuildTool","version":"0.0.1","unity":"","keywords":[],"category":"","description":"","samples":[]}
+{
+  "name": "com.iptech.buildtool",
+  "displayName": "IPTech.BuildTool",
+  "version": "0.0.1",
+  "unity": "2021.3",
+  "keywords": [],
+  "category": "",
+  "unityRelease": "0f1",
+  "samples": []
+}

@@ -6,6 +6,8 @@ using UnityEngine;
 
 namespace IPTech.BuildTool {
     public static class Builder {
+        
+
         public static void Build() {
             BuildWithArguments(Environment.GetCommandLineArgs());
         }
