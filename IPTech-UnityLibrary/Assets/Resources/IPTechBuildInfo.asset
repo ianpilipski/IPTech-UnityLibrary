@@ -9,11 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 789043d1e9b564e41ac8c0228bafba3f, type: 3}
-  m_Name: DebugiOS
+  m_Script: {fileID: 11500000, guid: ba4e822fe00714a1da7277c78b225071, type: 3}
+  m_Name: IPTechBuildInfo
   m_EditorClassIdentifier: 
-  OutputPath: build/DebugiOS/xcode-project
-  BuildTarget: 9
-  BuildOptions: 1
-  PostBuildProcessors:
-  - {fileID: 11400000, guid: eba120156231b436cb9bf519f5fcd965, type: 2}
+  BuildNumber: 0

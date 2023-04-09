@@ -8,16 +8,21 @@ using UnityEngine;
 
 namespace IPTech.BuildTool {
     public class PlayerBuildConfig : BuildConfig {
+        public static PlayerBuildConfig CurrentlyBuildingConfig;
+
         public string OutputPath;
         public BuildTarget BuildTarget;
         public BuildOptions BuildOptions;
+        public List<BuildProcessor> BuildProcessors;
 
         Stack<ConfigModifier> undoModifiers = new Stack<ConfigModifier>();
         List<ConfigModifier> configModifiers;
-        
+
+
         public override void Build(IDictionary<string, string> args) {
             AssertEditorPlatformMatchesBuildTarget();
-            
+            CurrentlyBuildingConfig = this;
+
             using(new CurrentBuildSettings.Scoped()) {
                 try {
                     InstanceConfigModifiers();
@@ -33,12 +38,15 @@ namespace IPTech.BuildTool {
                 } finally {
                     UndoModifications(false);
                     DestroyConfigModifierInstances();
+                    CurrentlyBuildingConfig = null;
                     AssetDatabase.SaveAssets();
                 }
             }
         }
 
         void InstanceConfigModifiers() {
+            //Doing this allows the configModifiers list to survive after the build and the editor
+            //does a domain reload.  If we referenced the saved scriptable objects they would null out
             configModifiers = new List<ConfigModifier>();
             foreach(var cm in LoadConfigModifiers()) {
                 var inst = (ConfigModifier)ScriptableObject.Instantiate(cm);

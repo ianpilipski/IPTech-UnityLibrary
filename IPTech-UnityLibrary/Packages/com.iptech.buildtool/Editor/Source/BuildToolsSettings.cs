@@ -1,49 +1,52 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace IPTech.BuildTool {
-    [Serializable]
-    public class BuildToolsSettings {
-        static BuildToolsSettings inst;
-
+    [FilePath("ProjectSettings/IPTechBuildToolSettings.asset", FilePathAttribute.Location.ProjectFolder)]
+    public class BuildToolsSettings : ScriptableSingletonWithSubObjects<BuildToolsSettings> {
+        
         public string DefaultConfigPath = "BuildConfigs";
-        public bool AddGradleWrapper;
-        public bool UsesNonExemptEncryption;
+        public bool EnableBuildWindowIntegration = true;
         public List<string> BuildInEditorArguments = new List<string>() { "-buildNumber", "0001" };
 
-        private BuildToolsSettings() {
-            AddGradleWrapper = true;
-        }
+        [AllowRefOrInst]
+        public List<BuildProcessor> BuildProcessors;
 
-        public static void Save() {
-            File.WriteAllText(SettingsFilePath, JsonUtility.ToJson(Inst));
-        }
-
-        public static BuildToolsSettings Inst {
-            get {
-                try {
-                    if(inst == null) {
-                        if(File.Exists(SettingsFilePath)) {
-                            string json = File.ReadAllText(SettingsFilePath);
-                            inst = JsonUtility.FromJson<BuildToolsSettings>(json);
-                        }
-                    }
-                } catch(Exception e) {
-                    Debug.LogException(e);
-                }
-
-                if(inst == null) {
-                    inst = new BuildToolsSettings();
-                }
-                return inst;
+        private void OnEnable() {
+            if(LoadPrevVersion()) {
+                Save();
             }
+            hideFlags &= ~HideFlags.NotEditable;
         }
 
-        static string SettingsFilePath {
-            get {
-                return Path.Combine("ProjectSettings", "IPTechBuildToolSettings.json");
+        public void Save() {
+            Save(true);
+        }
+
+        public bool LoadPrevVersion() {
+            var file = Path.Combine("ProjectSettings", "IPTechBuildToolSettings.json");
+            if(File.Exists(file)) {
+                string json = File.ReadAllText(file);
+                JsonUtility.FromJsonOverwrite(json, this);
+                File.Delete(file);
+                return true;
+            }
+            return false;
+        }
+
+        protected override void GetSubObjectsToSave(List<UnityEngine.Object> objs) {
+            base.GetSubObjectsToSave(objs);
+
+            if(BuildProcessors!=null) {
+                foreach(var pbp in BuildProcessors) {
+                    if(string.IsNullOrEmpty(AssetDatabase.GetAssetPath(pbp))) {
+                        objs.Add(pbp);
+                    }
+                }
             }
         }
     }

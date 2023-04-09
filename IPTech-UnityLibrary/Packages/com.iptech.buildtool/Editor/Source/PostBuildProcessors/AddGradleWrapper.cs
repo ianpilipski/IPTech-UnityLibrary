@@ -1,40 +1,34 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
-using UnityEditor.Android;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
-namespace IPTech.BuildTool {
-    public class AndroidBuildProcessor : IPreprocessBuildWithReport, IPostGenerateGradleAndroidProject {
-		const string MSG_CREATE_GRADLE_SETTINGS = "Adding a placeholder settings.gradle file so this project will build without detecting the parent gradle project during warmup";
+namespace IPTech.BuildTool.Processors {
+    public class AddGradleWrapper : BuildProcessor {
+        const string MSG_CREATE_GRADLE_SETTINGS = "Adding a placeholder settings.gradle file so this project will build without detecting the parent gradle project during warmup";
 		const string GRADLE_SETTINGS = "// placeholder settings.gradle file so that this gradle project does not detect the parent gradle project during warmup\n" +
 			"include 'StagingArea'\n" +
 			"include 'gradleOut'\n" +
 			"include 'StagingArea:gradleWarmupArea'";
 
 		BuildReport buildReport;
-		public int callbackOrder { get { return int.MinValue; } }
-
-		public void OnPostGenerateGradleAndroidProject(string path) {
-			ConditionallyAddGradleWrapper(path);
-		}
-
-		void ConditionallyAddGradleWrapper(string path) {
-			if(CurrentBuildSettings.Inst.AddGradlewWrapper) {
-				try {
-					string outputPath = CalculateWrapperOutputPath();
-					AndroidTools.AddGradleWrapperToPath(outputPath);
-				} catch(Exception e) {
-					Debug.LogException(e);
-					if(!UnityEditorInternal.InternalEditorUtility.inBatchMode) {
-						EditorUtility.DisplayDialog("Error Post Processing Project", e.Message, "Ok");
-					} else {
-						EditorApplication.Exit(1);
-					}
-					throw new BuildFailedException(e.Message);
+		
+		public override void PostGenerateGradleAndroidProject(string path) {
+			try {
+				string outputPath = CalculateWrapperOutputPath();
+				AndroidTools.AddGradleWrapperToPath(outputPath);
+			} catch(Exception e) {
+				Debug.LogException(e);
+				if(!UnityEditorInternal.InternalEditorUtility.inBatchMode) {
+					EditorUtility.DisplayDialog("Error Post Processing Project", e.Message, "Ok");
+				} else {
+					EditorApplication.Exit(1);
 				}
+				throw new BuildFailedException(e.Message);
 			}
 
 			string CalculateWrapperOutputPath() {
@@ -46,9 +40,7 @@ namespace IPTech.BuildTool {
 			}
 		}
 
-		public void OnPreprocessBuild(BuildReport report) {
-			if(!CurrentBuildSettings.Inst.AddGradlewWrapper) return;
-
+		public override void PreprocessBuild(BuildReport report) {
 			try {
 				buildReport = report;
 				if(IsAndroidBuild()) {

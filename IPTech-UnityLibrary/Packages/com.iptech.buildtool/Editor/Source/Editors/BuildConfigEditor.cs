@@ -14,6 +14,7 @@ namespace IPTech.BuildTool {
         string[] createOptions = { "select your poison" };
 
         List<ConfigModifier> subAssets;
+        //Vector2 scrollPos;
 
         protected void OnEnable() {
             RefreshSubAssets();
@@ -52,23 +53,28 @@ namespace IPTech.BuildTool {
 
 
         public override void OnInspectorGUI() {
-            
-            serializedObject.UpdateIfRequiredOrScript();
+            //using(var ss = new EditorGUILayout.ScrollViewScope(scrollPos)) {
+            //    scrollPos = ss.scrollPosition;
 
-            var sp = serializedObject.GetIterator();
+                serializedObject.UpdateIfRequiredOrScript();
+                var sp = serializedObject.GetIterator();
 
-            bool enterChildren = true;
-            while(sp.NextVisible(enterChildren)) {
-                enterChildren = false;
-                if(sp.propertyPath != "m_Script") {
-                    EditorGUILayout.PropertyField(sp, false);
+                bool enterChildren = true;
+                while(sp.NextVisible(enterChildren)) {
+                    enterChildren = false;
+                    if(sp.propertyPath != "m_Script") {
+                        if(sp.propertyPath == nameof(PlayerBuildConfig.BuildProcessors)) {
+                            EditorGUILayout.PropertyField(sp, true);
+                        } else {
+                            EditorGUILayout.PropertyField(sp, false);
+                        }
+                    }
                 }
-            }
 
-            DrawSubAssets();
+                DrawSubAssets();
 
-            serializedObject.ApplyModifiedProperties();
-            
+                serializedObject.ApplyModifiedProperties();
+            //}
         }
 
         protected void DrawSubAssets() {
