@@ -1,23 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
-using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
-namespace IPTech.BuildTool
-{
-	public class BuildPreprocessor : IPreprocessBuildWithReport
-	{
-		public int callbackOrder => 0;
-
-		public void OnPreprocessBuild(BuildReport report)
-		{
+namespace IPTech.BuildTool.Processors {
+    public class AddBuildInfo : BuildProcessor {
+        public override void PreprocessBuild(BuildReport report) {
 			IPTechBuildInfo buildInfo = IPTechBuildInfo.LoadFromResources() ?? CreateNewIPTechBuildInfo();
 			string buildNumber = PlayerSettings.iOS.buildNumber;
-			if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android)
-			{
+			if(EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android) {
 				buildNumber = PlayerSettings.Android.bundleVersionCode.ToString();
 			}
 
