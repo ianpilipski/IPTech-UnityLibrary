@@ -8,7 +8,8 @@ using UnityEngine;
 namespace IPTech.BuildTool {
     [FilePath("ProjectSettings/IPTechBuildToolSettings.asset", FilePathAttribute.Location.ProjectFolder)]
     public class BuildToolsSettings : ScriptableSingletonWithSubObjects<BuildToolsSettings> {
-        
+        const string ENC_STORAGE_DIR = "ProjectSettings/IPTechBuildToolSettings/Storage";
+
         public string DefaultConfigPath = "BuildConfigs";
         public bool EnableBuildWindowIntegration = true;
         public List<string> BuildInEditorArguments = new List<string>() { "-buildNumber", "0001" };
@@ -16,6 +17,16 @@ namespace IPTech.BuildTool {
         [AllowRefOrInst]
         public List<BuildProcessor> BuildProcessors;
 
+        EncryptedStorage _encStorage;
+        public EncryptedStorage EncryptedStorage {
+            get {
+                if(_encStorage==null) {
+                    _encStorage = new EncryptedStorage("ProjectSettings/IPTechBuildToolSettings/Storage");
+                }
+                return _encStorage;
+            }
+        }
+        
         private void OnEnable() {
             if(LoadPrevVersion()) {
                 Save();
