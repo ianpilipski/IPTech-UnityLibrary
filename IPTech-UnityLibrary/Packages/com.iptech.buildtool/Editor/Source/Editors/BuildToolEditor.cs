@@ -16,20 +16,22 @@ namespace IPTech.BuildTool {
         int selectedBuildType;
         string[] buildTypeNames;
         Dictionary<BuildConfig, Editor> editors = new Dictionary<BuildConfig, Editor>();
-        Vector2 buildConfigsScrollPos;
-        Vector2 settingsScrollPos;
         GUIStyle leftAlignedButton;
         GUIStyle helpBoxStyle;
 
         [SerializeField] List<int> stateList;
         [SerializeField] bool isDirty;
         [SerializeField] int activeTab;
+        [SerializeField] string password;
+        [SerializeField] Vector2 buildConfigsScrollPos;
+        [SerializeField] Vector2 settingsScrollPos;
+        [SerializeField] Vector2 encryptedStorageScrollPos;
 
         bool needsRefresh;
         static bool isBuilding;
 
         SerializedObject buildToolSettingsSerializedObject;
-
+        
         [MenuItem("Window/IPTech/Build Tool")]
         public static void ShowWindow() {
             instance = EditorWindow.GetWindow<BuildToolEditor>("Build Tool");
@@ -52,6 +54,17 @@ namespace IPTech.BuildTool {
             helpBoxStyle.alignment = leftAlignedButton.alignment;
             helpBoxStyle.fixedHeight = leftAlignedButton.fixedHeight;
             helpBoxStyle.fontSize = leftAlignedButton.fontSize;
+
+            if(password!=null) {
+                try {
+                    var es = BuildToolsSettings.instance.EncryptedStorage;
+                    if(!es.IsUnlocked) {
+                        es.Unlock(password);
+                    }
+                } catch {
+                    password = null;
+                }
+            }
         }
 
 
@@ -103,6 +116,7 @@ namespace IPTech.BuildTool {
             ConditionallyReloadConfigs();
             DrawSettingsTab();
             DrawBuildConfigsTab();
+            DrawEncryptedStorageTab();
             
 
             void ConditionallyReloadConfigs() {
@@ -249,6 +263,80 @@ namespace IPTech.BuildTool {
                     }
                 }
             }
+        }
+
+        void DrawEncryptedStorageTab() {
+            const string title = "Encrypted Storage";
+            if(activeTab == 2) {
+                EditorGUILayout.LabelField(title, helpBoxStyle);
+
+                using(var sv = new EditorGUILayout.ScrollViewScope(encryptedStorageScrollPos, GUILayout.ExpandHeight(true))) {
+                    DrawEncryptedStorage();
+                    encryptedStorageScrollPos = sv.scrollPosition;
+                }
+            } else {
+                if(GUILayout.Button(title, leftAlignedButton)) {
+                    activeTab = 2;
+                }
+            }
+        }
+
+        void DrawEncryptedStorage() {
+            var es = BuildToolsSettings.instance.EncryptedStorage;
+
+            using(new EditorGUILayout.HorizontalScope()) {
+                if(!es.IsUnlocked) {
+                    password = EditorGUILayout.PasswordField("password", password);
+                    if(GUILayout.Button("unlock", GUILayout.Width(100))) {
+                        es.Unlock(password);
+                    }
+                } else {
+                    if(GUILayout.Button("lock")) {
+                        es.Lock();
+                        password = null;
+                    }
+                }
+
+                GUILayout.Space(16);
+                if(GUILayout.Button("delete", GUILayout.Width(100))) {
+                    password = null;
+                    es.DeleteAllStorageAndPassword();
+                }
+            }
+
+            using(new EditorGUI.DisabledScope(!es.IsUnlocked)) {
+                EditorGUI.indentLevel++;
+                foreach(var key in es) {
+                    using(new EditorGUILayout.HorizontalScope()) {
+                        EditorGUILayout.LabelField(key);
+                        if(GUILayout.Button("export", GUILayout.Width(100))) {
+                            string file = EditorUtility.SaveFilePanel("Select location to export to", Path.GetDirectoryName(Application.dataPath), key, "");
+                            if(!string.IsNullOrEmpty(file)) {
+                                if(es.TryGetValue(key, out byte[] val)) {
+                                    File.WriteAllBytes(file, val);
+                                } else {
+                                    EditorUtility.DisplayDialog("Error exporting", "There was an error decrypting and exporting your data", "Ok");
+                                }
+                            }
+                        }
+                        GUILayout.Space(16);
+                        if(GUILayout.Button("delete", GUILayout.Width(100))) {
+                            es.Remove(key);
+                        }
+                    }
+                }
+                using(new EditorGUILayout.HorizontalScope()) {
+                    GUILayout.FlexibleSpace();
+                    if(GUILayout.Button("import")) {
+                        string file = EditorUtility.OpenFilePanel("Select file to import", Path.GetDirectoryName(Application.dataPath), "");
+                        if(!string.IsNullOrEmpty(file)) {
+                            es.Add(Path.GetFileName(file), File.ReadAllBytes(file));
+                        }
+                    }
+                }
+            }
+            EditorGUI.indentLevel--;
+            
         }
 
         void DrawDeleteBuildConfigButton(BuildConfig bc) {
