@@ -61,7 +61,7 @@ namespace IPTech.BuildTool {
             helpBoxStyle.fixedHeight = leftAlignedButton.fixedHeight;
             helpBoxStyle.fontSize = leftAlignedButton.fontSize;
 
-            if(password!=null) {
+            if(!string.IsNullOrWhiteSpace(password)) {
                 try {
                     var es = BuildToolsSettings.instance.EncryptedStorage;
                     if(!es.IsUnlocked) {
