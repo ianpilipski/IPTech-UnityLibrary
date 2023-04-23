@@ -7,17 +7,37 @@ using UnityEditorInternal;
 using UnityEngine;
 
 namespace IPTech.BuildTool {
+    using Internal;
+
     [CustomEditor(typeof(BuildConfig), true)]
     public class BuildConfigEditor : Editor {
         Dictionary<int, Editor> cachedEditors = new Dictionary<int, Editor>();
-        Type[] optionsTypes;
+        
+        bool isCreatingOptions;
+        IReadOnlyList<Type> createOptionsTypes;
         string[] createOptions = { "select your poison" };
 
         List<ConfigModifier> subAssets;
-        //Vector2 scrollPos;
+        
 
         protected void OnEnable() {
             RefreshSubAssets();
+            UpdateCreateOptions();
+        }
+
+        void UpdateCreateOptions() {
+            if(createOptionsTypes==null && !isCreatingOptions) {
+                isCreatingOptions = true;
+
+                Context.ListGenerator.GetList(typeof(ConfigModifier), (ll) => {
+                    createOptionsTypes = ll;
+                    createOptions = new string[createOptionsTypes.Count + 1];
+                    createOptions[0] = "select your poison";
+                    for(int i=0;i<createOptionsTypes.Count;i++) {
+                        createOptions[i+1] = createOptionsTypes[i].Name; 
+                    }
+                });
+            }
         }
 
         void RefreshSubAssets() {
@@ -53,6 +73,8 @@ namespace IPTech.BuildTool {
 
 
         public override void OnInspectorGUI() {
+            UpdateCreateOptions();
+            
             //using(var ss = new EditorGUILayout.ScrollViewScope(scrollPos)) {
             //    scrollPos = ss.scrollPosition;
 
@@ -107,9 +129,9 @@ namespace IPTech.BuildTool {
         }
 
         void DrawAddModifierButton() {
-            var selected = EditorGUILayout.Popup( 0, GetOptions());
+            var selected = EditorGUILayout.Popup( 0, createOptions);
             if(selected > 0) {
-                var t = optionsTypes[selected - 1];
+                var t = createOptionsTypes[selected - 1];
                 AddItem(t);
             }
         }
@@ -136,18 +158,6 @@ namespace IPTech.BuildTool {
             Undo.DestroyObjectImmediate(subAssets[delIndex]);
             subAssets.RemoveAt(delIndex);
             AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(target));
-        }
-
-        string[] GetOptions() {
-            if(createOptions.Length == 1 || optionsTypes==null) {
-                var options = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a =>
-                    a.GetTypes().Where(
-                        t => !t.IsAbstract && t.IsSubclassOf(typeof(ConfigModifier))
-                    )).OrderBy(t => t.Name);
-                optionsTypes = options.ToArray();
-                createOptions = createOptions.Concat(optionsTypes.Select(t => t.Name)).ToArray();
-            }
-            return createOptions;
         }
     }
 }

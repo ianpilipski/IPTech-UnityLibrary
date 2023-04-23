@@ -9,29 +9,41 @@ namespace IPTech.BuildTool {
     [FilePath("ProjectSettings/IPTechBuildToolSettings.asset", FilePathAttribute.Location.ProjectFolder)]
     public class BuildToolsSettings : ScriptableSingletonWithSubObjects<BuildToolsSettings> {
         const string ENC_STORAGE_DIR = "ProjectSettings/IPTechBuildToolSettings/Storage";
+        public static string GetFullPathToRelativePackagePath(string path) {
+            return Path.GetFullPath($"Packages/com.iptech.buildtool/{path}");
+        }
 
         public string DefaultConfigPath = "BuildConfigs";
         public bool EnableBuildWindowIntegration = true;
         public List<string> BuildInEditorArguments = new List<string>() { "-buildNumber", "0001" };
 
-        [AllowRefOrInst]
+        [InlineCreation]
         public List<BuildProcessor> BuildProcessors;
 
-        EncryptedStorage _encStorage;
-        public EncryptedStorage EncryptedStorage {
+        EncryptedStorage<EncryptedItem> _encStorage;
+        public EncryptedStorage<EncryptedItem> EncryptedStorage {
             get {
                 if(_encStorage==null) {
-                    _encStorage = new EncryptedStorage("ProjectSettings/IPTechBuildToolSettings/Storage");
+                    _encStorage = new EncryptedStorage<EncryptedItem>("ProjectSettings/IPTechBuildToolSettings/Storage");
                 }
                 return _encStorage;
             }
         }
         
         private void OnEnable() {
+            bool needsSave = false;
+            if(hideFlags.HasFlag(HideFlags.NotEditable)) {
+                hideFlags &= ~HideFlags.NotEditable;
+                needsSave = true;
+            }
+
             if(LoadPrevVersion()) {
+                needsSave = true;
+            }
+
+            if(needsSave) {
                 Save();
             }
-            hideFlags &= ~HideFlags.NotEditable;
         }
 
         public void Save() {
