@@ -7,6 +7,7 @@ using System.Linq;
 namespace IPTech.BuildTool
 {
     public abstract class BuildConfig : ScriptableObject {
+        
         public IEnumerable<ConfigModifier> LoadConfigModifiers() {
             var subs = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this));
             foreach(var sub in subs) {

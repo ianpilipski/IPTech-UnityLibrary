@@ -61,7 +61,11 @@ namespace IPTech.BuildTool.Internal {
             }
 
             Func<VisualElement> makeItem = () => new Button();
-            Action<VisualElement, int> bindItem = (e, i) => (e as Button).text = allBuildConfigs[i].name;
+            Action<VisualElement, int> bindItem = (e, i) => {
+                var b = (e as Button);
+                b.text = allBuildConfigs[i].name;
+                b.clicked += () => HandleBuildButtonClicked(i);
+            };
 
             var listView = rootVisualElement.Q<ListView>();
             listView.makeItem = makeItem;
@@ -69,15 +73,32 @@ namespace IPTech.BuildTool.Internal {
             listView.itemsSource = allBuildConfigs;
             listView.selectionType = SelectionType.Single;
 
-            // Callback invoked when the user double clicks an item
-            listView.onItemsChosen += (chosenObjects) => {
-                foreach(var obj in chosenObjects) {
-                    Close();
-                    PlayerBuildConfig bc = (PlayerBuildConfig)obj;
-                    BuildToolEditor.PerformBuild(bc);
+            /*
+            listView.onItemsChosen += (_) => { Debug.Log("item chosen"); };
+            listView.onSelectionChange += (chosenObjects) => {
+                try {
+                    Debug.Log("whaa");
+                    foreach(var obj in chosenObjects) {
+                        PlayerBuildConfig bc = (PlayerBuildConfig)obj;
+                        BuildToolEditor.PerformBuild(bc);
+                        break;
+                    }
+                } catch(Exception e) {
+                    Debug.LogException(e);
                 }
             };
+            */
+
+            void HandleBuildButtonClicked(int index) {
+                Close();
+                var bc = allBuildConfigs[index];
+                EditorApplication.delayCall += () => {
+                    BuildToolEditor.PerformBuild(bc);
+                };
+            }
         }
+
+        
 
         void HookDefaultBuildButton() {
             var button = rootVisualElement.Q<Button>("buttonDefaultBuild");

@@ -7,18 +7,25 @@ using UnityEditor;
 using UnityEngine;
 
 namespace IPTech.BuildTool {
+    using System.Web.Razor.Generator;
+    using Internal;
+
     public class BuildToolEditor : EditorWindow {
         const string CREATE_NEW = "Create New";
         static BuildToolEditor instance;
 
         List<BuildConfig> buildConfigs;
-        List<Type> buildTypes;
-        int selectedBuildType;
-        string[] buildTypeNames;
+
+        IReadOnlyList<Type> buildTypes;
+        string[] buildTypeNames = new string[] { "generating..." };
+
         Dictionary<BuildConfig, Editor> editors = new Dictionary<BuildConfig, Editor>();
         GUIStyle leftAlignedButton;
         GUIStyle helpBoxStyle;
 
+        IReadOnlyList<Type> importOptionsType = new List<Type>();
+        string[] importOptions;
+        
         [SerializeField] List<int> stateList;
         [SerializeField] bool isDirty;
         [SerializeField] int activeTab;
@@ -41,11 +48,10 @@ namespace IPTech.BuildTool {
         private void OnEnable() {
             buildToolSettingsSerializedObject = new SerializedObject(BuildToolsSettings.instance);
             if(stateList == null) stateList = new List<int>();
-            buildTypes = new List<Type>();
-
+            
             ReloadConfigs();
             GenerateBuildConfigTypeDropDown();
-
+            
             leftAlignedButton = new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).button);
             leftAlignedButton.alignment = TextAnchor.MiddleLeft;
             leftAlignedButton.fixedHeight = 30F;
@@ -90,27 +96,30 @@ namespace IPTech.BuildTool {
         }
 
         void GenerateBuildConfigTypeDropDown() {
-            buildTypes.Clear();
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach(var asm in assemblies) {
-                var types = asm.GetTypes();
-                foreach(var t in types) {
-                    if(!t.IsAbstract && t.IsSubclassOf(typeof(BuildConfig))) {
-                        buildTypes.Add(t);
+            Context.ListGenerator.GetList(typeof(BuildConfig), (bcl) => {
+                buildTypes = bcl;
+                buildTypeNames = new string[buildTypes.Count + 1];
+                buildTypeNames[0] = CREATE_NEW;  
+                if(buildTypes.Count > 0) {
+                    for(int i=0;i < buildTypes.Count;i++) {
+                        buildTypeNames[i+1] = buildTypes[i].Name; 
                     }
                 }
-            }
+            });
 
-            if(buildTypes.Count > 0) {
-                buildTypeNames = new string[buildTypes.Count + 1];
-                buildTypeNames[0] = CREATE_NEW;
-                for(int i=0;i < buildTypes.Count;i++) {
-                    buildTypeNames[i+1] = buildTypes[i].Name; 
+            Context.ListGenerator.GetList(typeof(EncryptedItem), (ll) => {
+                importOptionsType = ll;
+                importOptions = new string[importOptionsType.Count + 1];
+                importOptions[0] = "import";
+                if(importOptionsType.Count>0) {
+                    for(int i=0; i < importOptionsType.Count;i++) {
+                        importOptions[i+1] = importOptionsType[i].Name;
+                    }
                 }
-            } else {
-                buildTypeNames = new string[1] { CREATE_NEW };
-            }
+            });
         }
+
+        
 
         private void OnGUI() {
             ConditionallyReloadConfigs();
@@ -245,10 +254,9 @@ namespace IPTech.BuildTool {
             void DrawFooter() {
                 using(new EditorGUILayout.HorizontalScope()) {
                     GUILayout.FlexibleSpace();
-                    selectedBuildType = EditorGUILayout.Popup(selectedBuildType, buildTypeNames);
+                    int selectedBuildType = EditorGUILayout.Popup(0, buildTypeNames);
                     if(selectedBuildType > 0) {
                         var t = buildTypes[selectedBuildType - 1];
-                        selectedBuildType = 0;
                         CreateNewBuildType(t);
                     }
                     using(new EditorGUI.DisabledScope(!isDirty)) {
@@ -298,9 +306,11 @@ namespace IPTech.BuildTool {
                 }
 
                 GUILayout.Space(16);
-                if(GUILayout.Button("delete", GUILayout.Width(100))) {
-                    password = null;
-                    es.DeleteAllStorageAndPassword();
+                if(GUILayout.Button("! DESTROY !", GUILayout.Width(100))) {
+                    if(EditorUtility.DisplayDialog("DESTROY ALL ENCRYPTED ITEMS", "Are you sure you want to destroy all encrypted storage?", "Yes", "No")) {
+                        password = null;
+                        es.DeleteAllStorageAndPassword();
+                    }
                 }
             }
 
@@ -308,30 +318,22 @@ namespace IPTech.BuildTool {
                 EditorGUI.indentLevel++;
                 foreach(var key in es) {
                     using(new EditorGUILayout.HorizontalScope()) {
-                        EditorGUILayout.LabelField(key);
-                        if(GUILayout.Button("export", GUILayout.Width(100))) {
-                            string file = EditorUtility.SaveFilePanel("Select location to export to", Path.GetDirectoryName(Application.dataPath), key, "");
-                            if(!string.IsNullOrEmpty(file)) {
-                                if(es.TryGetValue(key, out byte[] val)) {
-                                    File.WriteAllBytes(file, val);
-                                } else {
-                                    EditorUtility.DisplayDialog("Error exporting", "There was an error decrypting and exporting your data", "Ok");
-                                }
-                            }
+                        EditorGUILayout.LabelField(key.Name);
+                        if(GUILayout.Button("edit", GUILayout.Width(100))) {
+                            EncryptedStorageImportDialog.EditItem(key.Name);
                         }
                         GUILayout.Space(16);
                         if(GUILayout.Button("delete", GUILayout.Width(100))) {
-                            es.Remove(key);
+                            es.Remove(key.Name);
                         }
                     }
                 }
                 using(new EditorGUILayout.HorizontalScope()) {
                     GUILayout.FlexibleSpace();
-                    if(GUILayout.Button("import")) {
-                        string file = EditorUtility.OpenFilePanel("Select file to import", Path.GetDirectoryName(Application.dataPath), "");
-                        if(!string.IsNullOrEmpty(file)) {
-                            es.Add(Path.GetFileName(file), File.ReadAllBytes(file));
-                        }
+                    int i = EditorGUILayout.Popup(0, importOptions);
+                    if(i>0) {
+                        var t = importOptionsType[i-1];
+                        EncryptedStorageImportDialog.ImportItem(t);
                     }
                 }
             }

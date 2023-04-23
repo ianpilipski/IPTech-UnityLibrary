@@ -8,16 +8,62 @@ using UnityEngine;
 
 namespace IPTech.BuildTool {
     public class PlayerBuildConfig : BuildConfig {
+        static IEnumerable<UnityEngine.Object> EmptySubAssets = new List<UnityEngine.Object>();
         public static PlayerBuildConfig CurrentlyBuildingConfig;
 
         public string OutputPath;
         public BuildTarget BuildTarget;
         public BuildOptions BuildOptions;
+        [InlineCreation]
         public List<BuildProcessor> BuildProcessors;
-
+        
         Stack<ConfigModifier> undoModifiers = new Stack<ConfigModifier>();
         List<ConfigModifier> configModifiers;
+        
+        protected virtual void OnEnable() {
+            CleanupSubAssets();
+        }
 
+        protected virtual void OnValidate() {
+            CleanupSubAssets();
+        }
+
+        void CleanupSubAssets() {
+            var subAssets = PopulateSubAssetsList();
+            List<BuildProcessor> removedBps = new List<BuildProcessor>();
+            foreach(var sub in subAssets) {
+                if(sub is BuildProcessor bp) {
+                    if(BuildProcessors==null || !BuildProcessors.Contains(bp)) {
+                        removedBps.Add(bp);
+                    }
+                }
+            }
+            if(removedBps.Count>0) {
+                EditorApplication.delayCall += () => {
+                    foreach(var bp in removedBps) {
+                        if(bp != null) {
+                            AssetDatabase.RemoveObjectFromAsset(bp);
+                            EditorUtility.SetDirty(bp);
+                            AssetDatabase.SaveAssetIfDirty(bp);
+                        } else {
+                            Debug.LogWarning("bp is null");
+                        }
+                    }
+                    EditorUtility.SetDirty(this);
+                    AssetDatabase.SaveAssetIfDirty(this);
+                };
+            }
+
+
+        }
+
+        IEnumerable<UnityEngine.Object> PopulateSubAssetsList() {
+            var subs = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this));
+            if(subs != null) {
+                return subs.Where(s => s != this && s != null);
+            }
+            return EmptySubAssets;
+        }
 
         public override void Build(IDictionary<string, string> args) {
             AssertEditorPlatformMatchesBuildTarget();
@@ -147,6 +193,8 @@ namespace IPTech.BuildTool {
         public override bool CanBuildWithCurrentEditorBuildTarget() {
             return EditorUserBuildSettings.activeBuildTarget == BuildTarget;
         }
+
+
 
     }
 }
