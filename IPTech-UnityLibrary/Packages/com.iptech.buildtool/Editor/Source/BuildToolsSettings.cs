@@ -1,8 +1,7 @@
-using System;
+
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 
 namespace IPTech.BuildTool {
@@ -30,18 +29,16 @@ namespace IPTech.BuildTool {
             }
         }
         
-        private void OnEnable() {
-            bool needsSave = false;
+        protected BuildToolsSettings() : base() {
+            EditorApplication.delayCall += instance.CheckCtor;
+        }
+
+        void CheckCtor() {
             if(hideFlags.HasFlag(HideFlags.NotEditable)) {
                 hideFlags &= ~HideFlags.NotEditable;
-                needsSave = true;
             }
 
             if(LoadPrevVersion()) {
-                needsSave = true;
-            }
-
-            if(needsSave) {
                 Save();
             }
         }
