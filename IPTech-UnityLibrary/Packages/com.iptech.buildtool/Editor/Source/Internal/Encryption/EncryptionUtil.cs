@@ -2,8 +2,8 @@ using System;
 using System.IO;
 
 
-namespace IPTech.BuildTool {
-    public class Encryption {
+namespace IPTech.BuildTool.Internal {
+    public class EncryptionUtil {
         public string OpenSSLEncrypt(byte[] bytes, string passphrase) {
             using(var tmpPath = new TempPath()) {
                 var tmpFileName = Path.Combine(tmpPath.ThePath, Path.GetRandomFileName());

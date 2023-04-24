@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System;
 
-namespace IPTech.BuildTool
+namespace IPTech.BuildTool.Encryption
 {
 
     public interface IEncryptedItemSerialization {

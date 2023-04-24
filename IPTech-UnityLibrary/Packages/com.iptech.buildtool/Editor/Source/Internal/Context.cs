@@ -1,5 +1,7 @@
 
 namespace IPTech.BuildTool.Internal {
+    using Encryption;
+    
     public static class Context {
         public static ReflectionListGenerator ListGenerator;
 

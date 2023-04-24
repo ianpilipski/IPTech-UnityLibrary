@@ -5,6 +5,8 @@ using UnityEditor;
 using UnityEngine;
 
 namespace IPTech.BuildTool {
+    using Encryption;
+    
     [FilePath("ProjectSettings/IPTechBuildToolSettings.asset", FilePathAttribute.Location.ProjectFolder)]
     public class BuildToolsSettings : ScriptableSingletonWithSubObjects<BuildToolsSettings> {
         const string ENC_STORAGE_DIR = "ProjectSettings/IPTechBuildToolSettings/Storage";
@@ -19,11 +21,11 @@ namespace IPTech.BuildTool {
         [InlineCreation]
         public List<BuildProcessor> BuildProcessors;
 
-        EncryptedStorage<EncryptedItem> _encStorage;
-        public EncryptedStorage<EncryptedItem> EncryptedStorage {
+        Internal.EncryptedStorage<EncryptedItem> _encStorage;
+        public IEncryptedStorage<EncryptedItem> EncryptedStorage {
             get {
                 if(_encStorage==null) {
-                    _encStorage = new EncryptedStorage<EncryptedItem>("ProjectSettings/IPTechBuildToolSettings/Storage");
+                    _encStorage = new Internal.EncryptedStorage<EncryptedItem>("ProjectSettings/IPTechBuildToolSettings/Storage");
                 }
                 return _encStorage;
             }

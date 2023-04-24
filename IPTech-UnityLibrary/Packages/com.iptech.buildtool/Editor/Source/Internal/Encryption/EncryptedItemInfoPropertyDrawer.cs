@@ -3,9 +3,8 @@ using UnityEditor;
 using System.Linq;
 using System;
 
-namespace IPTech.BuildTool
+namespace IPTech.BuildTool.Encryption
 {
-
     [CustomPropertyDrawer(typeof(EncryptedItemInfo), true)]
     public class EncryptedItemInfoPropertyDrawer : PropertyDrawer {
         string[] keys;

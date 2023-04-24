@@ -1,6 +1,6 @@
-using UnityEditor;
 
-namespace IPTech.BuildTool {
+
+namespace IPTech.BuildTool.Encryption {
     public class EncryptedItemFile : EncryptedItem<EncryptedItemFile> {
         public FileData File;
 

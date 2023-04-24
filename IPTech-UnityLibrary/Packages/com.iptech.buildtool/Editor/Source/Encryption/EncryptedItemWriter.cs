@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool.Encryption {
     public class EncryptedItemWriter {
         static string EmptyString = "";
 

@@ -1,7 +1,7 @@
 
 using System;
 
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool.Encryption {
     [Serializable]
     public class EncryptedItemInfo {
         public string Name;

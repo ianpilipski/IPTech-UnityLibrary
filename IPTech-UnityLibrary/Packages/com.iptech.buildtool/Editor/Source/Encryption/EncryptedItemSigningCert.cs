@@ -1,6 +1,6 @@
 
 
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool.Encryption {
     public class EncryptedItemSigningCert : EncryptedItem<EncryptedItemSigningCert> {
         public string Password;
 

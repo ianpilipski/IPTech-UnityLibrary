@@ -1,12 +1,12 @@
 using System;
 using UnityEngine;
 
-namespace IPTech.BuildTool
+namespace IPTech.BuildTool.Encryption
 {
     public abstract class EncryptedItem : ScriptableObject, IEncryptedItemSerialization {
         string IEncryptedItemSerialization.Name{ get => this.name; set => this.name=value; }
-        void IEncryptedItemSerialization.Serialize(IPTech.BuildTool.EncryptedItemWriter writer) => InternalSerialize(writer);
-        void IEncryptedItemSerialization.Deserialize(IPTech.BuildTool.EncryptedItemReader reader) => InternalDeserialize(reader);
+        void IEncryptedItemSerialization.Serialize(EncryptedItemWriter writer) => InternalSerialize(writer);
+        void IEncryptedItemSerialization.Deserialize(EncryptedItemReader reader) => InternalDeserialize(reader);
 
         protected abstract void InternalSerialize(EncryptedItemWriter writer);
         protected abstract void InternalDeserialize(EncryptedItemReader reader);

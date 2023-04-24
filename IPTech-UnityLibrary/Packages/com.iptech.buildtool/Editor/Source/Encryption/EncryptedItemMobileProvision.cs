@@ -1,4 +1,4 @@
-namespace IPTech.BuildTool
+namespace IPTech.BuildTool.Encryption
 {
     public class EncryptedItemMobileProvision : EncryptedItem<EncryptedItemMobileProvision> {
         [FileType("mobileprovision")]

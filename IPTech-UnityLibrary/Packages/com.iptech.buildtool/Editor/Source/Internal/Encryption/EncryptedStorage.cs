@@ -6,14 +6,15 @@ using System;
 using IPTech.BuildTool.Internal;
 using System.Linq;
 
-namespace IPTech.BuildTool {
-    
-   public class EncryptedStorage<T> : IEncryptedStorage<T>  where T : class, IEncryptedItemSerialization {
+namespace IPTech.BuildTool.Internal {
+    using Encryption;
+
+    public class EncryptedStorage<T> : IEncryptedStorage<T>  where T : class, IEncryptedItemSerialization {
         static readonly ICollection<byte[]> EmptyCollectionByteArray = new List<byte[]>();
         static readonly ICollection<string> EmptyCollectionStrings = new List<string>();
         static readonly string[] EmptyStringArray = new string[0];
 
-        readonly Encryption encryption;
+        readonly EncryptionUtil encryption;
         readonly string dirPath;
         string password;
 
@@ -25,7 +26,7 @@ namespace IPTech.BuildTool {
                 throw new Exception("the dirPath must be relative to the unity project");
             }
             this.dirPath = dirPath;
-            this.encryption = new Encryption();
+            this.encryption = new EncryptionUtil();
             this.LastModified = DateTime.UtcNow;
             items = new Dictionary<string, EncryptedItemInfo>(StringComparer.OrdinalIgnoreCase);
         }

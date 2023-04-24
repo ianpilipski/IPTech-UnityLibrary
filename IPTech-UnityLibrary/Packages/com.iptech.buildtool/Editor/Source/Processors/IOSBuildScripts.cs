@@ -9,6 +9,8 @@ using System.Linq;
 using UnityEngine.Serialization;
 
 namespace IPTech.BuildTool.Processors {
+    using Encryption;
+    
     [Tooltip("Adds shell scripts configured to build the xcode project artifact.")]
     public class IOSBuildScripts : BuildProcessor {
         const string DATAPATH = "iptechbuild/data";
