@@ -29,5 +29,11 @@ namespace IPTech.BuildTool.Encryption {
             }
             return Encoding.UTF8.GetString(Convert.FromBase64String(data[key]));
         }
+
+        public FileData ReadFileData(string key) {
+            return new FileData() {
+                data = ReadBytes(key)
+            };
+        }
     }
 }
