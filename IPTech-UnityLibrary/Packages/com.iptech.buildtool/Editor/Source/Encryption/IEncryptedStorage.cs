@@ -11,6 +11,7 @@ namespace IPTech.BuildTool.Encryption
     }
 
     public interface IEncryptedStorage<T> : IEnumerable<EncryptedItemInfo> {
+        bool HasPassword { get; }
         void Lock();
         void Unlock(string password);
         bool IsUnlocked { get; }
