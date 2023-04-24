@@ -1,9 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Xml.Linq;
 using UnityEngine;
 
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool
+{
     public abstract class EncryptedItem : ScriptableObject, IEncryptedItemSerialization {
         string IEncryptedItemSerialization.Name{ get => this.name; set => this.name=value; }
         void IEncryptedItemSerialization.Serialize(IPTech.BuildTool.EncryptedItemWriter writer) => InternalSerialize(writer);

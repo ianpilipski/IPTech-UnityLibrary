@@ -1,12 +1,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using NUnit.Framework;
 using UnityEngine;
 
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool
+{
     public class ReflectionListGenerator {
         static SortGenListByName sorter = new SortGenListByName();
 

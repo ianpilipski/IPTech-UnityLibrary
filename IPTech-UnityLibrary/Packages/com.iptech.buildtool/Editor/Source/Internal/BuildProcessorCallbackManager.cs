@@ -7,7 +7,7 @@ using UnityEditor.Build.Reporting;
 using UnityEditor.Android;
 #endif
 
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool.Internal {
     public class BuildProcessorCallbackManager : IPreprocessBuildWithReport, IPostprocessBuildWithReport
 #if UNITY_ANDROID
         ,IPostGenerateGradleAndroidProject

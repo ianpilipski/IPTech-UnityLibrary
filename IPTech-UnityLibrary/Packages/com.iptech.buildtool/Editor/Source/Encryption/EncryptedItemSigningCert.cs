@@ -1,7 +1,5 @@
 
 
-using System.Runtime.CompilerServices;
-
 namespace IPTech.BuildTool {
     public class EncryptedItemSigningCert : EncryptedItem<EncryptedItemSigningCert> {
         public string Password;

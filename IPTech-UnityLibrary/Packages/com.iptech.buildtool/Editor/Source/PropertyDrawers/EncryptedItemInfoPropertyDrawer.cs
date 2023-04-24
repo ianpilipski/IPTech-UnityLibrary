@@ -1,10 +1,10 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
 using System;
 
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool
+{
 
     [CustomPropertyDrawer(typeof(EncryptedItemInfo), true)]
     public class EncryptedItemInfoPropertyDrawer : PropertyDrawer {

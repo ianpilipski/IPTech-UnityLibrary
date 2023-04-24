@@ -1,8 +1,5 @@
-
-
-using System.Runtime.CompilerServices;
-
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool
+{
     public class EncryptedItemPList : EncryptedItem<EncryptedItemPList> {
         [FileType("plist")]
         public FileData PList;

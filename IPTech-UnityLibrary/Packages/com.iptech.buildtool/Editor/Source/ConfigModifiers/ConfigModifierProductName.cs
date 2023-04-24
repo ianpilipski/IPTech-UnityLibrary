@@ -1,9 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool
+{
     public class ConfigModifierProductName : ConfigModifier {
         public string ProductName;
 

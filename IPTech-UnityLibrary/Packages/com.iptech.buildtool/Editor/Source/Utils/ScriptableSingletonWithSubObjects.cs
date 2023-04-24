@@ -1,12 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
 using UnityEditorInternal;
-using System.Linq;
 
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool
+{
     public abstract class ScriptableSingletonWithSubObjects<T> : ScriptableSingleton<T> where T : ScriptableObject {
         protected virtual void GetSubObjectsToSave(List<UnityEngine.Object> objs) {  }
 

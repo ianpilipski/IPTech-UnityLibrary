@@ -1,8 +1,5 @@
-
-
-using System.Runtime.CompilerServices;
-
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool
+{
     public class EncryptedItemMobileProvision : EncryptedItem<EncryptedItemMobileProvision> {
         [FileType("mobileprovision")]
         public FileData MobileProvision;

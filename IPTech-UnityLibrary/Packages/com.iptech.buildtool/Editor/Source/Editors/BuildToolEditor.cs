@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace IPTech.BuildTool {
-    using System.Web.Razor.Generator;
+namespace IPTech.BuildTool
+{
     using Internal;
 
     public class BuildToolEditor : EditorWindow {

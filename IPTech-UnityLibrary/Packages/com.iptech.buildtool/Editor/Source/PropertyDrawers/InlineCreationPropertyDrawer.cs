@@ -1,12 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using UnityEngine.UIElements;
 using System;
 using System.Linq;
 
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool
+{
     [CustomPropertyDrawer(typeof(InlineCreationAttribute))]
     public class AllowRefOrInstPropertyDrawer : PropertyDrawer {
         const float HEIGHT = 18F;

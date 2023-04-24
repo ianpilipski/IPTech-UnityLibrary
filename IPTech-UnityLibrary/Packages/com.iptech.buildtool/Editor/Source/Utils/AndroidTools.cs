@@ -1,11 +1,10 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool
+{
     public static class AndroidTools {
 		public static void AddGradleWrapperToPath(string outputPath) {
 			Console.Out.WriteLine("Adding gradle wrapper to exported project at " + outputPath);
