@@ -1,12 +1,12 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool
+{
     public class PlayerBuildConfig : BuildConfig {
         static IEnumerable<UnityEngine.Object> EmptySubAssets = new List<UnityEngine.Object>();
         public static PlayerBuildConfig CurrentlyBuildingConfig;

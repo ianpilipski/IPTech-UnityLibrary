@@ -1,13 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using System.IO;
 using System;
-using IPTech.BuildTool.Internal;
-using System.Linq;
 
-namespace IPTech.BuildTool {
-    
+namespace IPTech.BuildTool
+{
+
     public interface IEncryptedItemSerialization {
         string Name { get; set; }
         void Serialize(EncryptedItemWriter writer);

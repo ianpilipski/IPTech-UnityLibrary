@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
-using UnityEngine;
 
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool
+{
     public class CurrentBuildSettings {
         public class Scoped : IDisposable {
             readonly string buildNumber;

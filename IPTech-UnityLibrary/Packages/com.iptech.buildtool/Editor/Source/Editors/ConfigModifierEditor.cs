@@ -1,9 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool
+{
     [CustomEditor(typeof(ConfigModifier), true)]
     public class ConfigModifierEditor : Editor {
         public override void OnInspectorGUI() {

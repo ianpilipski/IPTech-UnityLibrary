@@ -1,11 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEditor;
 using UnityEditor.Build;
-using System.Linq;
 
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool
+{
     public class ConfigModifierSetScriptingDefines : ConfigModifier {
         public List<string> ScriptingDefines;
 
