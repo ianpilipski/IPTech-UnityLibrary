@@ -64,7 +64,7 @@ namespace IPTech.BuildTool {
             Rect main = EditorGUIUtility.GetMainWindowPosition();
             Rect pos = this.position;
             float centerWidth = (main.width - pos.width) * 0.5f;
-            float centerHeight = (main.height - pos.height) * 0.5f;
+            float centerHeight = (main.height - pos.height) * 0.25f;
             pos.x = main.x + centerWidth;
             pos.y = main.y + centerHeight;
             this.position = pos;
@@ -88,6 +88,9 @@ namespace IPTech.BuildTool {
         private void OnGUI() {
             serializedObject.Update();
             
+            GUIStyle marginStyle = UnityEditor.EditorStyles.inspectorFullWidthMargins;
+            EditorGUILayout.BeginVertical(marginStyle);
+
             var nameProp = serializedObject.FindProperty("m_Name");
             using(new EditorGUI.DisabledScope(nameLocked)) {
                 EditorGUILayout.PropertyField(nameProp);
@@ -118,13 +121,16 @@ namespace IPTech.BuildTool {
 
             serializedObject.ApplyModifiedProperties();
 
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.Space();
+
             using(new EditorGUILayout.HorizontalScope()) {
                 GUILayout.FlexibleSpace();
-                if(GUILayout.Button("Cancel")) {
+                if(GUILayout.Button("Cancel", GUILayout.Width(100), GUILayout.Height(32))) {
                     Close();
                 }
                 EditorGUILayout.Space();
-                if(GUILayout.Button("Save")) {
+                if(GUILayout.Button("Import", GUILayout.Width(100), GUILayout.Height(32))) {
                     if(string.IsNullOrWhiteSpace(target.name)) {
                         EditorUtility.DisplayDialog("key invalid","you must enter a name", "ok");
                     } else {
@@ -139,7 +145,13 @@ namespace IPTech.BuildTool {
                         }
                     }
                 }
+                EditorGUILayout.Space();
+                EditorGUILayout.Space();
             }
+            EditorGUILayout.Space();
+            EditorGUILayout.Space();
+
+            EditorGUILayout.EndVertical();
         }
     }
 }
