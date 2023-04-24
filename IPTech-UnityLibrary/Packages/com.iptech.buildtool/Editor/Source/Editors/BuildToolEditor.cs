@@ -222,12 +222,11 @@ namespace IPTech.BuildTool
                                 rect.x = rect.x + offset;
                                 rect.width = rect.width - offset;
                                 if(GUI.Button(rect, AssetDatabase.GetAssetPath(bc.GetInstanceID()))) {
-                                    //Selection.objects = new UnityEngine.Object[] { bc };
                                     EditorGUIUtility.PingObject(bc.GetInstanceID());
                                 }
                                 var ed = GetEditor(bc);                               
                                 ed.OnInspectorGUI();
-                                //ed.serializedObject.ApplyModifiedProperties();
+                                
                                 isDirty = isDirty || EditorUtility.IsDirty(bc.GetInstanceID());
                                 using(new EditorGUILayout.HorizontalScope()) {
                                     GUILayout.FlexibleSpace();

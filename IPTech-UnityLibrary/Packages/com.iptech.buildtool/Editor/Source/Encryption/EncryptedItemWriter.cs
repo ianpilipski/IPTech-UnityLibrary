@@ -29,5 +29,9 @@ namespace IPTech.BuildTool.Encryption {
                 dict[key] = EmptyString;
             }
         }
+
+        public void WriteFileData(string key, FileData value) {
+            WriteBytes(key, value.data);
+        }
     }
 }
