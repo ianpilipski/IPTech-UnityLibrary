@@ -17,7 +17,7 @@ namespace IPTech.BuildTool {
                     var pos = position;
                     pos.y += 1;
                     pos.height -= 2;
-                    pos.width = pos.width - 204;
+                    pos.width = pos.width - (100 + 25 + 2);
                     
                     EditorGUI.LabelField(pos, label, new GUIContent(fileNameProp.stringValue ?? ""));
 
@@ -31,7 +31,8 @@ namespace IPTech.BuildTool {
                     }
 
                     pos.x += 100 + 1;
-                    if(GUI.Button(pos, "import")) {
+                    pos.width = 25;
+                    if(GUI.Button(pos, "...")) {
                         ImportFileData(dataProp, fileNameProp);
                     }
 
