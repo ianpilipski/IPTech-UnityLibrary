@@ -29,14 +29,17 @@ namespace IPTech.BuildTool.Internal {
             this.encryption = new EncryptionUtil();
             this.LastModified = DateTime.UtcNow;
             items = new Dictionary<string, EncryptedItemInfo>(StringComparer.OrdinalIgnoreCase);
+            HasPassword = DoesVerificationFileExists();
         }
 
+        public bool HasPassword { get; private set; }
         public bool IsUnlocked => !string.IsNullOrEmpty(password);
         public DateTime LastModified { get; private set; }
 
         public void Unlock(string password) {
             VerifyPassword(password);
             this.password = password;
+            HasPassword = true;
         }
 
         public void Lock() {
@@ -72,6 +75,7 @@ namespace IPTech.BuildTool.Internal {
             if(Directory.Exists(dirPath)) {
                 Directory.Delete(dirPath, true);
                 LastModified = DateTime.UtcNow;
+                HasPassword = false;
             }
         }
 
@@ -203,7 +207,7 @@ namespace IPTech.BuildTool.Internal {
             EnsureDirectoryCreated();
 
             var pwHash = Hash128.Compute(password).ToString();
-            var verificationFile = Path.Combine(dirPath, "verification");
+            var verificationFile = GetVerificationFilePath();
 
             if(File.Exists(verificationFile)) {
                 string hash = File.ReadAllText(verificationFile);
@@ -213,6 +217,14 @@ namespace IPTech.BuildTool.Internal {
             } else {
                 File.WriteAllText(verificationFile, pwHash);
             }
+        }
+
+        bool DoesVerificationFileExists() {
+            return File.Exists(GetVerificationFilePath());
+        }
+
+        string GetVerificationFilePath() {
+            return Path.Combine(dirPath, "verification");
         }
 
         void EnsureDirectoryCreated() {

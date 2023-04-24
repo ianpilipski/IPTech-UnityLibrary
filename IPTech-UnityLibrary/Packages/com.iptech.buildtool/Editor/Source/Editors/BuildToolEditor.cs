@@ -294,7 +294,7 @@ namespace IPTech.BuildTool
             using(new EditorGUILayout.HorizontalScope()) {
                 if(!es.IsUnlocked) {
                     password = EditorGUILayout.PasswordField("password", password);
-                    if(GUILayout.Button("unlock", GUILayout.Width(100))) {
+                    if(GUILayout.Button(es.HasPassword ? "unlock" : "create", GUILayout.Width(100))) {
                         es.Unlock(password);
                     }
                 } else {
