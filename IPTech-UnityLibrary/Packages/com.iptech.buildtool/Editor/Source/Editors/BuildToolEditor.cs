@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace IPTech.BuildTool
 {
+    using Encryption;
     using Internal;
 
     public class BuildToolEditor : EditorWindow {

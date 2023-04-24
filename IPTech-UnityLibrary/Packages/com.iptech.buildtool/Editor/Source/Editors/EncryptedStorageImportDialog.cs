@@ -4,6 +4,7 @@ using UObject = UnityEngine.Object;
 using System;
 
 namespace IPTech.BuildTool {
+    using Encryption;
     
     public class EncryptedStorageImportDialog : EditorWindow {
         SerializedObject serializedObject;

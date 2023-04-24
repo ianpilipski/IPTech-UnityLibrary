@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace IPTech.BuildTool {
+namespace IPTech.BuildTool.Encryption {
     public class EncryptedItemReader {
         static byte[] EmptyByteArray = new byte[0];
         static string EmptyString = "";
