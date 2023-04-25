@@ -149,8 +149,13 @@ namespace IPTech.BuildTool
 
         protected void SetBuildNumber(IDictionary<string,string> args) {
             if(args.TryGetValue("-buildNumber", out string val)) {
+                Console.Out.WriteLine("Setting buildNumber / bundleVersionCode from -buildNumber commandline argument to " + val);
+                
+                int i = int.Parse(val);
+                if(i<=0) i=1;
+
                 PlayerSettings.iOS.buildNumber = val;
-                PlayerSettings.Android.bundleVersionCode = int.Parse(val);
+                PlayerSettings.Android.bundleVersionCode = i;
             }
         }
 
