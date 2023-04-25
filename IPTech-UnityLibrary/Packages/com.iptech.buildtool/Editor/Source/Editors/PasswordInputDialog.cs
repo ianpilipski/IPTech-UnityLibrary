@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
@@ -5,6 +6,9 @@ using UnityEngine;
 namespace IPTech.BuildTool.Editors {
     public class PasswordInputDialog : EditorWindow {
         string retVal;
+        int passControlId;
+
+        bool didFocusControl;
 
         public static string Display() {
             var win = ScriptableObject.CreateInstance<PasswordInputDialog>();
@@ -19,7 +23,30 @@ namespace IPTech.BuildTool.Editors {
 
         void OnGUI() {
             using(new EditorGUILayout.VerticalScope(EditorStyles.inspectorFullWidthMargins)) {
+                Event e = Event.current;
+                if(e.type == EventType.KeyDown) {
+                    if(GUIUtility.hotControl == passControlId) {
+                        if(e.keyCode == KeyCode.Return) {
+                            Close();
+                            e.Use();
+                        }
+                    }
+
+                    if(e.keyCode == KeyCode.Escape) {
+                        retVal = null;
+                        Close();
+                        e.Use();
+                    }
+                }
+
+                //passControlId = GUIUtility.GetControlID(FocusType.Keyboard);
+                GUI.SetNextControlName("pass");
                 retVal = EditorGUILayout.PasswordField("Password", retVal);
+                if(!didFocusControl && e.type == EventType.Layout) {
+                    EditorGUI.FocusTextInControl("pass");
+                    didFocusControl = true;
+                }
+
                 GUILayout.FlexibleSpace();
                 using(new EditorGUILayout.HorizontalScope(EditorStyles.inspectorFullWidthMargins)) {
                     if(GUILayout.Button("Cancel")) {
