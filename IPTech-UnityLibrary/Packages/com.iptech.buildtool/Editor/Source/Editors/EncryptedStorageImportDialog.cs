@@ -86,6 +86,8 @@ namespace IPTech.BuildTool {
         }
     
         private void OnGUI() {
+            HandleEscape();
+            
             serializedObject.Update();
             
             GUIStyle marginStyle = UnityEditor.EditorStyles.inspectorFullWidthMargins;
@@ -152,6 +154,16 @@ namespace IPTech.BuildTool {
             EditorGUILayout.Space();
 
             EditorGUILayout.EndVertical();
+        }
+
+        void HandleEscape() {
+            Event e = Event.current;
+            if(e.type == EventType.KeyDown) {
+                if(e.keyCode == KeyCode.Escape) {
+                    Close();
+                    e.Use();
+                }
+            }
         }
     }
 }
