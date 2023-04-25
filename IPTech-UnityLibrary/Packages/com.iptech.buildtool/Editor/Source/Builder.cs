@@ -25,11 +25,35 @@ namespace IPTech.BuildTool
             foreach(var asset in assets) {
                 var bc = AssetDatabase.LoadAssetAtPath<BuildConfig>(AssetDatabase.GUIDToAssetPath(asset));
                 if(bc!=null && bc.name == configName) {
-                    bc.Build(args);
+                    using(new TryUnlockEncryptedStorage()) {
+                        bc.Build(args);
+                    }
                     return;
                 }
             }
             throw new Exception($"Could not find BuildConfig with the name {configName}");
+        }
+
+        class TryUnlockEncryptedStorage : IDisposable {
+            bool relock;
+
+            public TryUnlockEncryptedStorage() {
+                if(BuildToolsSettings.instance.EncryptedStorage.HasPassword) {
+                    if(!BuildToolsSettings.instance.EncryptedStorage.IsUnlocked) {
+                        relock = true;
+                        var pwd = Environment.GetEnvironmentVariable("IPTECH_BUILDTOOL_PASSWORD");
+                        if(!string.IsNullOrEmpty(pwd)) {
+                            BuildToolsSettings.instance.EncryptedStorage.Unlock(pwd);  
+                        }
+                    }
+                }
+            }
+
+            public void Dispose() {
+                if(relock) {
+                    BuildToolsSettings.instance.EncryptedStorage.Lock();
+                }
+            }
         }
 
         static IDictionary<string,string> ParseCommandlineArgs(string[] cmdLineArgs) {
