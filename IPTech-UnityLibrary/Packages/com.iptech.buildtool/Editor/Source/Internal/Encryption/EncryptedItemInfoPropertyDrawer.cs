@@ -39,7 +39,9 @@ namespace IPTech.BuildTool.Encryption
                             nameProp.stringValue = null;
                         } else if(i==keys.Length-1) {
                             if(!string.IsNullOrEmpty(fullTypeNameProp.stringValue)) {
-                                EncryptedStorageImportDialog.ImportItem(fullTypeNameProp.stringValue);
+                                EditorApplication.delayCall += () => {
+                                    BuildToolsSettings.instance.ImportEncryptedItem(fullTypeNameProp.stringValue);
+                                };
                             } else {
                                 EditorUtility.DisplayDialog("Generic Reference", "Generic References to encrypted items must be imported in the settings.", "ok");
                             }
