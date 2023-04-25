@@ -10,9 +10,13 @@ namespace IPTech.BuildTool
 			Console.Out.WriteLine("Adding gradle wrapper to exported project at " + outputPath);
 			string gradleLauncherPath;
 
-			FindUnityGradleLauncher();
-			AddGradleSettingsFile();
-			ExecuteGradleWrapper();
+			if(!AlreadyHasGradleWrapper()) {
+				FindUnityGradleLauncher();
+				AddGradleSettingsFile();
+				ExecuteGradleWrapper();
+			} else {
+				Console.Out.WriteLine("Detected a gradlew file already present in exported project at " + outputPath);
+			}
 
 			void FindUnityGradleLauncher() {
 				string unityGradlePath = Path.Combine(EditorApplication.applicationPath, "..", "PlaybackEngines", "AndroidPlayer", "Tools", "gradle", "lib");
@@ -39,6 +43,10 @@ namespace IPTech.BuildTool
 #endif
 						);
 				}
+			}
+
+			bool AlreadyHasGradleWrapper() {
+				return File.Exists(Path.Combine(outputPath, "gradlew"));
 			}
 
 			void ExecuteGradleWrapper() {
