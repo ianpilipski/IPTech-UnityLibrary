@@ -369,7 +369,8 @@ namespace IPTech.BuildTool
                 GUID guid = AssetDatabase.GUIDFromAssetPath(path);
                 AssetDatabase.SaveAssetIfDirty(guid);
 
-                var argsWithBuildConfig = new List<string>(BuildToolsSettings.instance.BuildInEditorArguments);
+                var argsWithBuildConfig = new List<string>() { Environment.GetCommandLineArgs()[0] };
+                argsWithBuildConfig.AddRange(BuildToolsSettings.instance.BuildInEditorArguments);
                 argsWithBuildConfig.Add("-buildConfig");
                 argsWithBuildConfig.Add(bc.name);
                 Builder.BuildWithArguments(argsWithBuildConfig.ToArray());
