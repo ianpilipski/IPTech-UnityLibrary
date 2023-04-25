@@ -33,7 +33,8 @@ namespace IPTech.BuildTool
                     createOptions = new string[createOptionsTypes.Count + 1];
                     createOptions[0] = "select your poison";
                     for(int i=0;i<createOptionsTypes.Count;i++) {
-                        createOptions[i+1] = createOptionsTypes[i].Name; 
+                        var n = createOptionsTypes[i].Name;
+                        createOptions[i+1] = n.StartsWith("ConfigModifier") ? n.Substring("ConfigModifier".Length) : n; 
                     }
                 });
             }
