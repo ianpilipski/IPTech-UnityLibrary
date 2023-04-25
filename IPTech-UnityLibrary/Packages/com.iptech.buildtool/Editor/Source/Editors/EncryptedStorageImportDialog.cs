@@ -38,7 +38,7 @@ namespace IPTech.BuildTool {
                     var window = ScriptableObject.CreateInstance<EncryptedStorageImportDialog>();
                     window.ShowWindowInternal((EncryptedItem)ScriptableObject.CreateInstance(type), false);
                 } else {
-                    throw new InvalidOperationException("the type supplied was not a subclass of EncryptedItem");
+                    throw new InvalidOperationException($"the type {type.FullName} was not a subclass of EncryptedItem");
                 }
             }
         }
@@ -54,7 +54,7 @@ namespace IPTech.BuildTool {
         void ShowWindowInternal(EncryptedItem item, bool nameLocked) {
             SetTarget(item);
             this.nameLocked = nameLocked;
-            ShowUtility();
+            ShowModalUtility();
 
             CenterOnMainWin();
         }
