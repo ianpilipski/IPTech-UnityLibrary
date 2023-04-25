@@ -23,26 +23,12 @@ namespace IPTech.BuildTool.Editors {
 
         void OnGUI() {
             using(new EditorGUILayout.VerticalScope(EditorStyles.inspectorFullWidthMargins)) {
-                Event e = Event.current;
-                if(e.type == EventType.KeyDown) {
-                    if(GUIUtility.hotControl == passControlId) {
-                        if(e.keyCode == KeyCode.Return) {
-                            Close();
-                            e.Use();
-                        }
-                    }
-
-                    if(e.keyCode == KeyCode.Escape) {
-                        retVal = null;
-                        Close();
-                        e.Use();
-                    }
-                }
+                HandleEscapeReturn();
 
                 //passControlId = GUIUtility.GetControlID(FocusType.Keyboard);
                 GUI.SetNextControlName("pass");
                 retVal = EditorGUILayout.PasswordField("Password", retVal);
-                if(!didFocusControl && e.type == EventType.Layout) {
+                if(!didFocusControl && Event.current.type == EventType.Layout) {
                     EditorGUI.FocusTextInControl("pass");
                     didFocusControl = true;
                 }
@@ -59,6 +45,24 @@ namespace IPTech.BuildTool.Editors {
                     }
                 }
                 EditorGUILayout.Space(32F);
+            }
+        }
+
+        void HandleEscapeReturn() {
+            Event e = Event.current;
+            if(e.type == EventType.KeyDown) {
+                if(GUIUtility.hotControl == passControlId) {
+                    if(e.keyCode == KeyCode.Return) {
+                        Close();
+                        e.Use();
+                    }
+                }
+
+                if(e.keyCode == KeyCode.Escape) {
+                    retVal = null;
+                    Close();
+                    e.Use();
+                }
             }
         }
     }
