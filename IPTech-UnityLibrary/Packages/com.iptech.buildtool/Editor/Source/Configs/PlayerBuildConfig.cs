@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
@@ -161,24 +162,25 @@ namespace IPTech.BuildTool
 
         protected virtual BuildPlayerOptions GetBuildPlayerOptions(IDictionary<string, string> args) {
             return new BuildPlayerOptions {
-                locationPathName = GetOutputPath(args),
+                locationPathName = GetLocationPathName(args),
                 options = BuildOptions,
                 scenes = GetScenes(),
                 target = BuildTarget
             };
         }
         
-        protected string GetOutputPath(IDictionary<string,string> args) {
-            string retVal = OutputPath;
-            
-            if(args.TryGetValue("-outputDir", out string value)) {
-                retVal = value;
+        protected virtual string GetLocationPathName(IDictionary<string, string> args) {
+            string outPath = OutputPath;
+            if(string.IsNullOrWhiteSpace(outPath)) {
+                outPath = Path.Combine("build", name);
             }
 
-            if(string.IsNullOrEmpty(retVal)) {
-                retVal = $"build/{name}";
+            if(args.TryGetValue("-outputDir", out string value)) {
+                string buildName = Path.GetFileName(outPath);
+                return Path.Combine(value, buildName);        
             }
-            return retVal;
+
+            return outPath;
         }
 
         protected virtual string[] GetScenes() {
