@@ -8,6 +8,8 @@ if [[ ! -v IPTECH_BUILDTOOL_PASSWORD ]];then
 fi
 
 [[ ! -v KEYCHAIN_NAME ]] && export KEYCHAIN_NAME=iptechbuildtool.keychain
+[[ ! -v OUTPUT_PATH ]] && export OUTPUT_PATH=build
+
 export CP_HOME_DIR=$PWD/.cocoapods
 
 source iptechbuild/lib/import-libs.sh
