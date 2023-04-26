@@ -99,7 +99,7 @@ installSigningCert \
             sb.AppendLine();
 
             foreach(var b in XcodeBuilds) {
-                string outputPath = $"build/{b.Name}";
+                string outputPath = $"$OUTPUT_PATH/{b.Name}";
                 sb.AppendLine($"# build {b.Name}");
                 sb.AppendLine(GenerateTheBuildSnippet(b, outputPath));
                 foreach(var export in b.ExportArchives) {
