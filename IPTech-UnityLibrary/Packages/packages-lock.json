@@ -58,6 +58,12 @@
         "com.iptech.debugtools": "0.0.1"
       }
     },
+    "com.iptech.unityabstraction": {
+      "version": "file:com.iptech.unityabstraction",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
