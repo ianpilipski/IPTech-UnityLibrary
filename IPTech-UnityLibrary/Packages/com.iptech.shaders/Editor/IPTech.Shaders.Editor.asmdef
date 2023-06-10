@@ -1,0 +1,1 @@
+{"name":"IPTech.Shaders.Editor","references":["IPTech.Shaders.Runtime"],"optionalUnityReferences":[],"includePlatforms":["Editor"],"excludePlatforms":[],"allowUnsafeCode":false,"overrideReferences":false,"precompiledReferences":[],"autoReferenced":true,"defineConstraints":[],"versionDefines":[],"noEngineReferences":false}

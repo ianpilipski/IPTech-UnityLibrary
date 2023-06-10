@@ -56,6 +56,12 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "com.iptech.shaders": {
+      "version": "file:com.iptech.shaders",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.iptech.splines": {
       "version": "file:com.iptech.splines",
       "depth": 0,
