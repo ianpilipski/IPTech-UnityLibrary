@@ -38,6 +38,12 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "com.iptech.hexmap": {
+      "version": "file:com.iptech.hexmap",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.iptech.mathutils": {
       "version": "file:com.iptech.mathutils",
       "depth": 0,
