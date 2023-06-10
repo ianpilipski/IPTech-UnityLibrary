@@ -2,6 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace IPTech.PropertyAttributes {
+namespace IPTech.EditorExtensions {
 	public class ReadOnlyAttribute : PropertyAttribute {}
 }

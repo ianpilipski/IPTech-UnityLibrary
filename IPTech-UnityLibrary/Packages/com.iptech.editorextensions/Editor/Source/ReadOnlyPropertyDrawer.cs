@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace IPTech.PropertyAttributes {
+namespace IPTech.EditorExtensions {
 	[CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
 	public class ReadOnlyPropertyDrawer : PropertyDrawer {
 
