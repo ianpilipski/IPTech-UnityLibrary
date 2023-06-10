@@ -1,0 +1,1 @@
+{"name":"IPTech.Shaders.Editor.Tests","references":["IPTech.Shaders.Runtime","IPTech.Shaders.Editor"],"optionalUnityReferences":["TestAssemblies"],"includePlatforms":["Editor"],"excludePlatforms":[],"allowUnsafeCode":false,"overrideReferences":false,"precompiledReferences":[],"autoReferenced":true,"defineConstraints":[],"versionDefines":[],"noEngineReferences":false}
