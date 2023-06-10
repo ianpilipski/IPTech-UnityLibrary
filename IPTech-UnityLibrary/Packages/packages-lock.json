@@ -68,6 +68,14 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "com.iptech.slotengine": {
+      "version": "file:com.iptech.slotengine",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.iptech.utils": ""
+      }
+    },
     "com.iptech.splines": {
       "version": "file:com.iptech.splines",
       "depth": 0,
@@ -78,6 +86,12 @@
     },
     "com.iptech.unityabstraction": {
       "version": "file:com.iptech.unityabstraction",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.iptech.utils": {
+      "version": "file:com.iptech.utils",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}

@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace IPTech.Utils.Tests
 {
 	[TestFixture]
-	class TestObjectSerializer
+	class ObjectSerializerTest
 	{
 		private static TestClass TESTCLASSOBJECT = new TestClass() {
 			IntValue = 666,
