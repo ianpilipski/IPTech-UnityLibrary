@@ -1,0 +1,16 @@
+{
+    "name": "IPTech.SlotEngine.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:02a0c112b490542a884c421c5c524f3f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

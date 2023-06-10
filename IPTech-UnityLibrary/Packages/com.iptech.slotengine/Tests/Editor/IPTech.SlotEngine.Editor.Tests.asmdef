@@ -1,0 +1,26 @@
+{
+    "name": "IPTech.SlotEngine.Editor.Tests",
+    "rootNamespace": "",
+    "references": [
+        "GUID:c42a75e38d5a941d79493232c9b0b0df",
+        "GUID:4917c6a8f5cdd4d4ea4d4bb83b3f0cb4",
+        "GUID:27619889b8ba8c24980f49ee34dbb44a",
+        "GUID:0acc523941302664db1f4e527237feb3",
+        "GUID:02a0c112b490542a884c421c5c524f3f"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
