@@ -65,7 +65,7 @@ namespace IPTech.Utils.Tests
 		}
 
 		[Test]
-		public void SettingBytesSetsHExStringToCorrectValue() {
+		public void SettingBytesSetsHexStringToCorrectValue() {
 			this.serializer.Bytes = null;
 			Assert.IsNull(this.serializer.HexString);
 			this.serializer.Bytes = BINARY_SERIALIZED_BYTES;
