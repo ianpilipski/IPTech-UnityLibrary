@@ -1,0 +1,11 @@
+{
+  "name": "com.iptech.slotengine",
+  "displayName": "IPTech.SlotEngine",
+  "version": "0.0.1",
+  "dependencies": {
+    "com.iptech.utils": ""
+  },
+  "keywords": [],
+  "category": "",
+  "samples": []
+}
