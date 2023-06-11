@@ -17,7 +17,7 @@ namespace IPTech.EditorTools {
         static void DeleteDirectories(List<string> dirs) {
             foreach(var d in dirs) {
                 UnityEditor.FileUtil.DeleteFileOrDirectory(d);
-                string metaFile = Path.GetDirectoryName(d) + Path.GetFileName(d) + ".meta";
+                string metaFile = d + ".meta";
                 if(File.Exists(metaFile)) {
                     File.Delete(metaFile);
                 }
