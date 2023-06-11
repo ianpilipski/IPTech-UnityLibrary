@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using UnityEditor.IMGUI.Controls;
+using System.Linq;
+using PlasticGui.WorkspaceWindow.Diff;
 
 namespace IPTech.EditorTools
 {
@@ -67,13 +69,13 @@ namespace IPTech.EditorTools
 		}
 
 		private void OnGUI() {
-			GUISkin skin = EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector);
+			//GUISkin skin = EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector);
 			DrawRootObjects();
 
 			void DrawRootObjects() {
 				using(new EditorGUILayout.VerticalScope(EditorStyles.helpBox)) {
 					DrawRootObjectsToolbar();
-					using(var scrollView = new EditorGUILayout.ScrollViewScope(_rootObjectsScrollPos, new GUIStyle(), new GUIStyle())) {
+					using(var scrollView = new EditorGUILayout.ScrollViewScope(_rootObjectsScrollPos, GUIStyle.none, GUIStyle.none)) {
 						DrawRootObjectsMultiColumnHeader();
 					}
 					using(var innerScroll = new EditorGUILayout.ScrollViewScope(_rootObjectsScrollPos)) {
@@ -90,6 +92,12 @@ namespace IPTech.EditorTools
 						GUILayout.FlexibleSpace();
 						if(GUILayout.Button("+Add", EditorStyles.toolbarButton)) {
 							//TODO: add
+						}
+						if(GUILayout.Button("Delete Empty Dirs", EditorStyles.toolbarButton)) {
+							List<string> l = ProjectCleaner.DeleteEmptyDirectories();
+							if(l.Count>0) {
+								Debug.Log("Deleted Directories: \n" + l.Aggregate((a,b) => a + "\n    " + b));
+							}
 						}
 					}
 				}
@@ -118,11 +126,15 @@ namespace IPTech.EditorTools
 						string[] resGuids = AssetDatabase.FindAssets("Resources");
 						foreach(var resGuid in resGuids) {
 							string resPath = AssetDatabase.GUIDToAssetPath(resGuid);
-							string[] files = Directory.GetFiles(resPath, "*.*", SearchOption.AllDirectories);
-							foreach(var file in files) {
-								string assetGuid = AssetDatabase.AssetPathToGUID(file);
-								if(!string.IsNullOrEmpty(assetGuid)) {
-									DrawMultiColumnObject(assetGuid);
+							if(Path.GetFileName(resPath) == "Resources") {
+								if(Directory.Exists(resPath)) {
+									string[] files = Directory.GetFiles(resPath, "*.*", SearchOption.AllDirectories);
+									foreach(var file in files) {
+										string assetGuid = AssetDatabase.AssetPathToGUID(file);
+										if(!string.IsNullOrEmpty(assetGuid)) {
+											DrawMultiColumnObject(assetGuid);
+										}
+									}
 								}
 							}
 						}
