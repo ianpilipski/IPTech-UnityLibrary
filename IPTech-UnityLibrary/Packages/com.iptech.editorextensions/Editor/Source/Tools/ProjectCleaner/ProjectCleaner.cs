@@ -8,8 +8,10 @@ using System;
 
 namespace IPTech.EditorTools {
     public static class ProjectCleaner {
-        public static void DeleteEmptyDirectories() {
-            DeleteDirectories(GetEmptyDirectories());
+        public static List<string> DeleteEmptyDirectories() {
+            var retVal = GetEmptyDirectories();
+            DeleteDirectories(retVal);
+            return retVal;
         }
 
         static void DeleteDirectories(List<string> dirs) {
@@ -20,7 +22,6 @@ namespace IPTech.EditorTools {
                     File.Delete(metaFile);
                 }
             }
-            AssetDatabase.Refresh();
         }
 
         public static List<string> GetEmptyDirectories() {

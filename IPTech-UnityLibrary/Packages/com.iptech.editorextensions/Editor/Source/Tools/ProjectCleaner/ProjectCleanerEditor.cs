@@ -97,6 +97,7 @@ namespace IPTech.EditorTools
 							List<string> l = ProjectCleaner.DeleteEmptyDirectories();
 							if(l.Count>0) {
 								Debug.Log("Deleted Directories: \n" + l.Aggregate((a,b) => a + "\n    " + b));
+								AssetDatabase.Refresh();
 							}
 						}
 					}
