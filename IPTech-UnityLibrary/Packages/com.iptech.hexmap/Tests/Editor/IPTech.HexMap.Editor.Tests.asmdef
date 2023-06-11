@@ -1,0 +1,1 @@
+{"name":"IPTech.HexMap.Editor.Tests","references":["IPTech.HexMap.Runtime","IPTech.HexMap.Editor"],"optionalUnityReferences":["TestAssemblies"],"includePlatforms":["Editor"],"excludePlatforms":[],"allowUnsafeCode":false,"overrideReferences":false,"precompiledReferences":[],"autoReferenced":true,"defineConstraints":[],"versionDefines":[],"noEngineReferences":false}

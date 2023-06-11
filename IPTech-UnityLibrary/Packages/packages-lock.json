@@ -38,6 +38,18 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "com.iptech.hexmap": {
+      "version": "file:com.iptech.hexmap",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.iptech.mathutils": {
+      "version": "file:com.iptech.mathutils",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.iptech.nsubstitute": {
       "version": "file:com.iptech.nsubstitute",
       "depth": 0,
@@ -50,6 +62,20 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "com.iptech.shaders": {
+      "version": "file:com.iptech.shaders",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.iptech.slotengine": {
+      "version": "file:com.iptech.slotengine",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.iptech.utils": ""
+      }
+    },
     "com.iptech.splines": {
       "version": "file:com.iptech.splines",
       "depth": 0,
@@ -57,6 +83,18 @@
       "dependencies": {
         "com.iptech.debugtools": "0.0.1"
       }
+    },
+    "com.iptech.unityabstraction": {
+      "version": "file:com.iptech.unityabstraction",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.iptech.utils": {
+      "version": "file:com.iptech.utils",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
     },
     "com.unity.2d.sprite": {
       "version": "1.0.0",

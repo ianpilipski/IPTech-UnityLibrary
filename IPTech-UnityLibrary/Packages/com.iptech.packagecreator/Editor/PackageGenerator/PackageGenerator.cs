@@ -5,6 +5,7 @@ namespace IPTech.PackageCreator.Editor {
     using System.IO;
     using System.Text.RegularExpressions;
     using UnityEditor;
+    using UnityEditor.PackageManager.UI;
     using UnityEngine;
 
     [Serializable]
@@ -76,7 +77,7 @@ namespace IPTech.PackageCreator.Editor {
             CreateChangeLog(packageInfo);
             CreateDocumentation(packageInfo);
             CreateLicense(packageInfo);
-            AssetDatabase.Refresh();
+            UnityEditor.PackageManager.Client.Resolve();
         }
 
         void ValidatePackageInfo(PackageInfo packageInfo) {

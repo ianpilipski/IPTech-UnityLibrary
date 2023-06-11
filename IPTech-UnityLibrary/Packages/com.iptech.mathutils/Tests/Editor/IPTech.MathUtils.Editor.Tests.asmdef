@@ -1,0 +1,1 @@
+{"name":"IPTech.MathUtils.Editor.Tests","references":["IPTech.MathUtils.Runtime","IPTech.MathUtils.Editor"],"optionalUnityReferences":["TestAssemblies"],"includePlatforms":["Editor"],"excludePlatforms":[],"allowUnsafeCode":false,"overrideReferences":false,"precompiledReferences":[],"autoReferenced":true,"defineConstraints":[],"versionDefines":[],"noEngineReferences":false}
