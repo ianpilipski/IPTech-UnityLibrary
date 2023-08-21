@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 
 namespace IPTech.ClickerLibrary {
+	[CreateAssetMenu(fileName = "ClickerInfo", menuName = "IPTech/ClickerEngine/Create New Engine")]
 	public class ClickerInfo : ScriptableObject {
 		
 		public string ClickerName = "";
