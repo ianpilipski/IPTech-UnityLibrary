@@ -90,6 +90,12 @@
         "com.iptech.debugtools": "0.0.1"
       }
     },
+    "com.iptech.strangeioc": {
+      "version": "file:com.iptech.strangeioc",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.iptech.unityabstraction": {
       "version": "file:com.iptech.unityabstraction",
       "depth": 0,
@@ -146,13 +152,6 @@
       "dependencies": {
         "com.unity.test-framework": "1.1.9"
       },
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.ide.vscode": {
-      "version": "1.2.5",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {},
       "url": "https://packages.unity.com"
     },
     "com.unity.purchasing": {
