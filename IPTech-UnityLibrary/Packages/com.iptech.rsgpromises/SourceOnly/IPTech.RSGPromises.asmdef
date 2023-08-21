@@ -1,0 +1,22 @@
+{
+    "name": "iptech.rsgpromises",
+    "rootNamespace": "",
+    "references": [
+        "GUID:80980ac20554642c38b2601f5aa6ba0b"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.iptech.coroutines",
+            "expression": "0.0.0",
+            "define": "ENABLE_IPTECH_COROUTINES"
+        }
+    ],
+    "noEngineReferences": false
+}
