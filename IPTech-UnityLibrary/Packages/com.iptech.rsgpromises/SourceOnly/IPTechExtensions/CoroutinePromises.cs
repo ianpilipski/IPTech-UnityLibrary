@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if ENABLE_IPTECH_COROUTINES
+using System;
 using UnityEngine;
 using System.Collections;
 using IPTech.Coroutines;
@@ -53,4 +54,4 @@ namespace RSG.Promises
 		}
 	}
 }
-
+#endif
