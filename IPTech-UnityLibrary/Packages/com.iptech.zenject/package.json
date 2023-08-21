@@ -1,0 +1,14 @@
+{
+    "name": "com.iptech.zenject",
+    "displayName": "IPTech.Zenject",
+    "version": "0.0.1",
+    "unity": "",
+    "keywords": [],
+    "category": "",
+    "description": "",
+    "samples": [],
+    "author": {
+        "name": "Ian Pilipski",
+        "url": ""
+    }
+}

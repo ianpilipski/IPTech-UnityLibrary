@@ -1,0 +1,1 @@
+{"name":"IPTech.NewPackage.Editor.Tests","references":["IPTech.NewPackage.Runtime","IPTech.NewPackage.Editor"],"optionalUnityReferences":["TestAssemblies"],"includePlatforms":["Editor"],"excludePlatforms":[],"allowUnsafeCode":false,"overrideReferences":false,"precompiledReferences":[],"autoReferenced":true,"defineConstraints":[],"versionDefines":[],"noEngineReferences":false}
