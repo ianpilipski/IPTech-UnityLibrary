@@ -106,7 +106,7 @@ namespace IPTech.ClickerLibrary {
 		
 		void ClickerClickedHandler(object sender, Clicker.ClickedEventArgs args) {
 			int clicksBefore = TotalClicks;
-			Click ((int)args.amount);	
+			Click((int)args.amount);	
 			if(clicksBefore!=TotalClicks) {
 				OnClickerAddedClicks((Clicker)sender, TotalClicks-clicksBefore);
 			}
@@ -118,7 +118,15 @@ namespace IPTech.ClickerLibrary {
 			}
 		}	
 
-		public void Click(int numberclicks = 1) {
+		public void ClickManualClickers() {
+			foreach(var mc in Clickers) {
+				if(mc.IsManual) {
+					mc.Click();
+				}
+			}
+		}
+
+		public virtual void Click(int numberclicks=1) {
 			int adjustedClicks = AdjustClicksHandler(numberclicks);
 			if (adjustedClicks!=0) {
 				TotalClicks += adjustedClicks;
