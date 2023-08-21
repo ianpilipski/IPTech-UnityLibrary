@@ -68,6 +68,12 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "com.iptech.rsgpromises": {
+      "version": "file:com.iptech.rsgpromises",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.iptech.shaders": {
       "version": "file:com.iptech.shaders",
       "depth": 0,
