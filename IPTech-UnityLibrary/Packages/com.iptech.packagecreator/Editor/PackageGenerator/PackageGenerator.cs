@@ -1,9 +1,10 @@
-﻿
+
 namespace IPTech.PackageCreator.Editor {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Text.RegularExpressions;
+    using NUnit.Framework;
     using UnityEditor;
     using UnityEditor.PackageManager.UI;
     using UnityEngine;
@@ -20,6 +21,7 @@ namespace IPTech.PackageCreator.Editor {
         public string description;
         public Dictionary<string, Dependency> dependencies;
         public List<Sample> samples;
+        public Author author;
     }
 
     [Serializable]
@@ -38,6 +40,12 @@ namespace IPTech.PackageCreator.Editor {
         public string description;
         public string path;
 	}
+
+    [Serializable]
+    public class Author {
+        public string name;
+        public string url;
+    }
 
     [Serializable]
     public class AssemblyDef {
@@ -104,7 +112,7 @@ namespace IPTech.PackageCreator.Editor {
 
         void CreatePackageJson(PackageInfo packageInfo) {
             string p = Path.Combine(GetPackageDir(packageInfo), "package.json");
-            string json = JsonUtility.ToJson(packageInfo);
+            string json = JsonUtility.ToJson(packageInfo, true);
             File.WriteAllText(
                 p,
                 json
