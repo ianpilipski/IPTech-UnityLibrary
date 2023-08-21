@@ -1,11 +1,10 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
 using UnityEditor.IMGUI.Controls;
 using System.Linq;
-using PlasticGui.WorkspaceWindow.Diff;
 
 namespace IPTech.EditorTools
 {
@@ -96,7 +95,7 @@ namespace IPTech.EditorTools
 						if(GUILayout.Button("Delete Empty Dirs", EditorStyles.toolbarButton)) {
 							List<string> l = ProjectCleaner.DeleteEmptyDirectories();
 							if(l.Count>0) {
-								Debug.Log("Deleted Directories: \n" + l.Aggregate((a,b) => a + "\n    " + b));
+								Debug.Log("Deleted Directories: \n    " + l.Aggregate((a,b) => a + "\n    " + b));
 								AssetDatabase.Refresh();
 							}
 						}

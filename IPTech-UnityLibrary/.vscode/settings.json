@@ -50,5 +50,6 @@
         "Temp/":true
     },
     "omnisharp.useModernNet": false,
-    "csharp.referencesCodeLens.enabled": false
+    "dotnet.codeLens.enableReferencesCodeLens": false,
+    "dotnet.defaultSolution": "IPTech-UnityLibrary.sln"
 }
