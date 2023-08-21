@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 namespace IPTech.ClickerLibrary {
-	[CreateAssetMenu(fileName = "ClickerEngineInfo", menuName = "IPTech/ClickerEngine/Create New Clicker")]
+	[CreateAssetMenu(fileName = "ClickerEngineInfo", menuName = "IPTech/ClickerEngine/ClickerEngineInfo")]
 	public class ClickerEngineInfo : ScriptableObject {
 		public List<ClickerInfo> Clickers = new List<ClickerInfo>();
 		public Vector3 LevelProgression = new Vector3(2,0,10);
