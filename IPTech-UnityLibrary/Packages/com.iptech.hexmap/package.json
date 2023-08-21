@@ -1,1 +1,13 @@
-{"name":"com.iptech.hexmap","displayName":"IPTech.HexMap","version":"0.0.1","unity":"","keywords":[],"category":"","description":"","samples":[]}
+{
+  "name": "com.iptech.hexmap",
+  "displayName": "IPTech.HexMap",
+  "version": "0.0.1",
+  "unity": "2017.1",
+  "keywords": [],
+  "category": "",
+  "samples": [],
+  "author": {
+    "name": "Ian Pilipski",
+    "url": "https://github.com/ianpilipski/IPTech-UnityLibrary.git"
+  }
+}

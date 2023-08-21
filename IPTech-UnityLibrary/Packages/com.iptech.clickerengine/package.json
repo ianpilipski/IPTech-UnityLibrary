@@ -1,8 +1,8 @@
 {
-  "name": "com.iptech.utils",
-  "displayName": "IPTech.Utils",
+  "name": "com.iptech.clickerengine",
+  "displayName": "IPTech.ClickerEngine",
   "version": "0.0.1",
-  "unity": "2017.1",
+  "unity": "2021.3",
   "keywords": [],
   "category": "",
   "samples": [],
