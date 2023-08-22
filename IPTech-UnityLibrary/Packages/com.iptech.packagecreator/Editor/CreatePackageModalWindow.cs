@@ -39,6 +39,7 @@ namespace IPTech.PackageCreator.Editor {
 		void OnGUI() {
 			serializedObject.Update();
 			using(var scroll = new EditorGUILayout.ScrollViewScope(scrollPos)) {
+				packageInfoScriptableObject.packageInfo.AssemblyDefName = EditorGUILayout.TextField("AssemblyDefName", packageInfoScriptableObject.packageInfo.AssemblyDefName);
 				EditorGUILayout.PropertyField(serializedObject.FindProperty("packageInfo"),true);
 				scrollPos = scroll.scrollPosition;
 			}

@@ -32,6 +32,12 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "com.iptech.dialogmanager": {
+      "version": "file:com.iptech.dialogmanager",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.iptech.editorextensions": {
       "version": "file:com.iptech.editorextensions",
       "depth": 0,

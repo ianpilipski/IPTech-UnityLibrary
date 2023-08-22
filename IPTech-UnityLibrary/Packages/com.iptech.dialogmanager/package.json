@@ -1,0 +1,20 @@
+{
+    "name": "com.iptech.dialogmanager",
+    "displayName": "IPTech.DialogManager",
+    "version": "0.0.1",
+    "unity": "",
+    "keywords": [],
+    "category": "",
+    "description": "",
+    "samples": [
+        {
+            "displayName": "DialogExample",
+            "description": "Simple example of some dialogs",
+            "path": "Samples~/DialogExample"
+        }
+    ],
+    "author": {
+        "name": "Ian Pilipski",
+        "url": ""
+    }
+}
