@@ -13,22 +13,13 @@ namespace IPTech.SlotEngine.Unity
 
 		[SerializeField, HideInInspector]
 		private string serializedObjectAsString;
-		private BinaryFormatter serializer;
-
-		public SlotModelScriptableObject() {
-			this.serializer = new BinaryFormatter();
-		}
-
+		
 		private void Serialize() {
 			if(slotModel==null) {
 				return;
 			}
 
-			using (MemoryStream stream = new MemoryStream()) {
-				serializer.Serialize(stream, slotModel);
-				stream.Flush();
-				this.serializedObjectAsString = Convert.ToBase64String(stream.ToArray());
-			}
+			this.serializedObjectAsString = SerializationUtil.SerializeToBase64String(slotModel);
 		}
 
 		private void Deserialize() {
@@ -36,9 +27,7 @@ namespace IPTech.SlotEngine.Unity
 				return;
 			}
 
-			byte[] bytes = Convert.FromBase64String(serializedObjectAsString);
-			using (var stream = new MemoryStream(bytes))
-			this.slotModel = (ISlotModel)serializer.Deserialize(stream);
+			this.slotModel = SerializationUtil.DeserializeFromBase64String(serializedObjectAsString) as ISlotModel;
 		}
 
 		#region ISerializationCallbackReceiver
