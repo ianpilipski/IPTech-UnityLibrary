@@ -1,4 +1,4 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("IPTech.NewPackage.Editor")]
-[assembly: InternalsVisibleTo("IPTech.NewPackage.Runtime.Tests")]
+[assembly: InternalsVisibleTo("IPTech.StrangeIOC.Editor")]
+[assembly: InternalsVisibleTo("IPTech.StrangeIOC.Runtime.Tests")]
