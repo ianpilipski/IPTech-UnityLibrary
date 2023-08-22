@@ -51,7 +51,7 @@ namespace IPTech.DialogManager.Strange
 			}
 		}
 
-		public void Show(ShowType showType) {
+		public void Show(ShowType showType = ShowType.FirstOpen) {
 			this.dialogWindowView.Show();
 		}
 
