@@ -28,7 +28,7 @@ namespace IPTech.DialogManager
 			}
 		}
 
-		public void Show(ShowType showType) {
+		public void Show(ShowType showType = ShowType.FirstOpen) {
 			if(this.innerDialog==null) {
 				this.innerDialog = this.dialogFactory.CreateBasicDialog(this.dialogOptions);
 				this.innerDialog.Closed += ClosedHandler;
