@@ -9,20 +9,17 @@ namespace IPTech.ClickerLibrary {
 		public delegate int AdjustClicksDelegate(int clicksamount);
 
 		public class TotalClicksChangedEventArgs : EventArgs {
-			public int ClickAmount { get; private set; }
-			public TotalClicksChangedEventArgs(int clickAmount) { this.ClickAmount = clickAmount; }
-		}
-
-		public class ClickerAddedClicksEventArgs : EventArgs {
-			public int ClickAmount { get; private set; }
-			public ClickerAddedClicksEventArgs(int clickAmount) { this.ClickAmount = clickAmount; }
+			public readonly Clicker Clicker;
+			public readonly int ClickAmount;
+			public TotalClicksChangedEventArgs(int clickAmount, Clicker clicker) { 
+				this.ClickAmount = clickAmount; 
+				this.Clicker = clicker;
+			}
 		}
 
 		private AdjustClicksDelegate AdjustClicksHandler = (x) => { return x; };
 		public event EventHandler<TotalClicksChangedEventArgs> TotalClicksChanged;
 		public event EventHandler<EventArgs> LevelUp;
-		public event EventHandler<ClickerAddedClicksEventArgs> ClickerAddedClicks;
-		
 
 		private ClickerEngineInfo clickerengineinfo;
 		private float ClicksTimeAccumulator = 0;
@@ -82,12 +79,8 @@ namespace IPTech.ClickerLibrary {
 			foreach(Clicker clicker in Clickers) {
 				clicker.Tick(DeltaSeconds);
 			}
-
-			int deltaClicks = this.TotalClicks - this.TotalClicksLastTick;
-			if (deltaClicks!=0) {
-				OnTotalClicksChanged(deltaClicks);
-				this.TotalClicksLastTick = this.TotalClicks;
-			}
+			
+			this.TotalClicksLastTick = this.TotalClicks;
 			
 			ClicksTimeAccumulator += DeltaSeconds;
 			if(ClicksTimeAccumulator>=1.0f) {
@@ -98,25 +91,9 @@ namespace IPTech.ClickerLibrary {
 			}
 		}
 
-		private void OnTotalClicksChanged(int deltaClicks) {
-			if(this.TotalClicksChanged!=null) {
-				this.TotalClicksChanged(this, new TotalClicksChangedEventArgs(deltaClicks));
-			} 
-		}
-		
 		void ClickerClickedHandler(object sender, Clicker.ClickedEventArgs args) {
-			int clicksBefore = TotalClicks;
-			Click((int)args.amount);	
-			if(clicksBefore!=TotalClicks) {
-				OnClickerAddedClicks((Clicker)sender, TotalClicks-clicksBefore);
-			}
+			PerformClick((int)args.amount, (Clicker)sender);	
 		}
-
-		private void OnClickerAddedClicks(Clicker clicker, int clickAmount) {
-			if(ClickerAddedClicks!=null) {
-				ClickerAddedClicks(clicker, new ClickerAddedClicksEventArgs(clickAmount));
-			}
-		}	
 
 		public void ClickManualClickers() {
 			foreach(var mc in Clickers) {
@@ -127,21 +104,29 @@ namespace IPTech.ClickerLibrary {
 		}
 
 		public virtual void Click(int numberclicks=1) {
+			PerformClick(numberclicks);
+		}
+
+		void PerformClick(int numberclicks=1, Clicker clicker = null) {
 			int adjustedClicks = AdjustClicksHandler(numberclicks);
 			if (adjustedClicks!=0) {
+				var prevClicks = TotalClicks;
+
 				TotalClicks += adjustedClicks;
 				Clicks += adjustedClicks;
 
-				CheckLevelProgression();
+				var deltaClicks = TotalClicks - prevClicks;
+				if(deltaClicks!=0) {
+					TotalClicksChanged?.Invoke(this, new TotalClicksChangedEventArgs(deltaClicks, clicker));
+					CheckLevelProgression();
+				}
 			}
 		}
 
 		private void CheckLevelProgression() {
 			while (ShouldLevelUp()) {
 				Level++;
-				if (LevelUp != null) {
-					LevelUp(this, EventArgs.Empty);
-				}
+				LevelUp?.Invoke(this, EventArgs.Empty);
 			}
 		}
 
@@ -163,8 +148,7 @@ namespace IPTech.ClickerLibrary {
 		
 		public enum PurchaseClickerRetVal {
 			Success,
-			InsufficientFunds,
-			MaxedOut
+			InsufficientFunds
 		}
 
 		public void ResetToDefaults()

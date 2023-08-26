@@ -30,7 +30,6 @@ namespace IPTech.ClickerLibrary {
 		public string name => clickerinfo.ClickerName;
 		
 		public void OnClicked(ClickedEventArgs e) {
-			//UnityEngine.Debug.Log ("OnClicked " + clickerinfo.name + ": amount="+e.amount.ToString());
 			EventHandler<ClickedEventArgs> handler = Clicked;
 			if(handler!=null) {
 				handler(this, e);
