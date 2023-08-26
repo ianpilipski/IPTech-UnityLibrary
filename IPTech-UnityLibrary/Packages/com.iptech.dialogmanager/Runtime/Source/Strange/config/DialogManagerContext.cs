@@ -1,10 +1,6 @@
 ﻿using IPTech.DialogManager.Api;
 using IPTech.DialogManager.Strange.Api;
 using strange.extensions.context.impl;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace IPTech.DialogManager.Strange
