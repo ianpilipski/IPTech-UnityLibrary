@@ -8,7 +8,7 @@ namespace IPTech.BuildTool.Internal {
             using(var tmpPath = new TempPath()) {
                 var tmpFileName = Path.Combine(tmpPath.ThePath, Path.GetRandomFileName());
                 File.WriteAllBytes(tmpFileName, bytes);
-                ShellCommand.ExecBash($"openssl enc -aes-256-cbc -base64 -pass \"pass:{passphrase}\" -in \"{tmpFileName}\" -out \"{tmpFileName}.enc\"", tmpPath.ThePath);
+                ShellCommand.ExecBash($"openssl enc -aes-256-cbc -md sha256 -base64 -pass \"pass:{passphrase}\" -in \"{tmpFileName}\" -out \"{tmpFileName}.enc\"", tmpPath.ThePath);
                 return File.ReadAllText($"{tmpFileName}.enc");
             }
         }
@@ -17,7 +17,7 @@ namespace IPTech.BuildTool.Internal {
             using(var tmpPath = new TempPath()) {
                 var tmpFileName = Path.Combine(tmpPath.ThePath, Path.GetRandomFileName());
                 File.WriteAllText(tmpFileName, encrypted);
-                ShellCommand.ExecBash($"openssl enc -aes-256-cbc -base64 -d -pass \"pass:{passphrase}\" -in \"{tmpFileName}\" -out \"{tmpFileName}.dec\"", tmpPath.ThePath);
+                ShellCommand.ExecBash($"openssl enc -aes-256-cbc -md sha256 -base64 -d -pass \"pass:{passphrase}\" -in \"{tmpFileName}\" -out \"{tmpFileName}.dec\"", tmpPath.ThePath);
                 return File.ReadAllBytes($"{tmpFileName}.dec");
             }
         }
