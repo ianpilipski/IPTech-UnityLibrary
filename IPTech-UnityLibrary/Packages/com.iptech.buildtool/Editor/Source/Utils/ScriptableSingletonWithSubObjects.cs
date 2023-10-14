@@ -9,6 +9,16 @@ namespace IPTech.BuildTool
     public abstract class ScriptableSingletonWithSubObjects<T> : ScriptableSingleton<T> where T : ScriptableObject {
         protected virtual void GetSubObjectsToSave(List<UnityEngine.Object> objs) {  }
 
+		void Awake() {
+			var objs = new List<UnityEngine.Object>();
+			GetSubObjectsToSave(objs);	
+			foreach(var oo in objs) {
+				if(ObjectIsInstance(oo)) {
+					oo.hideFlags = HideFlags.HideAndDontSave;
+				}
+			}
+		}
+
         protected override void Save(bool saveAsText) {
 			if((Object)instance == (Object)null) {
 				Debug.LogError("Cannot save ScriptableSingleton: no instance!");
@@ -23,17 +33,21 @@ namespace IPTech.BuildTool
 				List<UnityEngine.Object> objs = new List<Object>();
 				GetSubObjectsToSave(objs);
 				for(int i=objs.Count-1;i>=0;i--) {
-					if(objs[i] == null) {
+					if(!ObjectIsInstance(objs[i])) {
 						objs.RemoveAt(i);
-                    } else if(!string.IsNullOrEmpty(AssetDatabase.GetAssetPath(objs[i]))) {
-						objs.RemoveAt(i);
-                    }
+                    } else {
+						objs[i].hideFlags = HideFlags.HideAndDontSave;
+					}
                 }
 				objs.Insert(0, instance);
 
 				
 				InternalEditorUtility.SaveToSerializedFileAndForget(objs.ToArray(), filePath, saveAsText);
 			}
+		}
+
+		bool ObjectIsInstance(UnityEngine.Object oo) {
+			return oo!=null && string.IsNullOrEmpty(AssetDatabase.GetAssetPath(oo));
 		}
     }
 }

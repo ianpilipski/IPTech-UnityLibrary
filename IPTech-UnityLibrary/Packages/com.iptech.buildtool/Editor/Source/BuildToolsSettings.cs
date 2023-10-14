@@ -35,7 +35,7 @@ namespace IPTech.BuildTool {
         }
         
         protected BuildToolsSettings() : base() {
-            EditorApplication.delayCall += instance.CheckCtor;
+            EditorApplication.delayCall += () => { instance.CheckCtor(); };
         }
 
         void CheckCtor() {
@@ -68,8 +68,10 @@ namespace IPTech.BuildTool {
 
             if(BuildProcessors!=null) {
                 foreach(var pbp in BuildProcessors) {
-                    if(string.IsNullOrEmpty(AssetDatabase.GetAssetPath(pbp))) {
-                        objs.Add(pbp);
+                    if(pbp!=null) {
+                        if(string.IsNullOrEmpty(AssetDatabase.GetAssetPath(pbp))) {
+                            objs.Add(pbp);
+                        }
                     }
                 }
             }
