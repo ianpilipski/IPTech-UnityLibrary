@@ -261,6 +261,12 @@ namespace IPTech.BuildTool.Internal {
         bool TryGetTypeFromFullName(string fullTypeName, out Type type) {
             var typeList = Context.ListGenerator.GetListImmediate(typeof(T));
             type = typeList.FirstOrDefault(o => o.FullName == fullTypeName);
+            if(type == null) {
+                if(fullTypeName.StartsWith("IPTech.BuildTool.") && !fullTypeName.StartsWith("IPTech.BuildTool.Encryption.")) {
+                    var tryNewName = "IPTech.BuildTool.Encryption." + fullTypeName.Substring("IPTech.BuildTool.".Length);
+                    type = typeList.FirstOrDefault(o => o.FullName == tryNewName);
+                }
+            }
             return type!=null;
         }
 
