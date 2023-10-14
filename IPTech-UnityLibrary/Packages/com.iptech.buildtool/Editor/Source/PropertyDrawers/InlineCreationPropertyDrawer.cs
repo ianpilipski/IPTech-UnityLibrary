@@ -61,7 +61,8 @@ namespace IPTech.BuildTool
                         val--;
                         var t = createTypes[val];
                         if(t.IsSubclassOf(typeof(ScriptableObject))) {
-                            property.objectReferenceValue = CreateObject(property, t); ;
+                            property.objectReferenceValue = CreateObject(property, t);
+                            
                         } else {
                             property.objectReferenceValue = Activator.CreateInstance(t) as UnityEngine.Object;
                         }
