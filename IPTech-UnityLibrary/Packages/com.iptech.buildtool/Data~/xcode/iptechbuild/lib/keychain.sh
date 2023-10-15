@@ -120,7 +120,7 @@ function installSigningCert() {
     local X509_CERT
     CERT_EXTENSION="${CERT_PATH##*.}"
     if [[ "$CERT_EXTENSION" == "p12" ]]; then
-        X509_CERT=$(openssl pkcs12 -in $CERT_PATH -nodes -passin pass:$CERT_PASSWORD)
+        X509_CERT=$(openssl pkcs12 -in $CERT_PATH -nodes -passin pass:$CERT_PASSWORD -legacy)
     elif [[ "$CERT_EXTENSION" == "cer" ]]; then
         X509_CERT=$(openssl x509 -in $CERT_PATH -inform DER)
     else
