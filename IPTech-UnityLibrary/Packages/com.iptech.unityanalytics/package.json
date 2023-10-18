@@ -1,0 +1,21 @@
+{
+  "name": "com.iptech.unityanalytics",
+  "displayName": "IPTech.UnityAnalytics",
+  "version": "0.0.1",
+  "unity": "2021.3",
+  "keywords": [
+    "analytics",
+    "iptech"
+  ],
+  "category": "",
+  "description": "Wrapper around unity analytics package that works with IPTech gamekit",
+  "samples": [],
+  "author": {
+    "name": "Ian Pilipski",
+    "url": "https://github.com/ianpilipski/IPTech-UnityLibrary"
+  },
+  "dependencies": {
+    "com.unity.services.analytics": "5.0.1"
+  },
+  "unityRelease": "31f1"
+}
