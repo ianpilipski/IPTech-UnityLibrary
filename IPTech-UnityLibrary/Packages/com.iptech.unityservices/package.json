@@ -1,0 +1,14 @@
+{
+  "name": "com.iptech.unityservices",
+  "displayName": "IPTech.UnityServices",
+  "version": "0.0.1",
+  "unity": "2021.3",
+  "keywords": [],
+  "category": "",
+  "unityRelease": "31f1",
+  "samples": [],
+  "author": {
+    "name": "Ian Pilipski",
+    "url": "https://github.com/ianpilipski/IPTech-UnityLibrary"
+  }
+}
