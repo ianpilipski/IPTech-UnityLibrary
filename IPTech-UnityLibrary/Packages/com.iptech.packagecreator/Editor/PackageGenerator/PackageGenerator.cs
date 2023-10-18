@@ -16,6 +16,7 @@ namespace IPTech.PackageCreator.Editor {
         public string displayName;
         public string version = "0.0.1";
         public string unity;
+        public string unityRelease;
         public List<string> keywords;
         public string category;
         public string description;
