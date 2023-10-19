@@ -1,4 +1,4 @@
-﻿using strange.extensions.context.impl;
+using strange.extensions.context.impl;
 using strange.extensions.command.api;
 using strange.extensions.dispatcher.eventdispatcher.api;
 using strange.extensions.implicitBind.api;

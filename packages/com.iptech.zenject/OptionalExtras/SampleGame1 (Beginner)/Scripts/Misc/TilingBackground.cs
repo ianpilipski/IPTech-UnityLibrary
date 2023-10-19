@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 #pragma warning disable 649
 

@@ -1,4 +1,4 @@
-﻿using IPTech.DialogManager.Api;
+using IPTech.DialogManager.Api;
 using IPTech.DialogManager.Strange.Api;
 using strange.extensions.mediation.api;
 using strange.extensions.mediation.impl;

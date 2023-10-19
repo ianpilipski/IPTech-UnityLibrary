@@ -1,4 +1,4 @@
-﻿using IPTech.SlotEngine.Model.Api;
+using IPTech.SlotEngine.Model.Api;
 using System.Collections.Generic;
 using System;
 using System.Runtime.Serialization;

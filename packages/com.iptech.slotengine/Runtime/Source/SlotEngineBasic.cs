@@ -1,4 +1,4 @@
-﻿using IPTech.SlotEngine.Api;
+using IPTech.SlotEngine.Api;
 using System;
 using System.Collections.Generic;
 using System.Linq;

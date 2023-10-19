@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using IPTech.DialogManager.Api;
 using UnityEngine;

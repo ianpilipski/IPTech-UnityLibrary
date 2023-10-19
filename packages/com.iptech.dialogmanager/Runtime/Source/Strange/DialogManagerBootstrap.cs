@@ -1,4 +1,4 @@
-﻿using IPTech.DialogManager.Strange.Api;
+using IPTech.DialogManager.Strange.Api;
 using strange.extensions.context.impl;
 using UnityEngine;
 

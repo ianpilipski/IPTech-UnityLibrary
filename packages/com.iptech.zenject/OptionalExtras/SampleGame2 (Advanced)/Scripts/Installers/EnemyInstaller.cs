@@ -1,4 +1,4 @@
-﻿namespace Zenject.SpaceFighter
+namespace Zenject.SpaceFighter
 {
     public class EnemyInstaller : Installer<EnemyInstaller>
     {

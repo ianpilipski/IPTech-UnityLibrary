@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using NUnit.Framework;
 using strange.extensions.injector.api;
 using strange.extensions.injector.impl;

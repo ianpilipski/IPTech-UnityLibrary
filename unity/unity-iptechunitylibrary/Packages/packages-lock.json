@@ -1,144 +1,129 @@
 {
   "dependencies": {
     "com.iptech.audio": {
-      "version": "file:com.iptech.audio",
+      "version": "file:../../../packages/com.iptech.audio",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.iptech.buildtool": {
-      "version": "file:com.iptech.buildtool",
+      "version": "file:../../../packages/com.iptech.buildtool",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.iptech.clickerengine": {
-      "version": "file:com.iptech.clickerengine",
+      "version": "file:../../../packages/com.iptech.clickerengine",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.iptech.coroutines": {
-      "version": "file:com.iptech.coroutines",
+      "version": "file:../../../packages/com.iptech.coroutines",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {
         "com.iptech.nsubstitute": "2.0.4"
       }
     },
     "com.iptech.debugtools": {
-      "version": "file:com.iptech.debugtools",
+      "version": "file:../../../packages/com.iptech.debugtools",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.iptech.dialogmanager": {
-      "version": "file:com.iptech.dialogmanager",
+      "version": "file:../../../packages/com.iptech.dialogmanager",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.iptech.editorextensions": {
-      "version": "file:com.iptech.editorextensions",
+      "version": "file:../../../packages/com.iptech.editorextensions",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.iptech.fonts": {
-      "version": "file:com.iptech.fonts",
+      "version": "file:../../../packages/com.iptech.fonts",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.iptech.hexmap": {
-      "version": "file:com.iptech.hexmap",
+      "version": "file:../../../packages/com.iptech.hexmap",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.iptech.mathutils": {
-      "version": "file:com.iptech.mathutils",
+      "version": "file:../../../packages/com.iptech.mathutils",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.iptech.nsubstitute": {
-      "version": "file:com.iptech.nsubstitute",
+      "version": "file:../../../packages/com.iptech.nsubstitute",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.iptech.packagecreator": {
-      "version": "file:com.iptech.packagecreator",
+      "version": "file:../../../packages/com.iptech.packagecreator",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.iptech.rsgpromises": {
-      "version": "file:com.iptech.rsgpromises",
+      "version": "file:../../../packages/com.iptech.rsgpromises",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.iptech.shaders": {
-      "version": "file:com.iptech.shaders",
+      "version": "file:../../../packages/com.iptech.shaders",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.iptech.slotengine": {
-      "version": "file:com.iptech.slotengine",
+      "version": "file:../../../packages/com.iptech.slotengine",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {
         "com.iptech.utils": ""
       }
     },
     "com.iptech.splines": {
-      "version": "file:com.iptech.splines",
+      "version": "file:../../../packages/com.iptech.splines",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {
         "com.iptech.debugtools": "0.0.1"
       }
     },
     "com.iptech.strangeioc": {
-      "version": "file:com.iptech.strangeioc",
+      "version": "file:../../../packages/com.iptech.strangeioc",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.iptech.unityabstraction": {
-      "version": "file:com.iptech.unityabstraction",
+      "version": "file:../../../packages/com.iptech.unityabstraction",
       "depth": 0,
-      "source": "embedded",
-      "dependencies": {}
-    },
-    "com.iptech.unityanalytics": {
-      "version": "file:com.iptech.unityanalytics",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {
-        "com.unity.services.analytics": "5.0.1",
-        "com.iptech.unityservices": "0.0.1"
-      }
-    },
-    "com.iptech.unityservices": {
-      "version": "file:com.iptech.unityservices",
-      "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.iptech.utils": {
-      "version": "file:com.iptech.utils",
+      "version": "file:../../../packages/com.iptech.utils",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.iptech.zenject": {
-      "version": "file:com.iptech.zenject",
+      "version": "file:../../../packages/com.iptech.zenject",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.unity.2d.sprite": {
