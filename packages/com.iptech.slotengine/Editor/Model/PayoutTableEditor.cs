@@ -1,4 +1,4 @@
-﻿using IPTech.SlotEngine.Model;
+using IPTech.SlotEngine.Model;
 using IPTech.SlotEngine.Model.Api;
 using IPTech.SlotEngine.Unity.Model.Editor.Api;
 using UnityEditor;

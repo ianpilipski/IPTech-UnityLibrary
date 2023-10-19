@@ -1,4 +1,4 @@
-﻿using IPTech.SlotEngine.Model.Api;
+using IPTech.SlotEngine.Model.Api;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System;

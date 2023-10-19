@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using IPTech.DialogManager.Api;
 using UnityEngine.Events;

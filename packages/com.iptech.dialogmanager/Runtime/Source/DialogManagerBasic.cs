@@ -1,4 +1,4 @@
-﻿using IPTech.DialogManager.Api;
+using IPTech.DialogManager.Api;
 using System;
 using System.Collections.Generic;
 using IPTech;

@@ -1,4 +1,4 @@
-﻿using IPTech.DialogManager.Strange.Api;
+using IPTech.DialogManager.Strange.Api;
 using strange.extensions.signal.impl;
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 namespace IPTech.Audio.EditorExtensions {
 	public partial class AudioConfigGenerator {
 		AudioEngineConfig config;

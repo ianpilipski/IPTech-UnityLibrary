@@ -1,4 +1,4 @@
-﻿#if ENABLE_IPTECH_COROUTINES
+#if ENABLE_IPTECH_COROUTINES
 using System;
 using UnityEngine;
 using System.Collections;
