@@ -3,7 +3,9 @@
     "rootNamespace": "",
     "references": [
         "GUID:fe25561d224ed4743af4c60938a59d0b",
-        "GUID:70ea675efa2644cef98c7ece24158333"
+        "GUID:70ea675efa2644cef98c7ece24158333",
+        "GUID:9911134dc03434a9da84b1212413e243",
+        "GUID:9facf4f4914394bc29e682d12d71e270"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -12,6 +14,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.iptech.unityanalytics",
+            "expression": "0",
+            "define": "IPTECH_UNITYANALYTICS_INSTALLED"
+        }
+    ],
     "noEngineReferences": false
 }

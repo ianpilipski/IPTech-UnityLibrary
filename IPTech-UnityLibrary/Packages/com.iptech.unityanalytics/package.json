@@ -15,7 +15,8 @@
     "url": "https://github.com/ianpilipski/IPTech-UnityLibrary"
   },
   "dependencies": {
-    "com.unity.services.analytics": "5.0.1"
+    "com.unity.services.analytics": "5.0.1",
+    "com.iptech.unityservices": "0.0.1"
   },
   "unityRelease": "31f1"
 }
