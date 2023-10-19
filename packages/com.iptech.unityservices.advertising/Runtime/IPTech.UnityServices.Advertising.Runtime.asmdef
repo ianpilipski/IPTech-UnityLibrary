@@ -1,9 +1,7 @@
 {
-    "name": "IPTech.UnityAnalytics.Runtime",
+    "name": "IPTech.UnityServices.Advertising.Runtime",
     "rootNamespace": "",
     "references": [
-        "GUID:1104de264d522446f8274872ebf70b3d",
-        "GUID:5e0b455853cd340e0813387221dfd501",
         "GUID:9911134dc03434a9da84b1212413e243"
     ],
     "includePlatforms": [],

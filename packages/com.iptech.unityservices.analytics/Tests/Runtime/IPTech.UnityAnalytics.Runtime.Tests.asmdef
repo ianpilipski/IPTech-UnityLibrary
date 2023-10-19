@@ -1,8 +1,8 @@
 {
-    "name": "IPTech.UnityServices.Runtime.Tests",
+    "name": "IPTech.UnityAnalytics.Runtime.Tests",
     "rootNamespace": "",
     "references": [
-        "IPTech.UnityServices.Runtime",
+        "IPTech.UnityAnalytics.Runtime",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

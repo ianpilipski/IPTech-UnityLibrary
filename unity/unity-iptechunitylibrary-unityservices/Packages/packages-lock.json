@@ -1,13 +1,10 @@
 {
   "dependencies": {
-    "com.iptech.unityanalytics": {
-      "version": "file:../../../packages/com.iptech.unityanalytics",
+    "com.iptech.packagecreator": {
+      "version": "file:../../../packages/com.iptech.packagecreator",
       "depth": 0,
       "source": "local",
-      "dependencies": {
-        "com.unity.services.analytics": "5.0.1",
-        "com.iptech.unityservices": "0.0.1"
-      }
+      "dependencies": {}
     },
     "com.iptech.unityservices": {
       "version": "file:../../../packages/com.iptech.unityservices",
@@ -15,6 +12,24 @@
       "source": "local",
       "dependencies": {
         "com.unity.services.core": "1.10.1"
+      }
+    },
+    "com.iptech.unityservices.advertising": {
+      "version": "file:../../../packages/com.iptech.unityservices.advertising",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.services.levelplay": "1.0.0",
+        "com.iptech.unityservices": "0.0.1"
+      }
+    },
+    "com.iptech.unityservices.analytics": {
+      "version": "file:../../../packages/com.iptech.unityservices.analytics",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.services.analytics": "5.0.1",
+        "com.iptech.unityservices": "0.0.1"
       }
     },
     "com.unity.ext.nunit": {
@@ -60,6 +75,13 @@
         "com.unity.nuget.newtonsoft-json": "3.2.1",
         "com.unity.modules.androidjni": "1.0.0"
       },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.services.levelplay": {
+      "version": "1.0.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
       "url": "https://packages.unity.com"
     },
     "com.unity.test-framework": {
