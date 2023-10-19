@@ -79,10 +79,14 @@ namespace IPTech.PackageCreator.Editor {
             CreatePackageJson(packageInfo);
             CreateRuntimeAssembly(packageInfo);
             CreateRuntimeAssemblyInfo(packageInfo);
+            CreateRuntimeAssemblyTempScriptFile(packageInfo);
             CreateEditorAssembly(packageInfo);
             CreateEditorAssemblyInfo(packageInfo);
+            CreateEditorAssemblyTempScriptFile(packageInfo);
             CreateEditorTestsAssembly(packageInfo);
+            CreateEditorTestsAssemblyTempScriptFile(packageInfo);
             CreateRuntimeTestsAssembly(packageInfo);
+            CreateRuntimeTestsAssemblyTempScriptFile(packageInfo);
             CreateChangeLog(packageInfo);
             CreateDocumentation(packageInfo);
             CreateLicense(packageInfo);
@@ -139,6 +143,13 @@ namespace IPTech.PackageCreator.Editor {
             );
 		}
 
+        void CreateRuntimeAssemblyTempScriptFile(PackageInfo packageInfo) {
+            File.WriteAllText(
+                Path.Combine(GetPackageDir(packageInfo), "Runtime", "TempClass.cs"),
+                "public class TempClass { }"
+            );
+		}
+
         void CreateEditorAssembly(PackageInfo packageInfo) {
             CreateAssemblyDef(
                 Path.Combine(GetPackageDir(packageInfo), "Editor", string.Format("{0}.Editor.asmdef", packageInfo.AssemblyDefName)),
@@ -163,6 +174,13 @@ namespace IPTech.PackageCreator.Editor {
             );
         }
 
+        void CreateEditorAssemblyTempScriptFile(PackageInfo packageInfo) {
+            File.WriteAllText(
+                Path.Combine(GetPackageDir(packageInfo), "Editor", "TempClass.cs"),
+                "public class TempClass { }"
+            );
+		}
+
         void CreateEditorTestsAssembly(PackageInfo packageInfo) {
             CreateAssemblyDef(
                 Path.Combine(GetPackageDir(packageInfo), "Tests", "Editor", string.Format("{0}.Editor.Tests.asmdef", packageInfo.AssemblyDefName)),
@@ -178,6 +196,13 @@ namespace IPTech.PackageCreator.Editor {
             );
 		}
 
+        void CreateEditorTestsAssemblyTempScriptFile(PackageInfo packageInfo) {
+            File.WriteAllText(
+                Path.Combine(GetPackageDir(packageInfo), "Tests", "Editor", "TempClass.cs"),
+                "public class TempClass { }"
+            );
+		}
+
         void CreateRuntimeTestsAssembly(PackageInfo packageInfo) {
             CreateAssemblyDef(
                 Path.Combine(GetPackageDir(packageInfo), "Tests", "Runtime", string.Format("{0}.Runtime.Tests.asmdef", packageInfo.AssemblyDefName)),
@@ -190,6 +215,13 @@ namespace IPTech.PackageCreator.Editor {
                 }
             );
         }
+
+        void CreateRuntimeTestsAssemblyTempScriptFile(PackageInfo packageInfo) {
+            File.WriteAllText(
+                Path.Combine(GetPackageDir(packageInfo), "Tests", "Runtime", "TempClass.cs"),
+                "public class TempClass { }"
+            );
+		}
 
         void CreateAssemblyDef(string filePath, AssemblyDef assemblyDef) {
             File.WriteAllText(
