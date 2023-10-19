@@ -3,9 +3,9 @@
 
 name: Publish Release to NPM
 
-on:
-  release:
-    types: [published]
+#on:
+#  release:
+#    types: [published]
 
 env:
   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -18,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         unityVersion:
-          - 2021.3.0f1
+          - 2021.3.31f1
     steps:
       - uses: actions/checkout@v2
         with:
