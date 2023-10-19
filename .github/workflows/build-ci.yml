@@ -4,9 +4,15 @@ name: CI Build
 # events but only for the master branch
 on:
   push:
-    branches: [ 'main', 'features/**' ]
+    branches: 
+      - main
+      #- features/**
+
   pull_request:
-    branches: [ 'main', 'features/**' ]
+    branches: 
+      - main
+      #- features/**
+
   workflow_dispatch:
 
 env:
@@ -21,9 +27,9 @@ jobs:
       fail-fast: false
       matrix:
         projectPath:
-          - IPTech-UnityLibrary
+          - unity/unity-iptechunitylibrary
         unityVersion:
-          - 2021.3.0f1
+          - 2021.3.31f1
         testMode:
           - editmode
         buildTarget:
