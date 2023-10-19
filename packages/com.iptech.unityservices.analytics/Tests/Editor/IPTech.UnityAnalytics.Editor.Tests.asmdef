@@ -1,12 +1,15 @@
 {
-    "name": "IPTech.UnityServices.Runtime.Tests",
+    "name": "IPTech.UnityAnalytics.Editor.Tests",
     "rootNamespace": "",
     "references": [
-        "IPTech.UnityServices.Runtime",
+        "IPTech.UnityAnalytics.Runtime",
+        "IPTech.UnityAnalytics.Editor",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,

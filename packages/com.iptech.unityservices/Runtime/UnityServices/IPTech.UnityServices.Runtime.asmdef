@@ -16,7 +16,7 @@
     "defineConstraints": [],
     "versionDefines": [
         {
-            "name": "com.iptech.unityanalytics",
+            "name": "com.iptech.unityservices.analytics",
             "expression": "0",
             "define": "IPTECH_UNITYANALYTICS_INSTALLED"
         }

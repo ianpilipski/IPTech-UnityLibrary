@@ -1,6 +1,6 @@
 {
-  "name": "com.iptech.unityanalytics",
-  "displayName": "IPTech.UnityAnalytics",
+  "name": "com.iptech.unityservices.analytics",
+  "displayName": "IPTech.UnityServices.Analytics",
   "version": "0.0.1",
   "unity": "2021.3",
   "keywords": [
