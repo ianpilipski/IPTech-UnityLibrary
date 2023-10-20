@@ -15,7 +15,8 @@ namespace IPTech.UnityServices {
         DeclinedDeleteMyData
     }
 
-    public interface IIPTechUnityServices {
+    public interface IUnityServicesManager {
+        event Action<bool> ApplicationPaused;
         event Action<EConsentValue> ConsentValueChanged;
         event Action Initialized;
         EConsentValue Consent { get; set; }
