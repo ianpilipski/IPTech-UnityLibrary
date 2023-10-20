@@ -32,12 +32,6 @@
         "com.iptech.unityservices": "0.0.1"
       }
     },
-    "com.testing.testing": {
-      "version": "file:com.testing.testing",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {}
-    },
     "com.unity.ext.nunit": {
       "version": "1.0.6",
       "depth": 1,

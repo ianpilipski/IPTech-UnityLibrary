@@ -7,24 +7,43 @@ using Unity.Services.Core.Environments;
 using System.Collections.Generic;
 
 namespace IPTech.UnityServices {
-    #if IPTECH_UNITYANALYTICS_INSTALLED
-    using Analytics;
-    #endif
+    using Internal;
 
     using UEServices = global::Unity.Services.Core.UnityServices;
 
-    public class IPTechUnityServices : IIPTechUnityServices {
+    public class UnityServicesManager : IUnityServicesManager {
         const string CONSENT_KEY = "_iptech_unityservices_consentvalue";
 
         bool alreadyCalledInitialize;
         readonly List<Action<EConsentValue>> consentListeners = new();
         readonly List<Action> initializedListeners = new();
+        readonly INetworkDetector networkDetector;
+        
+        public event Action<bool> ApplicationPaused;
 
         #if IPTECH_UNITYANALYTICS_INSTALLED
         public readonly AnalyticsManager Analytics;
         #endif
         
-        readonly INetworkDetector networkDetector;
+        public UnityServicesManager() : this(new NetworkDetector(10)) {}
+        private UnityServicesManager(INetworkDetector networkDetector) {
+            State = EState.Initializing;
+            this.networkDetector = networkDetector;
+            
+            #if IPTECH_UNITYANALYTICS_INSTALLED
+            this.Analytics = new AnalyticsManager(this);
+            #endif
+
+            var go = new GameObject("IPTechUnityServicesApplicationEvents");
+            var appEvents =  go.AddComponent<ApplicationEvents>();
+            appEvents.ApplicationPaused += HandleApplicationPaused;
+            go.hideFlags = HideFlags.HideAndDontSave;
+            GameObject.DontDestroyOnLoad(go);
+        }
+
+        void HandleApplicationPaused(bool paused) {
+            ApplicationPaused?.Invoke(paused);
+        }
 
         public string EnvironmentID {
             get {
@@ -36,16 +55,6 @@ namespace IPTech.UnityServices {
         }
 
         public EState State { get; private set; }
-
-        public IPTechUnityServices() : this(new NetworkDetector(10)) {}
-        private IPTechUnityServices(INetworkDetector networkDetector) {
-            State = EState.Initializing;
-            this.networkDetector = networkDetector;
-            
-            #if IPTECH_UNITYANALYTICS_INSTALLED
-            this.Analytics = new AnalyticsManager(this);
-            #endif
-        }
 
         public async Task Initialize() {
             if(alreadyCalledInitialize) return;

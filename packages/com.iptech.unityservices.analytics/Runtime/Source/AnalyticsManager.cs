@@ -3,22 +3,22 @@ using System.Collections.Generic;
 using Unity.Services.Analytics;
 using UnityEngine;
 
-namespace IPTech.UnityServices.Analytics {
+namespace IPTech.UnityServices {
     public class AnalyticsManager {
         IAnalyticsService service;
-        readonly IIPTechUnityServices ipTechUnityServices;
+        readonly IUnityServicesManager unityServicesManager;
         readonly List<Action> queuedEvents;
         bool isInitialized;
 
-        public AnalyticsManager(IIPTechUnityServices ipTechUnityServices) {
+        public AnalyticsManager(IUnityServicesManager ipTechUnityServices) {
             this.queuedEvents = new List<Action>();
-            this.ipTechUnityServices = ipTechUnityServices;
+            this.unityServicesManager = ipTechUnityServices;
             ipTechUnityServices.Initialized += HandleInitialized;
         }
 
         void HandleInitialized() {
-            ipTechUnityServices.ConsentValueChanged += HandleConsentChanged;
-            HandleConsentChanged(ipTechUnityServices.Consent);
+            unityServicesManager.ConsentValueChanged += HandleConsentChanged;
+            HandleConsentChanged(unityServicesManager.Consent);
         }
 
         void HandleConsentChanged(EConsentValue consent) {
@@ -33,7 +33,7 @@ namespace IPTech.UnityServices.Analytics {
         void ChangeStateBasedOnConsent(EConsentValue consent) {
             try {
                 if(service!=null) {
-                    if(consent == EConsentValue.Accepted && ipTechUnityServices.State == EState.Online) {
+                    if(consent == EConsentValue.Accepted && unityServicesManager.State == EState.Online) {
                         service.StartDataCollection();
                     } else {
                         service.StopDataCollection();
