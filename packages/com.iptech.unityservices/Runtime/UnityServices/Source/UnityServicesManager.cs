@@ -15,23 +15,39 @@ namespace IPTech.UnityServices {
         const string CONSENT_KEY = "_iptech_unityservices_consentvalue";
 
         bool alreadyCalledInitialize;
-        readonly List<Action<EConsentValue>> consentListeners = new();
+        readonly List<Action<ConsentInfo>> consentListeners = new();
         readonly List<Action> initializedListeners = new();
         readonly INetworkDetector networkDetector;
+        readonly Dictionary<Type, object> services = new();
         
         public event Action<bool> ApplicationPaused;
 
         #if IPTECH_UNITYANALYTICS_INSTALLED
-        public readonly AnalyticsManager Analytics;
+        public readonly AnalyticsManager AnalyticsManager;
+        #endif
+        #if IPTECH_UNITYADVERTISING_INSTALLED
+        public readonly AdsManager AdsManager;
         #endif
         
-        public UnityServicesManager() : this(new NetworkDetector(10)) {}
-        private UnityServicesManager(INetworkDetector networkDetector) {
+        #if IPTECH_UNITYADVERTISING_INSTALLED
+        public UnityServicesManager(string adsAppKey) : this(adsAppKey, new NetworkDetector(10)) {}
+        #else
+        public UnityServicesManager() : this(null, new NetworkDetector(10)) {}
+        #endif
+
+        private UnityServicesManager(string adsAppKey, INetworkDetector networkDetector) {
             State = EState.Initializing;
             this.networkDetector = networkDetector;
             
             #if IPTECH_UNITYANALYTICS_INSTALLED
-            this.Analytics = new AnalyticsManager(this);
+            //services.Add(typeof(IAnalyticsManager), new AnalyticsManager(this));
+            this.AnalyticsManager = new AnalyticsManager(this);
+            #endif
+
+            #if IPTECH_UNITYADVERTISING_INSTALLED
+            if(string.IsNullOrEmpty(adsAppKey)) throw new ArgumentNullException("adsAppKey");
+            //services.Add(typeof(IAdsManager), new AdsManager(this,adsAppKey));
+            this.AdsManager = new AdsManager(this, adsAppKey);
             #endif
 
             var go = new GameObject("IPTechUnityServicesApplicationEvents");
@@ -39,6 +55,11 @@ namespace IPTech.UnityServices {
             appEvents.ApplicationPaused += HandleApplicationPaused;
             go.hideFlags = HideFlags.HideAndDontSave;
             GameObject.DontDestroyOnLoad(go);
+        }
+
+        T GetService<T>() {
+            if(services.TryGetValue(typeof(T), out var value)) return (T)value;
+            return default;
         }
 
         void HandleApplicationPaused(bool paused) {
@@ -122,31 +143,31 @@ namespace IPTech.UnityServices {
 
         public bool IsInitialized => State != EState.Initializing;
 
-        public EConsentValue Consent {
+        public ConsentInfo Consent {
             get {
-                return (EConsentValue)PlayerPrefs.GetInt(CONSENT_KEY, (int)EConsentValue.Unknown);
+                var s = PlayerPrefs.GetString(CONSENT_KEY, "");
+                if(!string.IsNullOrWhiteSpace(s)) {
+                    try {
+                        return JsonUtility.FromJson<ConsentInfo>(s);
+                    } catch(Exception e) {
+                        Debug.LogException(e);
+                    }
+                }
+                return new ConsentInfo();
             }
 
             set {
-                if(value != Consent) {
-                    PlayerPrefs.SetInt(CONSENT_KEY, (int)value);
+                if(!value.Equals(Consent)) {
+                    PlayerPrefs.SetString(CONSENT_KEY, JsonUtility.ToJson(value));
                     PlayerPrefs.Save();
                     foreach(var l in consentListeners) {
-                        SafeInvoke(l, value);
-                    }
-                }
-
-                void SafeInvoke(Action<EConsentValue> action, EConsentValue value) {
-                    try {
-                        action(value);
-                    } catch(Exception e) {
-                        Debug.LogException(e);
+                        SafeInvoke(() => l.Invoke(value));
                     }
                 }
             }
         }
 
-        public event Action<EConsentValue> ConsentValueChanged {
+        public event Action<ConsentInfo> ConsentValueChanged {
             add {
                 consentListeners.Add(value);
             }

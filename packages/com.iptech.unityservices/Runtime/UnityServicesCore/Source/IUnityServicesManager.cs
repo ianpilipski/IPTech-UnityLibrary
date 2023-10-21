@@ -8,6 +8,12 @@ namespace IPTech.UnityServices {
         Online
     }
 
+    public enum EConsentAge {
+        Unknown,
+        Under13,
+        Over13
+    }
+
     public enum EConsentValue {
         Unknown,
         Accepted,
@@ -17,9 +23,16 @@ namespace IPTech.UnityServices {
 
     public interface IUnityServicesManager {
         event Action<bool> ApplicationPaused;
-        event Action<EConsentValue> ConsentValueChanged;
+        event Action<ConsentInfo> ConsentValueChanged;
         event Action Initialized;
-        EConsentValue Consent { get; set; }
+        ConsentInfo Consent { get; set; }
         EState State { get; }
+       //T GetService<T>();
+    }
+
+    [Serializable]
+    public struct ConsentInfo {
+        public EConsentValue Consent;
+        public EConsentAge AgeInfo;
     }
 }
