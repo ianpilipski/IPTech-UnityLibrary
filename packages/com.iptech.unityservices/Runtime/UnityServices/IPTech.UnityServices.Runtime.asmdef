@@ -5,7 +5,8 @@
         "GUID:fe25561d224ed4743af4c60938a59d0b",
         "GUID:70ea675efa2644cef98c7ece24158333",
         "GUID:9911134dc03434a9da84b1212413e243",
-        "GUID:9facf4f4914394bc29e682d12d71e270"
+        "GUID:9facf4f4914394bc29e682d12d71e270",
+        "GUID:916065e97e4b64c26b59f9cbdf4a2b2d"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -19,6 +20,11 @@
             "name": "com.iptech.unityservices.analytics",
             "expression": "0",
             "define": "IPTECH_UNITYANALYTICS_INSTALLED"
+        },
+        {
+            "name": "com.iptech.unityservices.advertising",
+            "expression": "0",
+            "define": "IPTECH_UNITYADVERTISING_INSTALLED"
         }
     ],
     "noEngineReferences": false
