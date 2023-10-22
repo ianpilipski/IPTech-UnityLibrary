@@ -32,6 +32,7 @@ namespace IPTech.UnityServices {
     }
 
 #if IPTECH_IRONSOURCE_INSTALLED
+#if !UNITY_EDITOR
     public class AdsManager 
     {
         readonly string appKey;
@@ -205,7 +206,7 @@ namespace IPTech.UnityServices {
             Debug.Log($"[IPTech.AdsManager]: {msg}");
         }
     
-        #region ImpressionSuccess callback handler
+    #region ImpressionSuccess callback handler
 
         void ImpressionSuccessEvent(IronSourceImpressionData impressionData)
         {
@@ -219,8 +220,23 @@ namespace IPTech.UnityServices {
             Debug.Log("unity - script: I got ImpressionDataReadyEvent allData: " + impressionData.allData);
         }
 
-        #endregion
+    #endregion
     }
+#else
+    public class AdsManager {
+        readonly IUnityServicesManager manager;
+
+        public AdsManager(IUnityServicesManager unityServicesManager) {
+            manager = unityServicesManager;
+        }
+
+        public Task<ShowAdResult> ShowAd(EAdType adType, string placementName) {
+            if(manager.State == EState.Initializing) throw new Exception("you must initialize the UnityServicesManager before calling this function");
+            if(manager.Consent.Consent == EConsentValue.Unknown) throw new Exception("you must set the Consent value before calling this function");
+            return Task.FromResult(new ShowAdResult { AdResult = AdResult.FaildToLoad, PlacementID = placementName });
+        }
+    }
+#endif //!UNITY_EDITOR
 #else
     public class AdsManager {
         public AdsManager(IUnityServicesManager unityServicesManager) {}
