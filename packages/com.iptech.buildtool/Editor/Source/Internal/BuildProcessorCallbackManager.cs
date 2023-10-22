@@ -28,14 +28,22 @@ namespace IPTech.BuildTool.Internal {
         }
 
         void ForEachBuildProcessor(Action<BuildProcessor> action) {
-            List<BuildProcessor> bps = BuildToolsSettings.instance.BuildProcessors;
-            if(PlayerBuildConfig.CurrentlyBuildingConfig != null) {
-                bps = bps.Concat(PlayerBuildConfig.CurrentlyBuildingConfig.BuildProcessors).ToList();
-            } 
+            try {
+                List<BuildProcessor> bps = BuildToolsSettings.instance.BuildProcessors;
+                if(PlayerBuildConfig.CurrentlyBuildingConfig != null) {
+                    bps = bps.Concat(PlayerBuildConfig.CurrentlyBuildingConfig.BuildProcessors).ToList();
+                }
 
-            if(bps != null) {
-                foreach(var pp in bps) {
-                    action(pp);
+                if(bps != null) {
+                    foreach(var pp in bps) {
+                        action(pp);
+                    }
+                }
+            } catch(Exception e) {
+                if(!(e is BuildFailedException)) {
+                    throw new BuildFailedException(e);
+                } else {
+                    throw;
                 }
             }
         }
