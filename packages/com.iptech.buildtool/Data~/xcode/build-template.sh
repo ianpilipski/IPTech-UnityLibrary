@@ -10,7 +10,8 @@ fi
 [[ ! -v KEYCHAIN_NAME ]] && export KEYCHAIN_NAME=iptechbuildtool.keychain
 [[ ! -v OUTPUT_PATH ]] && export OUTPUT_PATH=build
 
-export CP_HOME_DIR=$PWD/.cocoapods
+#ipilipski: I don't do this here because it should be build configurable
+#export CP_HOME_DIR=$PWD/.cocoapods
 
 source iptechbuild/lib/import-libs.sh
 
