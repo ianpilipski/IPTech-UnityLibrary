@@ -30,12 +30,14 @@ namespace IPTech.BuildTool.Processors {
         void CopyLauncher(BuildReport report) {
             string source = BuildToolsSettings.GetFullPathToRelativePackagePath("Data~/xcode/iptechbuild.sh");
             string dest = Path.GetFullPath(Path.Combine(report.summary.outputPath, "iptechbuild.sh"));
+            if(File.Exists(dest)) File.Delete(dest);
             FileUtil.CopyFileOrDirectory(source, dest);
         }
         
         void CopyXCodeLibsToDest(BuildReport report, string destPath) {
             string sourceXCodeLibs = BuildToolsSettings.GetFullPathToRelativePackagePath("Data~/xcode/iptechbuild");
             string destXCodeLibs = Path.GetFullPath(Path.Combine(report.summary.outputPath, destPath));
+            if(Directory.Exists(destXCodeLibs)) FileUtil.DeleteFileOrDirectory(destXCodeLibs);
             Directory.CreateDirectory(Path.GetDirectoryName(destXCodeLibs));
             FileUtil.CopyFileOrDirectory(sourceXCodeLibs, destXCodeLibs);
         }
@@ -112,7 +114,7 @@ installSigningCert \
                 return $@"
 ARCHIVE_PATH=""{outputPath}/Unity-iPhone.xcarchive""
 
-[ -f Unity-iPhone.xcworkspace ] && xcodebuildarg=(-workspace Unity-iPhone.xcworkspace) || xcodebuildarg=(-project Unity-iPhone.xcodeproj)
+[ -d Unity-iPhone.xcworkspace ] && xcodebuildarg=(-workspace Unity-iPhone.xcworkspace) || xcodebuildarg=(-project Unity-iPhone.xcodeproj)
 
 xcodebuild \
     $xcodebuildarg \
