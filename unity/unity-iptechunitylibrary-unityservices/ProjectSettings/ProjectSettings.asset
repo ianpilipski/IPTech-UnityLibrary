@@ -156,6 +156,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
+    Android: com.Cobrasoft.IPTechUnityLibrary
     Standalone: com.Cobrasoft.IPTech-UnityLibrary
   buildNumber:
     Standalone: 0
@@ -807,7 +808,9 @@ PlayerSettings:
   webGLThreadsSupport: 0
   webGLDecompressionFallback: 0
   webGLPowerPreference: 2
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    Android: IPTECH_IRONSOURCE_INSTALLED
+    Standalone: IPTECH_IRONSOURCE_INSTALLED
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}
