@@ -29,13 +29,8 @@ namespace IPTech.UnityServices {
         public readonly AdsManager AdsManager;
         #endif
         
-        #if IPTECH_UNITYADVERTISING_INSTALLED
-        public UnityServicesManager(string adsAppKey) : this(adsAppKey, new NetworkDetector(10)) {}
-        #else
-        public UnityServicesManager() : this(null, new NetworkDetector(10)) {}
-        #endif
-
-        private UnityServicesManager(string adsAppKey, INetworkDetector networkDetector) {
+        public UnityServicesManager() : this(new NetworkDetector(10)) {}
+        private UnityServicesManager(INetworkDetector networkDetector) {
             State = EState.Initializing;
             this.networkDetector = networkDetector;
             
@@ -45,9 +40,7 @@ namespace IPTech.UnityServices {
             #endif
 
             #if IPTECH_UNITYADVERTISING_INSTALLED
-            if(string.IsNullOrEmpty(adsAppKey)) throw new ArgumentNullException("adsAppKey");
-            //services.Add(typeof(IAdsManager), new AdsManager(this,adsAppKey));
-            this.AdsManager = new AdsManager(this, adsAppKey);
+            this.AdsManager = new AdsManager(this);
             #endif
 
             var go = new GameObject("IPTechUnityServicesApplicationEvents");

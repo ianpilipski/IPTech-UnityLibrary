@@ -13,10 +13,13 @@ namespace IPTech.UnityServices.Internal {
         }
 
         override protected void LoadAd() {
+            #if IPTECH_IRONSOURCE_INSTALLED
             IronSource.Agent.loadRewardedVideo();
+            #endif
         }
 
         override protected async Task ShowAd() {
+            #if IPTECH_IRONSOURCE_INSTALLED
             if (IronSource.Agent.isInterstitialReady()) {
                 IronSource.Agent.showInterstitial(result.PlacementID);
                 await WaitWhile(() => showState != ShowState.FinishedShowing );
@@ -26,6 +29,7 @@ namespace IPTech.UnityServices.Internal {
             } else {
                 result.AdResult = AdResult.FaildToLoad;
             }
+            #endif
         }
 
         async Task WaitForRewardWithTimeout() {
@@ -40,6 +44,7 @@ namespace IPTech.UnityServices.Internal {
             }
         }
 
+#if IPTECH_IRONSOURCE_INSTALLED
         protected override void ReardedVideoOnAdAvailable(IronSourceAdInfo info)
         {
             loadState = LoadState.Loaded;
@@ -77,7 +82,7 @@ namespace IPTech.UnityServices.Internal {
             result.AdResult = AdResult.FailedToShow;
             showState = ShowState.FinishedShowing;
         }
-
+#endif
         
     }
 }

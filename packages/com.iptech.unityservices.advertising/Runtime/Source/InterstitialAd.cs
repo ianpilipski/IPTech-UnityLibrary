@@ -11,18 +11,23 @@ namespace IPTech.UnityServices.Internal {
         }
 
         override protected void LoadAd() {
+            #if IPTECH_IRONSOURCE_INSTALLED
             IronSource.Agent.loadInterstitial();
+            #endif
         }
 
         override protected async Task ShowAd() {
+            #if IPTECH_IRONSOURCE_INSTALLED
             if (IronSource.Agent.isInterstitialReady()) {
                 IronSource.Agent.showInterstitial(result.PlacementID);
                 await WaitWhile(() => showState != ShowState.FinishedShowing );
             } else {
                 result.AdResult = AdResult.FaildToLoad;
             }
+            #endif
         }
 
+#if IPTECH_IRONSOURCE_INSTALLED
         #region AdInfo Interstitial
         // Invoked when the interstitial ad was loaded succesfully.
         override protected void InterstitialOnAdReadyEvent(IronSourceAdInfo adInfo) {
@@ -69,5 +74,6 @@ namespace IPTech.UnityServices.Internal {
             showState = ShowState.FinishedShowing;
         }
         #endregion
+#endif
     }
 }

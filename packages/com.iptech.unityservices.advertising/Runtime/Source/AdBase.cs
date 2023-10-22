@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -56,6 +54,7 @@ namespace IPTech.UnityServices.Internal {
             throw new OperationCanceledException("playmode state changed");
         }
 
+#if IPTECH_IRONSOURCE_INSTALLED
         void HookEvents() {
             IronSourceInterstitialEvents.onAdReadyEvent += InterstitialOnAdReadyEvent;
             IronSourceInterstitialEvents.onAdLoadFailedEvent += InterstitialOnAdLoadFailed;
@@ -73,6 +72,7 @@ namespace IPTech.UnityServices.Internal {
             IronSourceRewardedVideoEvents.onAdRewardedEvent += ReardedVideoOnAdRewardedEvent;
             IronSourceRewardedVideoEvents.onAdClickedEvent += ReardedVideoOnAdClickedEvent;
         }
+
 
         #region AdInfo Reward
         protected virtual void ReardedVideoOnAdOpenedEvent(IronSourceAdInfo info) {}
@@ -114,5 +114,8 @@ namespace IPTech.UnityServices.Internal {
         // Invoked when the interstitial ad closed and the user went back to the application screen.
         protected virtual void InterstitialOnAdClosedEvent(IronSourceAdInfo adInfo) {}
         #endregion
+#else
+        void HookEvents() {}
+#endif
     }
 }
