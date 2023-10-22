@@ -1,18 +1,22 @@
 using UnityEditor.Build.Reporting;
 using System.IO;
+using UnityEngine;
 
 #if UNITY_IOS
 using UnityEditor.iOS.Xcode;
 #endif
 
 namespace IPTech.BuildTool.Processors {
+    [Tooltip("This will set the BITCODE enabled build setting in the xcode project.")]
     public class IOSBitCodeEnabled : BuildProcessor {
         public bool EnableBitCode;
 
         public override void PostProcessBuild(BuildReport report) {
-            if(report.summary.platform == UnityEditor.BuildTarget.iOS) {
 #if UNITY_IOS
-                string projPath = Path.Combine(report.summary.outputPath, "/Unity-iPhone.xcodeproj/project.pbxproj");
+            if(report.summary.platform == UnityEditor.BuildTarget.iOS) {
+
+                string projPath = Path.Combine(report.summary.outputPath, "Unity-iPhone.xcodeproj/project.pbxproj");
+                
                 var enabledString = EnableBitCode ? "YES" : "NO";
 
                 var pbxProject = new PBXProject();
@@ -22,11 +26,9 @@ namespace IPTech.BuildTool.Processors {
                 string target = pbxProject.GetUnityMainTargetGuid();
                 pbxProject.SetBuildProperty(target, "ENABLE_BITCODE", enabledString);
 
-
                 // Unity Tests
                 target = pbxProject.TargetGuidByName(PBXProject.GetUnityTestTargetName());
                 pbxProject.SetBuildProperty(target, "ENABLE_BITCODE", enabledString);
-
 
                 // Unity Framework
                 target = pbxProject.GetUnityFrameworkTargetGuid();
@@ -34,8 +36,8 @@ namespace IPTech.BuildTool.Processors {
 
 
                 pbxProject.WriteToFile(projPath);
-#endif
             }
+#endif
         }
     }
 }
