@@ -97,7 +97,7 @@ namespace IPTech.BuildTool
             configModifiers = new List<ConfigModifier>();
             foreach(var cm in LoadConfigModifiers()) {
                 var inst = (ConfigModifier)ScriptableObject.Instantiate(cm);
-                inst.hideFlags = HideFlags.DontUnloadUnusedAsset | HideFlags.HideAndDontSave;
+                inst.hideFlags = (HideFlags.DontUnloadUnusedAsset | HideFlags.HideAndDontSave) & ~HideFlags.NotEditable;
                 configModifiers.Add(inst);
             }
         }

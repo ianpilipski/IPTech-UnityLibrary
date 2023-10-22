@@ -14,7 +14,7 @@ namespace IPTech.BuildTool
 			GetSubObjectsToSave(objs);	
 			foreach(var oo in objs) {
 				if(ObjectIsInstance(oo)) {
-					oo.hideFlags = HideFlags.HideAndDontSave;
+					oo.hideFlags = HideFlags.HideAndDontSave & ~HideFlags.NotEditable;
 				}
 			}
 		}
@@ -36,7 +36,7 @@ namespace IPTech.BuildTool
 					if(!ObjectIsInstance(objs[i])) {
 						objs.RemoveAt(i);
                     } else {
-						objs[i].hideFlags = HideFlags.HideAndDontSave;
+						objs[i].hideFlags = HideFlags.HideAndDontSave & ~HideFlags.NotEditable;
 					}
                 }
 				objs.Insert(0, instance);
