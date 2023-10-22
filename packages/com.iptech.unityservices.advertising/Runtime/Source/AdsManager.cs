@@ -101,17 +101,15 @@ namespace IPTech.UnityServices {
             IronSource.Agent.setConsent(didConsent);
             IronSource.Agent.setMetaData("is_child_directed", isUnder13String);
             
-            //android google stuff (mixed audience)
-            //<uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
-            //implementation 'com.google.android.gms:play-services-appset:16.0.0'
-            //implementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
             // for childen or users of unkown age ...
             if(consentValue.Consent != EConsentValue.Accepted || consentValue.AgeInfo != EConsentAge.Over13) {
                 IronSource.Agent.setMetaData("is_deviceid_optout", "true");
                 IronSource.Agent.setMetaData("Google_Family_Self_Certified_SDKS","true");
+                IronSource.Agent.setMetaData("UnityAds_coppa", "true");
             } else {
                 IronSource.Agent.setMetaData("is_deviceid_optout", "false");
                 IronSource.Agent.setMetaData("Google_Family_Self_Certified_SDKS","false");
+                IronSource.Agent.setMetaData("UnityAds_coppa", "false");
             }
         }
 
