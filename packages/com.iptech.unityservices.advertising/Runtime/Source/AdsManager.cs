@@ -31,6 +31,7 @@ namespace IPTech.UnityServices {
         }
     }
 
+#if IPTECH_IRONSOURCE_INSTALLED
     public class AdsManager 
     {
         readonly string appKey;
@@ -41,9 +42,28 @@ namespace IPTech.UnityServices {
         bool isShowingAd;
         bool alreadySetConsent;
 
-        public AdsManager(IUnityServicesManager unityServicesManager, string appKey) {
+        public AdsManager(IUnityServicesManager unityServicesManager) {
             this.unityServicesManager = unityServicesManager;
-            this.appKey = appKey;
+        
+            var developerSettings = Resources.Load<IronSourceMediationSettings>(IronSourceConstants.IRONSOURCE_MEDIATION_SETTING_NAME);
+#if UNITY_ANDROID
+            this.appKey = developerSettings.AndroidAppKey;
+#elif UNITY_IOS
+            this.appKey = developerSettings.IOSAppKey;
+#elif !UNITY_EDITOR
+            throw new Exception("unsupported platform");
+#endif
+
+            if (developerSettings.EnableAdapterDebug)
+            {
+                IronSource.Agent.setAdaptersDebug(true);
+            }
+
+            if (developerSettings.EnableIntegrationHelper)
+            {
+                IronSource.Agent.validateIntegration();
+            }
+
             HookEventsPriorToInitializing();
             Initialize();
         }
@@ -139,7 +159,7 @@ namespace IPTech.UnityServices {
             Debug.Log("unity-script: I got SdkInitializationCompletedEvent");
         }
         
-        async Task<ShowAdResult> ShowAd(EAdType adType, string placementName) {
+        public async Task<ShowAdResult> ShowAd(EAdType adType, string placementName) {
             if(!isShowingAd) {
                 isShowingAd = true;
                 DebugLog($"ShowAd - {adType}");
@@ -165,23 +185,25 @@ namespace IPTech.UnityServices {
         }
 
         async Task WaitForInitialization() {
-            if(alreadyCalledInitialized) {
-                DateTime timeout = DateTime.Now.AddSeconds(5);
-                while(!initialized) {
-                    await Task.Yield();
-                    if(DateTime.Now > timeout) throw new Exception("timed out waiting for the sdk to initialize");
-                    if(!Application.isPlaying) throw new OperationCanceledException("playmode state changed");
+            if(initialized) return;
+            
+            if(unityServicesManager.State != EState.Initializing) {
+                if(unityServicesManager.Consent.Consent != EConsentValue.Unknown) {
+                    DateTime timeout = DateTime.Now.AddSeconds(5);
+                    while(!initialized) {
+                        await Task.Yield();
+                        if(DateTime.Now > timeout) throw new Exception("timed out waiting for the sdk to initialize");
+                        if(!Application.isPlaying) throw new OperationCanceledException("playmode state changed");
+                    }    
                 }
+                throw new InvalidOperationException("you must set the Consent value on UnityServicesManager before using this function");
             }
-            throw new InvalidOperationException("ads not initialized");
+            throw new InvalidOperationException("you must call UnityServicesManager initialize before using this function");
         }
 
         void DebugLog(string msg) {
             Debug.Log($"[IPTech.AdsManager]: {msg}");
         }
-    
-    
-
     
         #region ImpressionSuccess callback handler
 
@@ -198,6 +220,13 @@ namespace IPTech.UnityServices {
         }
 
         #endregion
-
     }
+#else
+    public class AdsManager {
+        public AdsManager(IUnityServicesManager unityServicesManager) {}
+        public Task<ShowAdResult> ShowAd(EAdType adType, string placementName) {
+            throw new Exception("you must integrate IronSource for this to work.");
+        }
+    }
+#endif
 }
