@@ -6,6 +6,8 @@ using UnityEditor;
 using UnityEngine;
 
 namespace IPTech.UnityServices {
+    using Platform;
+
     public enum EAdType {
         InterstitialAd,
         RewardAd
@@ -72,7 +74,7 @@ namespace IPTech.UnityServices {
         }
 
         void Initialize() {
-            if(unityServicesManager.State == EState.Initializing) {
+            if(unityServicesManager.State == EPlatformState.Initializing) {
                 unityServicesManager.Initialized += HandleUnityServicesInitialized;
                 return;
             }
@@ -204,7 +206,7 @@ namespace IPTech.UnityServices {
         async Task WaitForInitialization() {
             if(initialized) return;
             
-            if(unityServicesManager.State != EState.Initializing) {
+            if(unityServicesManager.State != EPlatformState.Initializing) {
                 if(unityServicesManager.Consent.Consent != EConsentValue.Unknown) {
                     DateTime timeout = DateTime.Now.AddSeconds(5);
                     while(!initialized) {

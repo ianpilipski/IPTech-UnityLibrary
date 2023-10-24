@@ -32,7 +32,7 @@ namespace IPTech.UnityServices {
         
         public UnityServicesManager() : this(new IPTechPlatform()) {}
         private UnityServicesManager(IIPTechPlatform platform) {
-            State = EState.Initializing;
+            State = EPlatformState.Initializing;
             this.platform = platform;
             
             #if IPTECH_UNITYANALYTICS_INSTALLED
@@ -69,7 +69,7 @@ namespace IPTech.UnityServices {
             }
         }
 
-        public EState State { get; private set; }
+        public EPlatformState State { get; private set; }
 
         public async Task Initialize() {
             if(alreadyCalledInitialize) return;
@@ -80,7 +80,7 @@ namespace IPTech.UnityServices {
                 State = await InitializeUnityServices();
             } catch(Exception e) {
                 Debug.LogException(e);
-                State = EState.NotOnline;
+                State = EPlatformState.NotOnline;
             }
 
             foreach(var l in initializedListeners) {
@@ -113,7 +113,7 @@ namespace IPTech.UnityServices {
             }
         }
 
-        async Task<EState> InitializeUnityServices() {
+        async Task<EPlatformState> InitializeUnityServices() {
             if(Application.isPlaying) {
                 try {
                     var options = new InitializationOptions();
@@ -128,15 +128,15 @@ namespace IPTech.UnityServices {
                     }
                     #endif
 
-                    return EState.Online;
+                    return EPlatformState.Online;
                 } catch(Exception e) {
                     Debug.LogException(e);
                 }
             }
-            return EState.NotOnline;
+            return EPlatformState.NotOnline;
         }
 
-        public bool IsInitialized => State != EState.Initializing;
+        public bool IsInitialized => State != EPlatformState.Initializing;
 
         public ConsentInfo Consent {
             get {

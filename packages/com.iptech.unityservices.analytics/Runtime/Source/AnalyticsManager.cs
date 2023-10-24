@@ -4,6 +4,8 @@ using Unity.Services.Analytics;
 using UnityEngine;
 
 namespace IPTech.UnityServices {
+    using Platform;
+
     using UAdImpressionParameters = Unity.Services.Analytics.AdImpressionParameters;
     using UAdCompletionStatus = Unity.Services.Analytics.AdCompletionStatus;
     using UAdPlacementType = Unity.Services.Analytics.AdPlacementType;
@@ -38,7 +40,7 @@ namespace IPTech.UnityServices {
         void ChangeStateBasedOnConsent(ConsentInfo consent) {
             try {
                 if(service!=null) {
-                    if(consent.Consent == EConsentValue.Accepted && unityServicesManager.State == EState.Online) {
+                    if(consent.Consent == EConsentValue.Accepted && unityServicesManager.State == EPlatformState.Online) {
                         service.StartDataCollection();
                     } else {
                         service.StopDataCollection();
