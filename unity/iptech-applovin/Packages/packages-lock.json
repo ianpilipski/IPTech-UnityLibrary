@@ -4,7 +4,9 @@
       "version": "file:com.iptech.applovin.maxsdk",
       "depth": 0,
       "source": "embedded",
-      "dependencies": {}
+      "dependencies": {
+        "com.iptech.externaldependencymanager": "0.0.1-1.2.177"
+      }
     },
     "com.iptech.externaldependencymanager": {
       "version": "file:../../../packages/com.iptech.externaldependencymanager",
