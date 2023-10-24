@@ -1,0 +1,14 @@
+{
+  "name": "com.iptech.externaldependencymanager",
+  "displayName": "IPTech.ExternalDependencyManager",
+  "version": "0.0.1-1.2.177",
+  "unity": "2021.3",
+  "unityRelease": "31f1",
+  "keywords": [],
+  "category": "",
+  "samples": [],
+  "author": {
+    "name": "Ian Pilipski",
+    "url": "https://github.com/ianpilipski/IPTech-UnityLibrary.git"
+  }
+}
