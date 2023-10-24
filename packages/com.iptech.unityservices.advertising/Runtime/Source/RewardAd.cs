@@ -47,6 +47,7 @@ namespace IPTech.UnityServices.Internal {
 #if IPTECH_IRONSOURCE_INSTALLED
         protected override void ReardedVideoOnAdAvailable(IronSourceAdInfo info)
         {
+            result.Info = info;
             loadState = LoadState.Loaded;
         }
 
@@ -57,28 +58,33 @@ namespace IPTech.UnityServices.Internal {
 
         protected override void ReardedVideoOnAdClickedEvent(IronSourcePlacement placement, IronSourceAdInfo info)
         {
+            result.Info = info;
             result.UserClicked = true;
         }
 
         // This may come out of order with Reward Event!!
         protected override void ReardedVideoOnAdClosedEvent(IronSourceAdInfo info)
         {
+            result.Info = info;
             result.AdResult = AdResult.Cancelled;
             showState = ShowState.FinishedShowing;
         }
 
         protected override void ReardedVideoOnAdOpenedEvent(IronSourceAdInfo info)
         {
+            result.Info = info;
         }
 
         // This may come out of order with Closed Event!!
         protected override void ReardedVideoOnAdRewardedEvent(IronSourcePlacement placement, IronSourceAdInfo info)
         {
+            result.Info = info;
             rewardWasCalled = true;
         }
 
         protected override void ReardedVideoOnAdShowFailedEvent(IronSourceError error, IronSourceAdInfo info)
         {
+            result.Info = info;
             result.AdResult = AdResult.FailedToShow;
             showState = ShowState.FinishedShowing;
         }

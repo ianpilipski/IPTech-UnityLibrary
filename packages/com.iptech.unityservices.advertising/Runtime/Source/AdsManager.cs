@@ -23,6 +23,7 @@ namespace IPTech.UnityServices {
         public AdResult AdResult;
         public string PlacementID;
         public bool UserClicked;
+        public IronSourceAdInfo Info;
 
         public override string ToString()
         {
@@ -32,7 +33,6 @@ namespace IPTech.UnityServices {
     }
 
 #if IPTECH_IRONSOURCE_INSTALLED
-#if !UNITY_EDITOR
     public class AdsManager 
     {
         readonly string appKey;
@@ -42,6 +42,8 @@ namespace IPTech.UnityServices {
         bool alreadyCalledInitialized;
         bool isShowingAd;
         bool alreadySetConsent;
+
+        public event Action<ShowAdResult> AdShown;
 
         public AdsManager(IUnityServicesManager unityServicesManager) {
             this.unityServicesManager = unityServicesManager;
@@ -130,6 +132,9 @@ namespace IPTech.UnityServices {
                 // SDK init
                 Debug.Log("unity-script: IronSource.Agent.init");
                 IronSource.Agent.init(appKey);
+                if(Application.isEditor) {
+                    SdkInitializationCompletedEvent();
+                }
             }
         }
 
@@ -165,21 +170,34 @@ namespace IPTech.UnityServices {
                 try {
                     await WaitForInitialization();
                     ShowAdResult res = default;
-                    switch(adType) {
-                        case EAdType.InterstitialAd:
-                            res = await new Internal.InterstitialAd(placementName).Show();
-                            break;
-                        case EAdType.RewardAd:
-                            res = await new Internal.RewardAd(placementName).Show();
-                            break;
+                    if(!Application.isEditor) {
+                        switch(adType) {
+                            case EAdType.InterstitialAd:
+                                res = await new Internal.InterstitialAd(placementName).Show();
+                                break;
+                            case EAdType.RewardAd:
+                                res = await new Internal.RewardAd(placementName).Show();
+                                break;
+                        }
+                    } else {
+                        res = new ShowAdResult { AdResult = AdResult.FaildToLoad, PlacementID = placementName };
                     }
-                    DebugLog($"ShowAd - {adType} - {res}");  
+                    DebugLog($"ShowAd - {adType} - {res}");
+                    OnAdShown(res);
                     return res;  
                 } finally {
                     isShowingAd = false;
                 }
             } else {
                 throw new InvalidOperationException("you are already showing an ad, you can only show 1 ad at a time");
+            }
+        }
+
+        void OnAdShown(ShowAdResult res) {
+            try {
+                AdShown.Invoke(res);
+            } catch(Exception e) {
+                Debug.LogException(e);
             }
         }
 
@@ -220,23 +238,10 @@ namespace IPTech.UnityServices {
 
     #endregion
     }
+
 #else
     public class AdsManager {
-        readonly IUnityServicesManager manager;
-
-        public AdsManager(IUnityServicesManager unityServicesManager) {
-            manager = unityServicesManager;
-        }
-
-        public Task<ShowAdResult> ShowAd(EAdType adType, string placementName) {
-            if(manager.State == EState.Initializing) throw new Exception("you must initialize the UnityServicesManager before calling this function");
-            if(manager.Consent.Consent == EConsentValue.Unknown) throw new Exception("you must set the Consent value before calling this function");
-            return Task.FromResult(new ShowAdResult { AdResult = AdResult.FaildToLoad, PlacementID = placementName });
-        }
-    }
-#endif //!UNITY_EDITOR
-#else
-    public class AdsManager {
+        public event Action<ShowAdResult> AdShown;
         public AdsManager(IUnityServicesManager unityServicesManager) {}
         public Task<ShowAdResult> ShowAd(EAdType adType, string placementName) {
             throw new Exception("you must integrate IronSource for this to work.");
