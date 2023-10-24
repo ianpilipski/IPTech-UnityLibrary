@@ -1,0 +1,1 @@
+# IPTech.AppLovin.MaxSdk
