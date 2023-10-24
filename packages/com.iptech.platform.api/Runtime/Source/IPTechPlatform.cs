@@ -4,24 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace IPTech.Platform {
-    
+namespace IPTech.Platform {    
     using Internal;
-
-    public interface INetworkDetector {
-        ENetworkState State { get; }
-        event Action<ENetworkState> NetworkStateChanged;
-    }
-
-    public enum ENetworkState {
-        Reachable,
-        NotReachable
-    }
-
-    public interface IIPTechPlatform {
-        INetworkDetector Network { get; }
-        void RunOnUnityThread(Action action);
-    }
 
     public class IPTechPlatform : IIPTechPlatform {
         static int unityThreadId;
