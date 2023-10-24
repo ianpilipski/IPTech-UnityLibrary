@@ -1,9 +1,9 @@
 {
   "dependencies": {
     "com.iptech.applovin.maxsdk": {
-      "version": "file:com.iptech.applovin.maxsdk",
+      "version": "file:../../../packages/com.iptech.applovin.maxsdk",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {
         "com.iptech.externaldependencymanager": "0.0.1-1.2.177"
       }
