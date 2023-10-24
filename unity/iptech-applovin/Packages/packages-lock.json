@@ -7,9 +7,9 @@
       "dependencies": {}
     },
     "com.iptech.externaldependencymanager": {
-      "version": "file:com.iptech.externaldependencymanager",
+      "version": "file:../../../packages/com.iptech.externaldependencymanager",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.iptech.packagecreator": {
