@@ -1,0 +1,17 @@
+{
+  "name": "com.iptech.platform",
+  "displayName": "IPTech.Platform",
+  "version": "0.0.1",
+  "unity": "2021.3",
+  "unityRelease": "31f1",
+  "keywords": [],
+  "category": "",
+  "dependencies": {
+    "com.iptech.platform.api": "0.0.1"
+  },
+  "samples": [],
+  "author": {
+    "name": "Ian Pilipski",
+    "url": "https://github.com/ianpilipski/IPTech-UnityLibrary.git"
+  }
+}

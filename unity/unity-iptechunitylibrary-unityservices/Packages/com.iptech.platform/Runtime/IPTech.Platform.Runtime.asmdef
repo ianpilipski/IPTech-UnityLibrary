@@ -1,0 +1,16 @@
+{
+    "name": "IPTech.Platform.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:92c66b79875e04ed39664e294fb3e0ae"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

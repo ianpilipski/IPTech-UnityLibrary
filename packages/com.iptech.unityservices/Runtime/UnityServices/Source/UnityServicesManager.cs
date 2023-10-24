@@ -19,10 +19,7 @@ namespace IPTech.UnityServices {
         readonly List<Action<ConsentInfo>> consentListeners = new();
         readonly List<Action> initializedListeners = new();
         readonly IIPTechPlatform platform;
-        readonly Dictionary<Type, object> services = new();
         
-        public event Action<bool> ApplicationPaused;
-
         #if IPTECH_UNITYANALYTICS_INSTALLED
         public readonly AnalyticsManager AnalyticsManager;
         #endif
@@ -32,7 +29,7 @@ namespace IPTech.UnityServices {
         
         public UnityServicesManager() : this(new IPTechPlatform()) {}
         private UnityServicesManager(IIPTechPlatform platform) {
-            State = EPlatformState.Initializing;
+            State = EServiceState.Initializing;
             this.platform = platform;
             
             #if IPTECH_UNITYANALYTICS_INSTALLED
@@ -41,23 +38,13 @@ namespace IPTech.UnityServices {
             #endif
 
             #if IPTECH_UNITYADVERTISING_INSTALLED
-            this.AdsManager = new AdsManager(this);
+            this.AdsManager = new AdsManager(platform);
             #endif
 
             var go = new GameObject("IPTechUnityServicesApplicationEvents");
             var appEvents =  go.AddComponent<ApplicationEvents>();
-            appEvents.ApplicationPaused += HandleApplicationPaused;
             go.hideFlags = HideFlags.HideAndDontSave;
             GameObject.DontDestroyOnLoad(go);
-        }
-
-        T GetService<T>() {
-            if(services.TryGetValue(typeof(T), out var value)) return (T)value;
-            return default;
-        }
-
-        void HandleApplicationPaused(bool paused) {
-            ApplicationPaused?.Invoke(paused);
         }
 
         public string EnvironmentID {
@@ -69,7 +56,7 @@ namespace IPTech.UnityServices {
             }
         }
 
-        public EPlatformState State { get; private set; }
+        public EServiceState State { get; private set; }
 
         public async Task Initialize() {
             if(alreadyCalledInitialize) return;
@@ -80,7 +67,7 @@ namespace IPTech.UnityServices {
                 State = await InitializeUnityServices();
             } catch(Exception e) {
                 Debug.LogException(e);
-                State = EPlatformState.NotOnline;
+                State = EServiceState.NotOnline;
             }
 
             foreach(var l in initializedListeners) {
@@ -113,7 +100,7 @@ namespace IPTech.UnityServices {
             }
         }
 
-        async Task<EPlatformState> InitializeUnityServices() {
+        async Task<EServiceState> InitializeUnityServices() {
             if(Application.isPlaying) {
                 try {
                     var options = new InitializationOptions();
@@ -128,48 +115,15 @@ namespace IPTech.UnityServices {
                     }
                     #endif
 
-                    return EPlatformState.Online;
+                    return EServiceState.Online;
                 } catch(Exception e) {
                     Debug.LogException(e);
                 }
             }
-            return EPlatformState.NotOnline;
+            return EServiceState.NotOnline;
         }
 
-        public bool IsInitialized => State != EPlatformState.Initializing;
-
-        public ConsentInfo Consent {
-            get {
-                var s = PlayerPrefs.GetString(CONSENT_KEY, "");
-                if(!string.IsNullOrWhiteSpace(s)) {
-                    try {
-                        return JsonUtility.FromJson<ConsentInfo>(s);
-                    } catch(Exception e) {
-                        Debug.LogException(e);
-                    }
-                }
-                return new ConsentInfo();
-            }
-
-            set {
-                if(!value.Equals(Consent)) {
-                    PlayerPrefs.SetString(CONSENT_KEY, JsonUtility.ToJson(value));
-                    PlayerPrefs.Save();
-                    foreach(var l in consentListeners) {
-                        SafeInvoke(() => l.Invoke(value));
-                    }
-                }
-            }
-        }
-
-        public event Action<ConsentInfo> ConsentValueChanged {
-            add {
-                consentListeners.Add(value);
-            }
-            remove {
-                consentListeners.Remove(value);
-            }
-        }
+        public bool IsInitialized => State != EServiceState.Initializing;
 
         public event Action Initialized {
             add {
@@ -189,6 +143,22 @@ namespace IPTech.UnityServices {
             } catch(Exception e) {
                 Debug.LogException(e);
             }
+        }
+
+
+        public ConsentInfo Consent {
+            get => platform.Consent;
+            set => platform.Consent = value;
+        }
+
+        public event Action<bool> ApplicationPaused {
+            add => platform.ApplicationPaused += value;
+            remove => platform.ApplicationPaused -= value;
+        }
+
+        public event Action<ConsentInfo> ConsentValueChanged {
+            add => platform.ConsentValueChanged += value;
+            remove => platform.ConsentValueChanged -= value;
         }
     }
 }

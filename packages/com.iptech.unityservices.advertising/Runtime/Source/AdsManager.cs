@@ -38,7 +38,7 @@ namespace IPTech.UnityServices {
     public class AdsManager 
     {
         readonly string appKey;
-        readonly IUnityServicesManager unityServicesManager;
+        readonly IIPTechPlatform platform;
 
         bool initialized;
         bool alreadyCalledInitialized;
@@ -47,8 +47,8 @@ namespace IPTech.UnityServices {
 
         public event Action<ShowAdResult> AdShown;
 
-        public AdsManager(IUnityServicesManager unityServicesManager) {
-            this.unityServicesManager = unityServicesManager;
+        public AdsManager(IIPTechPlatform platform) {
+            this.platform = platform;
         
             var developerSettings = Resources.Load<IronSourceMediationSettings>(IronSourceConstants.IRONSOURCE_MEDIATION_SETTING_NAME);
 #if UNITY_ANDROID
@@ -74,16 +74,16 @@ namespace IPTech.UnityServices {
         }
 
         void Initialize() {
-            if(unityServicesManager.State == EPlatformState.Initializing) {
-                unityServicesManager.Initialized += HandleUnityServicesInitialized;
+            if(platform.State == EServiceState.Initializing) {
+                platform.Initialized += HandleUnityServicesInitialized;
                 return;
             }
             HandleUnityServicesInitialized();            
         }
 
         void HandleUnityServicesInitialized() {
-            unityServicesManager.ConsentValueChanged += HandleConsentValueChanged;
-            HandleConsentValueChanged(unityServicesManager.Consent);
+            platform.ConsentValueChanged += HandleConsentValueChanged;
+            HandleConsentValueChanged(platform.Consent);
         }
 
         void HandleConsentValueChanged(ConsentInfo consentValue) {
@@ -142,7 +142,7 @@ namespace IPTech.UnityServices {
 
         void HookEventsPriorToInitializing()
         {
-            unityServicesManager.ApplicationPaused += HandleApplicationPaused;
+            platform.ApplicationPaused += HandleApplicationPaused;
 
             //Add Init Event
             IronSourceEvents.onSdkInitializationCompletedEvent += SdkInitializationCompletedEvent;
@@ -206,8 +206,8 @@ namespace IPTech.UnityServices {
         async Task WaitForInitialization() {
             if(initialized) return;
             
-            if(unityServicesManager.State != EPlatformState.Initializing) {
-                if(unityServicesManager.Consent.Consent != EConsentValue.Unknown) {
+            if(platform.State != EServiceState.Initializing) {
+                if(platform.Consent.Consent != EConsentValue.Unknown) {
                     DateTime timeout = DateTime.Now.AddSeconds(5);
                     while(!initialized) {
                         await Task.Yield();

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace IPTech.Platform
 {
-    public enum EPlatformState {
+    public enum EServiceState {
         Initializing,
         NotOnline,
         Online
