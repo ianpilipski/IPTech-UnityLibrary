@@ -12,6 +12,7 @@
     "url": "https://github.com/ianpilipski/IPTech-UnityLibrary"
   },
   "dependencies": {
-    "com.unity.services.core": "1.10.1"
+    "com.unity.services.core": "1.10.1",
+    "com.iptech.platform.api": "0.0.1"
   }
 }

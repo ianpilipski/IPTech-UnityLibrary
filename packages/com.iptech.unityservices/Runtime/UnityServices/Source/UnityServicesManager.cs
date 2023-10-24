@@ -8,6 +8,7 @@ using System.Collections.Generic;
 
 namespace IPTech.UnityServices {
     using Internal;
+    using Platform;
 
     using UEServices = global::Unity.Services.Core.UnityServices;
 
@@ -17,7 +18,7 @@ namespace IPTech.UnityServices {
         bool alreadyCalledInitialize;
         readonly List<Action<ConsentInfo>> consentListeners = new();
         readonly List<Action> initializedListeners = new();
-        readonly INetworkDetector networkDetector;
+        readonly IIPTechPlatform platform;
         readonly Dictionary<Type, object> services = new();
         
         public event Action<bool> ApplicationPaused;
@@ -29,10 +30,10 @@ namespace IPTech.UnityServices {
         public readonly AdsManager AdsManager;
         #endif
         
-        public UnityServicesManager() : this(new NetworkDetector(10)) {}
-        private UnityServicesManager(INetworkDetector networkDetector) {
+        public UnityServicesManager() : this(new IPTechPlatform()) {}
+        private UnityServicesManager(IIPTechPlatform platform) {
             State = EState.Initializing;
-            this.networkDetector = networkDetector;
+            this.platform = platform;
             
             #if IPTECH_UNITYANALYTICS_INSTALLED
             //services.Add(typeof(IAnalyticsManager), new AnalyticsManager(this));
@@ -88,6 +89,7 @@ namespace IPTech.UnityServices {
         }
 
         async Task WaitUntilOnline() {
+            var networkDetector = platform.Network;
             var online = networkDetector.State == ENetworkState.Reachable;
             if(online) {
                 return;
