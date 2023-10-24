@@ -12,7 +12,7 @@ namespace IPTech.Platform.Internal {
 
         public ENetworkState State { get; private set; }
 
-        public NetworkDetector(IPTechPlatform platform, int secondsBetweenChecks) {
+        public NetworkDetector(IIPTechPlatform platform, int secondsBetweenChecks) {
             this.secondsBetweenChecks = secondsBetweenChecks;
             platform.RunOnUnityThread(() => Initialize());
         }

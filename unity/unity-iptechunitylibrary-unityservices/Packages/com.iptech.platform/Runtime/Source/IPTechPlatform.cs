@@ -12,21 +12,40 @@ namespace IPTech.Platform {
         static IPTechPlatformMB mbInst;
 
         readonly INetworkDetector networkDetector;
+        readonly IConsentHandler consentHandler;
 
         List<Action> queudActions = new();
+        public event Action Initialized;
+        public event Action<bool> ApplicationPaused;
 
         public IPTechPlatform() {
-            HookMbInst();
-
+            consentHandler = new ConsentHandler();
             networkDetector = new NetworkDetector(this, 30);
+
+            HookMbInst();
         }
 
         public INetworkDetector Network => networkDetector;
+
+        public EServiceState State { get; private set; } //TODO: implement state with init
+
+        public ConsentInfo Consent {
+            get => consentHandler.Consent;
+            set => consentHandler.Consent = value;
+        }
+
+        public event Action<ConsentInfo> ConsentValueChanged {
+            add => consentHandler.ConsentValueChanged += value;
+            remove => consentHandler.ConsentValueChanged -= value;
+        }
 
         async void HookMbInst() {
             try {
                 await WaitForMBInst();
                 mbInst.OnUpdate += HandleOnUpdate;
+                mbInst.OnAppPaused += HandleAppPaused;
+
+                Initialized?.Invoke(); //TODO: fix this.. init will be based on the integrated services...
             } catch(OperationCanceledException) {
             } catch(Exception e) {
                 Debug.LogException(e);
@@ -55,6 +74,10 @@ namespace IPTech.Platform {
 
         void HandleOnUpdate() {
             ExecQueuedActions();
+        }
+
+        void HandleAppPaused(bool paused) {
+            ApplicationPaused?.Invoke(paused);
         }
 
         public void RunOnUnityThread(Action action) {

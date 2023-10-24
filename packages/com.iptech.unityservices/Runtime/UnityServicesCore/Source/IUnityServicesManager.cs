@@ -10,7 +10,7 @@ namespace IPTech.UnityServices {
         event Action<ConsentInfo> ConsentValueChanged;
         event Action Initialized;
         ConsentInfo Consent { get; set; }
-        EPlatformState State { get; }
+        EServiceState State { get; }
     }
 
     
