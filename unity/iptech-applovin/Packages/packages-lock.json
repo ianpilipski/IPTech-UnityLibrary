@@ -1,5 +1,23 @@
 {
   "dependencies": {
+    "com.iptech.applovin.maxsdk": {
+      "version": "file:com.iptech.applovin.maxsdk",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.iptech.externaldependencymanager": {
+      "version": "file:com.iptech.externaldependencymanager",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.iptech.packagecreator": {
+      "version": "file:../../../packages/com.iptech.packagecreator",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
     "com.unity.ext.nunit": {
       "version": "1.0.6",
       "depth": 1,
