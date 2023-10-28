@@ -26,7 +26,7 @@ namespace IPTech.Platform {
             serviceContext = new ServiceContext();
             serviceContext.AddService<IIPTechPlatform>(this);
 
-            Initialize();
+            Initialize(createContext);
         }
 
         public INetworkDetector Network => networkDetector;
@@ -44,9 +44,15 @@ namespace IPTech.Platform {
             remove => consentHandler.ConsentValueChanged -= value;
         }
 
-        async void Initialize() {
+        async void Initialize(Action<IServiceContext> createContext) {
             try {
+                Debug.Log("Initializing IPTechPlatform .. ");
+                Debug.Log("[IPTechPlatform] waiting for mono behaviour ..");
                 await HookMbInst();
+                Debug.Log("[IPTechPlatform] found mono behaviour");
+                Debug.Log("[IPTechPlatform] Creating Context .. ");
+                createContext(serviceContext);
+                Debug.Log("[IPTechPlatform] Context Created");
                 State = EServiceState.Online;
             } catch(OperationCanceledException) {
                 State = EServiceState.NotOnline;
@@ -70,7 +76,7 @@ namespace IPTech.Platform {
 
         static void CreatePlatformGameObject() {
             var go = new GameObject("IPTechPlatformMB");
-            go.hideFlags = HideFlags.HideAndDontSave;
+            go.hideFlags = HideFlags.DontSave;
             GameObject.DontDestroyOnLoad(go);
             mbInst = go.AddComponent<IPTechPlatformMB>();
         }

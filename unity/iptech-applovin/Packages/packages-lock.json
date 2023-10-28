@@ -37,6 +37,15 @@
         "com.iptech.utils": "0.0.1"
       }
     },
+    "com.iptech.platform.applovin.maxsdk": {
+      "version": "file:../../../packages/com.iptech.platform.applovin.maxsdk",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.iptech.applovin.maxsdk": "0.0.1-5.11.5",
+        "com.iptech.platform.api": "0.0.1"
+      }
+    },
     "com.iptech.utils": {
       "version": "file:../../../packages/com.iptech.utils",
       "depth": 0,
