@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace IPTech.Platform {    
     using Internal;
+    using Utils;
 
     public class IPTechPlatform : IIPTechPlatform {
         static int unityThreadId;
@@ -13,19 +14,22 @@ namespace IPTech.Platform {
 
         readonly INetworkDetector networkDetector;
         readonly IConsentHandler consentHandler;
+        readonly IServiceContext serviceContext;
 
         List<Action> queudActions = new();
         public event Action Initialized;
         public event Action<bool> ApplicationPaused;
 
-        public IPTechPlatform() {
+        public IPTechPlatform(Action<IServiceContext> createContext) {
             consentHandler = new ConsentHandler();
             networkDetector = new NetworkDetector(this, 30);
-
-            HookMbInst();
+            serviceContext = new ServiceContext();
+            
+            Initialize();
         }
 
         public INetworkDetector Network => networkDetector;
+        public IServiceLocator Services => serviceContext;
 
         public EServiceState State { get; private set; } //TODO: implement state with init
 
@@ -39,17 +43,22 @@ namespace IPTech.Platform {
             remove => consentHandler.ConsentValueChanged -= value;
         }
 
-        async void HookMbInst() {
+        async void Initialize() {
             try {
-                await WaitForMBInst();
-                mbInst.OnUpdate += HandleOnUpdate;
-                mbInst.OnAppPaused += HandleAppPaused;
-
-                Initialized?.Invoke(); //TODO: fix this.. init will be based on the integrated services...
+                await HookMbInst();
+                State = EServiceState.Online;
             } catch(OperationCanceledException) {
+                State = EServiceState.NotOnline;
             } catch(Exception e) {
+                State = EServiceState.NotOnline;
                 Debug.LogException(e);
             }
+        }
+
+        async Task HookMbInst() {
+            await WaitForMBInst();
+            mbInst.OnUpdate += HandleOnUpdate;
+            mbInst.OnAppPaused += HandleAppPaused;
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

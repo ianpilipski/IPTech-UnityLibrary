@@ -1,7 +1,10 @@
 using System;
 
 namespace IPTech.Platform {
+    using Utils;
+
     public interface IIPTechPlatform {
+        IServiceLocator Services { get; }
         INetworkDetector Network { get; }
         void RunOnUnityThread(Action action);
         event Action Initialized;
