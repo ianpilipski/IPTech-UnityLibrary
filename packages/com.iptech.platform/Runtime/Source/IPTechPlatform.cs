@@ -24,7 +24,8 @@ namespace IPTech.Platform {
             consentHandler = new ConsentHandler();
             networkDetector = new NetworkDetector(this, 30);
             serviceContext = new ServiceContext();
-            
+            serviceContext.AddService<IIPTechPlatform>(this);
+
             Initialize();
         }
 
