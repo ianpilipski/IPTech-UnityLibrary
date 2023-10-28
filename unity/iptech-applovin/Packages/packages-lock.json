@@ -20,6 +20,29 @@
       "source": "local",
       "dependencies": {}
     },
+    "com.iptech.platform": {
+      "version": "file:../../../packages/com.iptech.platform",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.iptech.platform.api": "0.0.1",
+        "com.iptech.utils": "0.0.1"
+      }
+    },
+    "com.iptech.platform.api": {
+      "version": "file:../../../packages/com.iptech.platform.api",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.iptech.utils": "0.0.1"
+      }
+    },
+    "com.iptech.utils": {
+      "version": "file:../../../packages/com.iptech.utils",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
     "com.unity.ext.nunit": {
       "version": "1.0.6",
       "depth": 1,
