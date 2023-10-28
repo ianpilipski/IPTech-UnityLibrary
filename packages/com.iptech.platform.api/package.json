@@ -1,15 +1,17 @@
 {
-    "name": "com.iptech.platform.api",
-    "displayName": "IPTech.Platform.Api",
-    "version": "0.0.1",
-    "unity": "2021.3",
-    "unityRelease": "31f1",
-    "keywords": [],
-    "category": "",
-    "description": "",
-    "samples": [],
-    "author": {
-        "name": "Ian Pilipski",
-        "url": "https://github.com/ianpilipski/IPTech-UnityLibrary.git"
-    }
+  "name": "com.iptech.platform.api",
+  "displayName": "IPTech.Platform.Api",
+  "version": "0.0.1",
+  "unity": "2021.3",
+  "unityRelease": "31f1",
+  "keywords": [],
+  "category": "",
+  "dependencies": {
+    "com.iptech.utils": "0.0.1"
+  },
+  "samples": [],
+  "author": {
+    "name": "Ian Pilipski",
+    "url": "https://github.com/ianpilipski/IPTech-UnityLibrary.git"
+  }
 }

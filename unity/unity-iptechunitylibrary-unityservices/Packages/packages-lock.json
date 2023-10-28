@@ -6,11 +6,22 @@
       "source": "local",
       "dependencies": {}
     },
+    "com.iptech.platform": {
+      "version": "file:com.iptech.platform",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.iptech.platform.api": "0.0.1",
+        "com.iptech.utils": "0.0.1"
+      }
+    },
     "com.iptech.platform.api": {
       "version": "file:../../../packages/com.iptech.platform.api",
       "depth": 0,
       "source": "local",
-      "dependencies": {}
+      "dependencies": {
+        "com.iptech.utils": "0.0.1"
+      }
     },
     "com.iptech.unityservices": {
       "version": "file:../../../packages/com.iptech.unityservices",
@@ -18,7 +29,7 @@
       "source": "local",
       "dependencies": {
         "com.unity.services.core": "1.10.1",
-        "com.iptech.platform.api": "0.0.1"
+        "com.iptech.platform": "0.0.1"
       }
     },
     "com.iptech.unityservices.advertising": {
@@ -38,6 +49,12 @@
         "com.unity.services.analytics": "5.0.1",
         "com.iptech.unityservices": "0.0.1"
       }
+    },
+    "com.iptech.utils": {
+      "version": "file:../../../packages/com.iptech.utils",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
     },
     "com.unity.ext.nunit": {
       "version": "1.0.6",
