@@ -7,7 +7,8 @@
   "keywords": [],
   "category": "",
   "dependencies": {
-    "com.iptech.platform.api": "0.0.1"
+    "com.iptech.platform.api": "0.0.1",
+    "com.iptech.utils": "0.0.1"
   },
   "samples": [],
   "author": {

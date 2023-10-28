@@ -2,7 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using UnityEngine;
 
 namespace IPTech.Utils {
     public delegate object ServiceCreatorCallback(IServiceLocator locator, Type serviceType);
@@ -16,6 +16,9 @@ namespace IPTech.Utils {
         bool TryGetService(Type type, out object service);
         T GetService<T>();
         object GetService(Type type);
+
+        event Action<Type> ServiceAdded;
+        event Action<Type> ServiceRemoved;
     }
 
     public interface IServiceContext : IServiceLocator {
@@ -30,6 +33,9 @@ namespace IPTech.Utils {
 
     public class ServiceContext : IServiceContext {
         Dictionary<Type, RegisteredService> services = new();
+
+        public event Action<Type> ServiceAdded;
+        public event Action<Type> ServiceRemoved;
 
         public T GetService<T>() => (T)GetService(typeof(T));
         public object GetService(Type type) {
@@ -71,16 +77,43 @@ namespace IPTech.Utils {
         public void AddService<T>(T service) => AddService(typeof(T), service);
         public void AddService(Type type, object service) {
             services.Add(type, new RegisteredService(type, service, this));
+            OnServiceAdded(type);
         }
 
         public void AddService<T>(ServiceCreatorCallback factory) => AddService(typeof(T), factory);
         public void AddService(Type type, ServiceCreatorCallback factory) {
             services.Add(type, new RegisteredService(type, factory, this));
+            OnServiceAdded(type);
         }
 
         public void RemoveService<T>() => RemoveService(typeof(T));
         public void RemoveService(Type type) {
             services.Remove(type);
+            OnServiceRemoved(type);
+        }
+
+        void OnServiceRemoved(Type type) {
+            if(ServiceRemoved!=null) {
+                SafeCall(type, ServiceRemoved.GetInvocationList());
+            }
+        }
+
+        void OnServiceAdded(Type type) {
+            if(ServiceAdded!=null) {
+                SafeCall(type, ServiceAdded.GetInvocationList());
+            }
+        }
+
+        void SafeCall(Type type, Delegate[] dels) {
+            if(dels == null) return;
+
+            foreach(var del in dels) {
+                try {
+                    del.DynamicInvoke(type);
+                } catch(Exception e) {
+                    Debug.LogException(e);
+                }
+            }
         }
 
         class RegisteredService {

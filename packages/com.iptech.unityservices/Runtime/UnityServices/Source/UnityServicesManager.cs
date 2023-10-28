@@ -27,8 +27,7 @@ namespace IPTech.UnityServices {
         public readonly AdsManager AdsManager;
         #endif
         
-        public UnityServicesManager() : this(new IPTechPlatform()) {}
-        private UnityServicesManager(IIPTechPlatform platform) {
+        public UnityServicesManager(IIPTechPlatform platform) {
             State = EServiceState.Initializing;
             this.platform = platform;
             

@@ -1,1 +1,16 @@
-{"name":"IPTech.Platform.Api.Runtime","references":[],"optionalUnityReferences":[],"includePlatforms":[],"excludePlatforms":[],"allowUnsafeCode":false,"overrideReferences":false,"precompiledReferences":[],"autoReferenced":true,"defineConstraints":[],"versionDefines":[],"noEngineReferences":false}
+{
+    "name": "IPTech.Platform.Api.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:02a0c112b490542a884c421c5c524f3f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

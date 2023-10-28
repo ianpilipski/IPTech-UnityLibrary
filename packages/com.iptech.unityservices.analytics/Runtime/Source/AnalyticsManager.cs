@@ -15,7 +15,15 @@ namespace IPTech.UnityServices {
         public AnalyticsManager(IUnityServicesManager ipTechUnityServices) {
             this.queuedEvents = new List<Action>();
             this.unityServicesManager = ipTechUnityServices;
-            ipTechUnityServices.Initialized += HandleInitialized;
+            HookInitialize();
+        }
+
+        void HookInitialize() {
+            if(this.unityServicesManager.State != EServiceState.Initializing) {
+                HandleInitialized();
+            } else {
+                this.unityServicesManager.Initialized += HandleInitialized;
+            }
         }
 
         void HandleInitialized() {

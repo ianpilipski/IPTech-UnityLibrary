@@ -2,7 +2,8 @@
     "name": "IPTech.Platform.Runtime",
     "rootNamespace": "",
     "references": [
-        "GUID:92c66b79875e04ed39664e294fb3e0ae"
+        "GUID:92c66b79875e04ed39664e294fb3e0ae",
+        "GUID:02a0c112b490542a884c421c5c524f3f"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
