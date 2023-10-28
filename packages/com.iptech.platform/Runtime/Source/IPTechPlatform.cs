@@ -4,49 +4,62 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace IPTech.Platform {
-    
+namespace IPTech.Platform {    
     using Internal;
-
-    public interface INetworkDetector {
-        ENetworkState State { get; }
-        event Action<ENetworkState> NetworkStateChanged;
-    }
-
-    public enum ENetworkState {
-        Reachable,
-        NotReachable
-    }
-
-    public interface IIPTechPlatform {
-        INetworkDetector Network { get; }
-        void RunOnUnityThread(Action action);
-    }
+    using Utils;
 
     public class IPTechPlatform : IIPTechPlatform {
         static int unityThreadId;
         static IPTechPlatformMB mbInst;
 
         readonly INetworkDetector networkDetector;
+        readonly IConsentHandler consentHandler;
+        readonly IServiceContext serviceContext;
 
         List<Action> queudActions = new();
+        public event Action Initialized;
+        public event Action<bool> ApplicationPaused;
 
-        public IPTechPlatform() {
-            HookMbInst();
-
+        public IPTechPlatform(Action<IServiceContext> createContext) {
+            consentHandler = new ConsentHandler();
             networkDetector = new NetworkDetector(this, 30);
+            serviceContext = new ServiceContext();
+            serviceContext.AddService<IIPTechPlatform>(this);
+
+            Initialize();
         }
 
         public INetworkDetector Network => networkDetector;
+        public IServiceLocator Services => serviceContext;
 
-        async void HookMbInst() {
+        public EServiceState State { get; private set; } //TODO: implement state with init
+
+        public ConsentInfo Consent {
+            get => consentHandler.Consent;
+            set => consentHandler.Consent = value;
+        }
+
+        public event Action<ConsentInfo> ConsentValueChanged {
+            add => consentHandler.ConsentValueChanged += value;
+            remove => consentHandler.ConsentValueChanged -= value;
+        }
+
+        async void Initialize() {
             try {
-                await WaitForMBInst();
-                mbInst.OnUpdate += HandleOnUpdate;
+                await HookMbInst();
+                State = EServiceState.Online;
             } catch(OperationCanceledException) {
+                State = EServiceState.NotOnline;
             } catch(Exception e) {
+                State = EServiceState.NotOnline;
                 Debug.LogException(e);
             }
+        }
+
+        async Task HookMbInst() {
+            await WaitForMBInst();
+            mbInst.OnUpdate += HandleOnUpdate;
+            mbInst.OnAppPaused += HandleAppPaused;
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -71,6 +84,10 @@ namespace IPTech.Platform {
 
         void HandleOnUpdate() {
             ExecQueuedActions();
+        }
+
+        void HandleAppPaused(bool paused) {
+            ApplicationPaused?.Invoke(paused);
         }
 
         public void RunOnUnityThread(Action action) {
