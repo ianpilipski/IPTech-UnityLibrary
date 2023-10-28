@@ -1,0 +1,18 @@
+{
+  "name": "com.iptech.platform.applovin.maxsdk",
+  "displayName": "IPTech.Platform.AppLovin.MaxSdk",
+  "version": "0.0.1",
+  "unity": "2021.3",
+  "unityRelease": "31f1",
+  "keywords": [],
+  "category": "",
+  "dependencies": {
+    "com.iptech.applovin.maxsdk": "0.0.1-5.11.5",
+    "com.iptech.platform.api": "0.0.1"
+  },
+  "samples": [],
+  "author": {
+    "name": "Ian Pilipski",
+    "url": "https://github.com/ianpilipski/IPTech-UnityLibrary.git"
+  }
+}
