@@ -59,6 +59,20 @@ namespace IPTech.Platform {
             } catch(Exception e) {
                 State = EServiceState.NotOnline;
                 Debug.LogException(e);
+            } finally {
+                OnInitialized();
+            }
+        }
+
+        void OnInitialized() {
+            if(Initialized!=null) {
+                foreach(var del in Initialized.GetInvocationList()) {
+                    try {
+                        del.DynamicInvoke();
+                    } catch(Exception e) {
+                        Debug.LogException(e);
+                    }
+                }
             }
         }
 
