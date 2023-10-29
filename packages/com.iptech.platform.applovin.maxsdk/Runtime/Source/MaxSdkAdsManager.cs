@@ -30,6 +30,7 @@ namespace IPTech.Platform {
 
         void Initialize() {
             if(platform.State == EServiceState.Initializing) {
+                Log("waiting for platform initialization ... STARTED");
                 platform.Initialized += PlatformInitialized;
                 return;
             }
@@ -38,6 +39,7 @@ namespace IPTech.Platform {
         }
 
         void PlatformInitialized() {
+            Log("waiting for platform initialization .. COMPLETE");
             if(platform.Network.State != ENetworkState.Reachable) {
                 //NO network???
             }
@@ -47,6 +49,7 @@ namespace IPTech.Platform {
         }
 
         private void ConsentValueChanged(ConsentInfo obj) {
+            Log($"handling consent value changed : {obj.Consent}");
             if(obj.Consent == EConsentValue.Unknown) return;
 
             MaxSdk.SetHasUserConsent(obj.Consent == EConsentValue.Accepted);
@@ -58,6 +61,7 @@ namespace IPTech.Platform {
 
         void InitializeMaxSdk() {
             if(initValue == EInitValue.None) {
+                Log("calling MaxSdk.InitializeSdk");
                 initValue = EInitValue.InitializeCalled;
 
                 MaxSdkCallbacks.OnSdkInitializedEvent += HandleSdkInitialized;
@@ -73,6 +77,7 @@ namespace IPTech.Platform {
         }
 
         private void HandleSdkInitialized(MaxSdkBase.SdkConfiguration obj) {
+            Log("maxsdk initialized and callback handled");
             initValue = EInitValue.Initialized;
 
             // max sdk inited start loading ads..
@@ -97,6 +102,10 @@ namespace IPTech.Platform {
                     return rewardAdManager.ShowAd(placementName);
             }
             throw new Exception("Ad type not implemented yet");
+        }
+
+        void Log(string msg) {
+            Debug.Log($"[MaxSdkAdsManager]: {msg}");
         }
     }
 }
