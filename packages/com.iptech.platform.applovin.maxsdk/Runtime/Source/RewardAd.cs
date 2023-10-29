@@ -10,7 +10,10 @@ namespace IPTech.Platform.Internal {
 
         int retryAttempt;
 
-        AdResult internalResult;
+        bool failedToDisplay;
+        bool doneShowing;
+        bool watched;
+        
 
         public RewardAdManager(string adUnitId) {
             this.adUnitId = adUnitId;
@@ -18,21 +21,27 @@ namespace IPTech.Platform.Internal {
 
         public async Task<ShowAdResult> ShowAd(string placementName) {
             if(MaxSdk.IsRewardedAdReady(adUnitId)) {
-                internalResult = AdResult.Unknown;
-
+                BeginShowAd();
                 MaxSdk.ShowRewardedAd(adUnitId, placementName);
-                await WaitForInternalResult();
-                return new ShowAdResult { AdResult = internalResult };
+                return new ShowAdResult { AdResult = await WaitForInternalResult() };
             }
 
             return new ShowAdResult { AdResult = AdResult.FailedToLoad };
+
+            void BeginShowAd() {
+                failedToDisplay = false;
+                watched = false;
+                doneShowing = false;
+            }
         }
 
-        async Task WaitForInternalResult() {
-            while(internalResult == AdResult.Unknown) {
+        async Task<AdResult> WaitForInternalResult() {
+            while(!doneShowing) {
                 await Task.Yield();
-                
             }
+            if(watched) return AdResult.Watched;
+            if(failedToDisplay) return AdResult.FailedToShow;
+            return AdResult.Cancelled;
         }
 
         public void Initialize() {
@@ -86,9 +95,7 @@ namespace IPTech.Platform.Internal {
 
         private void OnRewardedAdHiddenEvent(string adUnitId, MaxSdkBase.AdInfo adInfo) {
             Debug.Log("OnRewardedAdHiddenEvent");
-            if(internalResult == AdResult.Unknown) {
-                internalResult = AdResult.Cancelled;
-            }
+            doneShowing = true;
 
             // Rewarded ad is hidden. Pre-load the next ad
             LoadRewardedAd();
@@ -100,7 +107,8 @@ namespace IPTech.Platform.Internal {
 
         private void OnRewardedAdFailedToDisplayEvent(string adUnitId, MaxSdkBase.ErrorInfo errorInfo, MaxSdkBase.AdInfo adInfo) {
             Debug.Log("OnRewardedAdFailedToDisplayEvent");
-            internalResult = AdResult.FailedToShow;
+            failedToDisplay = true;
+            doneShowing = true;
 
             // Rewarded ad failed to display. AppLovin recommends that you load the next ad.
             LoadRewardedAd();
@@ -109,7 +117,7 @@ namespace IPTech.Platform.Internal {
         private void OnRewardedAdReceivedRewardEvent(string adUnitId, MaxSdkBase.Reward reward, MaxSdkBase.AdInfo adInfo) {
             Debug.Log("OnRewardedAdReceivedRewardEvent");
             // The rewarded ad displayed and the user should receive the reward.
-            internalResult = AdResult.Watched;
+            watched = true;
         }
     }
 }
