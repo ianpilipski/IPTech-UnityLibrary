@@ -42,7 +42,7 @@ security unlock-keychain -p $IPTECH_BUILDTOOL_PASSWORD $KEYCHAIN_NAME
 
 #if podfile exists, run pod install
 if [ -f "Podfile" ]; then
-   pod install --repo-update
+   LANG="en_US.UTF-8" pod install --repo-update
 fi
 
 # IPTECH_SUB: BUILDS
