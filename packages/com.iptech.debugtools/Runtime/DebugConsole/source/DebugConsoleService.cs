@@ -292,6 +292,20 @@ namespace IPTech.DebugConsoleService
         }
 
         #endregion
+
+
+        public static IDebugConsoleService Create(bool inGameConsole, bool telnetConsole, bool useBuiltInCommands = true) {
+            var dc = new DebugConsoleService(useBuiltInCommands);
+            if(inGameConsole) {
+                _ = new InGameConsole.InGameDebugConsole(dc);
+            }
+
+            if(telnetConsole) {
+                _ = new TelnetConsole.DebugConsoleTelnetService(dc);
+            }
+
+            return dc;
+        }
     }
 }
 
