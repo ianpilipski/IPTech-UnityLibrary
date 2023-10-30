@@ -297,7 +297,7 @@ namespace IPTech.DebugConsoleService
         public static IDebugConsoleService Create(bool inGameConsole, bool telnetConsole, bool useBuiltInCommands = true) {
             var dc = new DebugConsoleService(useBuiltInCommands);
             if(inGameConsole) {
-                _ = new InGameConsole.InGameDebugConsole(dc);
+                _ = InGameConsole.InGameDebugConsole.CreateDefault(dc);
             }
 
             if(telnetConsole) {
