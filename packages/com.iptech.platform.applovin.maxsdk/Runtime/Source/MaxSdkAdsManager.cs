@@ -66,7 +66,6 @@ namespace IPTech.Platform {
 
                 MaxSdkCallbacks.OnSdkInitializedEvent += HandleSdkInitialized;
 
-                MaxSdk.SetVerboseLogging(Debug.isDebugBuild);
                 MaxSdk.SetSdkKey(sdkKey);
 
                 if(!string.IsNullOrEmpty(userId)) {
@@ -80,8 +79,14 @@ namespace IPTech.Platform {
             Log("maxsdk initialized and callback handled");
             initValue = EInitValue.Initialized;
 
+            //TODO: max sdk docs say to wait 3 to 5 seconds before loading ads to allow networks to init
+            
             // max sdk inited start loading ads..
             rewardAdManager.Initialize();
+        }
+
+        public void ShowDebugger() {
+            MaxSdk.ShowMediationDebugger();
         }
 
         public Task<ShowAdResult> ShowAd(AdType type, string placementName) {

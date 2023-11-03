@@ -8,5 +8,6 @@ namespace IPTech.Platform
     public interface IAdsManager
     {
         Task<ShowAdResult> ShowAd(AdType type, string placementName);
+        void ShowDebugger();
     }
 }
