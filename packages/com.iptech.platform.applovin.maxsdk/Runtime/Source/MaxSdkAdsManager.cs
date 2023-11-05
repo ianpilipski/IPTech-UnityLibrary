@@ -75,23 +75,36 @@ namespace IPTech.Platform {
             }
         }
 
-        private void HandleSdkInitialized(MaxSdkBase.SdkConfiguration obj) {
-            Log("maxsdk initialized and callback handled");
-            initValue = EInitValue.Initialized;
+        private async void HandleSdkInitialized(MaxSdkBase.SdkConfiguration obj) {
+            try {
+                Log("maxsdk initialized and callback handled");
+                //TODO: max sdk docs say to wait 3 to 5 seconds before loading ads to allow networks to init
+                await WaitForSeconds(5);
 
-            //TODO: max sdk docs say to wait 3 to 5 seconds before loading ads to allow networks to init
-            
-            // max sdk inited start loading ads..
-            rewardAdManager.Initialize();
+                initValue = EInitValue.Initialized;
+                // max sdk inited start loading ads..
+                rewardAdManager.Initialize();
+            } catch(Exception e) {
+                Debug.LogException(e);
+            }
+        }
+
+        async Task WaitForSeconds(float seconds) {
+            DateTime timeout = DateTime.Now.AddSeconds(seconds);
+            while(DateTime.Now < timeout) {
+                await Task.Yield();
+            }
         }
 
         public void ShowDebugger() {
             MaxSdk.ShowMediationDebugger();
         }
 
-        public Task<ShowAdResult> ShowAd(AdType type, string placementName) {
+        public async Task<ShowAdResult> ShowAd(AdType type, string placementName) {
+            await WaitForInitializeWithTimeout(5F);
+
             if(initValue == EInitValue.Initialized) {
-                return ShowAdInternal(type, placementName);
+                return await ShowAdInternal(type, placementName);
             }
 
             if(platform.Consent.Consent == EConsentValue.Unknown) {
@@ -99,6 +112,13 @@ namespace IPTech.Platform {
             }
 
             throw new Exception("the maxsdk has not initialized");
+        }
+
+        async Task WaitForInitializeWithTimeout(float timeoutSeconds) {
+            DateTime timeout = DateTime.Now.AddSeconds(timeoutSeconds);
+            while(initValue!=EInitValue.Initialized && DateTime.Now < timeout) {
+                await Task.Yield();
+            }
         }
 
         private Task<ShowAdResult> ShowAdInternal(AdType type, string placementName) {
