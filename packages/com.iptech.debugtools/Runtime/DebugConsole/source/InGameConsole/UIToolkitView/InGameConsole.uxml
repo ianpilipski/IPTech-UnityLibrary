@@ -1,0 +1,36 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Packages/com.iptech.debugtools/Runtime/DebugConsole/source/InGameConsole/UIToolkitView/InGameConsoleStyleSheet.uss?fileID=7433441132597879392&amp;guid=7358119ddedfe41c58a20c0685b01e4b&amp;type=3#InGameConsoleStyleSheet" />
+    <ui:VisualElement name="main" style="flex-grow: 0; flex-shrink: 0; width: 100%; height: 100%;">
+        <ui:VisualElement name="sub" style="flex-grow: 0; height: 100%;">
+            <ui:VisualElement name="header" style="align-items: flex-start; justify-content: flex-end;">
+                <ui:VisualElement name="handle" style="background-image: url(&apos;project://database/Packages/com.iptech.debugtools/Runtime/DebugConsole/source/assets/Textures/tab_med_small.png?fileID=2800000&amp;guid=2e412edca460a4cc1b133446d3d5e502&amp;type=3#tab_med_small&apos;); flex-grow: 0; height: 40px; width: 76px; max-height: 40px; min-height: 40px; left: 146px;">
+                    <ui:VisualElement name="highlight" style="background-image: url(&apos;project://database/Packages/com.iptech.debugtools/Runtime/DebugConsole/source/assets/Textures/tab_highlight.png?fileID=2800000&amp;guid=4daa87754ab07486daf6639550fef7c4&amp;type=3#tab_highlight&apos;); flex-grow: 1; top: -16%; position: relative; flex-direction: column;">
+                        <ui:Label text="Label" display-tooltip-when-elided="true" name="labelHandle" style="flex-grow: 1; flex-shrink: 1; -unity-text-align: middle-center; top: 35%; color: rgb(255, 255, 255);" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="notify" picking-mode="Ignore" style="position: absolute; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-top-left-radius: 5px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; border-left-color: rgb(53, 255, 0); border-right-color: rgb(53, 255, 0); border-top-color: rgb(53, 255, 0); border-bottom-color: rgb(53, 255, 0); bottom: 0; justify-content: flex-end; align-items: flex-start; background-color: rgba(0, 0, 0, 0.55); color: rgb(27, 255, 8); transition-duration: 2s; transition-property: opacity; transition-timing-function: ease-in-out;">
+                    <ui:ListView focusable="false" name="listViewNotify" selection-type="None" show-bound-collection-size="false" picking-mode="Ignore" style="max-height: none; min-height: 22px;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="mainWindow" style="flex-grow: 1;">
+                <ui:VisualElement name="topWindow" style="flex-grow: 1; background-image: url(&apos;project://database/Packages/com.iptech.debugtools/Runtime/DebugConsole/source/assets/Textures/frame_light.png?fileID=21300000&amp;guid=6ad424e86478d45c19fe48d8269b31b9&amp;type=3#frame_light&apos;); overflow: hidden;">
+                    <ui:ScrollView name="scrollViewTopWindow" style="margin-top: 14px; margin-right: 14px; margin-bottom: 14px; margin-left: 14px; flex-grow: 1; display: none; overflow: hidden;">
+                        <ui:VisualElement name="panelAliasButtons" style="flex-wrap: wrap; flex-direction: row; flex-grow: 1;" />
+                    </ui:ScrollView>
+                    <ui:VisualElement name="consolePanel" style="flex-grow: 1; display: flex; margin-top: 14px; margin-right: 14px; margin-bottom: 14px; margin-left: 14px; overflow: hidden;">
+                        <ui:ListView focusable="true" name="listViewOutput" selection-type="Single" show-bound-collection-size="false" show-alternating-row-backgrounds="ContentOnly" virtualization-method="DynamicHeight" style="flex-grow: 1; min-height: 22px; max-height: 600px; overflow: hidden;" />
+                        <ui:VisualElement style="flex-direction: row; flex-shrink: 0;">
+                            <ui:TextField picking-mode="Ignore" text="(enter command)" name="textFieldCommand" style="flex-grow: 1; height: 40px; -unity-text-align: middle-left;" />
+                            <ui:Button text="Go" display-tooltip-when-elided="false" enable-rich-text="false" name="buttonGo" style="height: 40px;" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="navButtons" style="background-image: url(&apos;project://database/Packages/com.iptech.debugtools/Runtime/DebugConsole/source/assets/Textures/frame_light.png?fileID=21300000&amp;guid=6ad424e86478d45c19fe48d8269b31b9&amp;type=3#frame_light&apos;); -unity-slice-left: 0; -unity-slice-top: 0; -unity-slice-right: 0; -unity-slice-bottom: 0; -unity-background-scale-mode: stretch-to-fill; padding-top: 16px; padding-bottom: 16px; padding-right: 16px; padding-left: 16px; flex-shrink: 0; height: 70px; min-height: 70px; max-height: 70px;">
+                    <ui:ScrollView horizontal-scroller-visibility="Hidden" vertical-scroller-visibility="Hidden" mode="Horizontal" touch-scroll-type="Elastic">
+                        <ui:Button text="Console" display-tooltip-when-elided="false" name="buttonConsole" class="debugpanel-navbutton" style="width: 87px; height: 34px;" />
+                    </ui:ScrollView>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

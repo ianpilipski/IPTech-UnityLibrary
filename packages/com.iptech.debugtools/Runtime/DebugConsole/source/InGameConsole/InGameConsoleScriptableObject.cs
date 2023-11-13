@@ -12,7 +12,7 @@ using System.Collections.Generic;
 public class InGameConsoleScriptableObject : ScriptableObject, ISerializationCallbackReceiver {
 
 	public GameObject InGameConsoleViewPrefab;
-
+	
 	#region ISerializationCallbackReceiver implementation
 	public void OnBeforeSerialize() {
 

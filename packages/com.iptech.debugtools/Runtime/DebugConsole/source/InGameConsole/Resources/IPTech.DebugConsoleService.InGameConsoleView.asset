@@ -3,13 +3,14 @@
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9eac7fe63ef9947568e4ec0e5fe7e7f1, type: 3}
   m_Name: IPTech.DebugConsoleService.InGameConsoleView
   m_EditorClassIdentifier: 
-  InGameConsoleViewPrefab: {fileID: 199090, guid: e4acb47c9b3d84d46bc435d5f14ae593,
-    type: 2}
+  InGameConsoleViewPrefab: {fileID: 1701777044270057790, guid: ea9cf58b7c45c416bbefd48b5a308d7e,
+    type: 3}

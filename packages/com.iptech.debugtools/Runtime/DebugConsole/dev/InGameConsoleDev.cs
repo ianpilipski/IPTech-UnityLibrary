@@ -9,9 +9,19 @@ using System.Collections;
 using IPTech.DebugConsoleService.InGameConsole;
 using IPTech.DebugConsoleService;
 using System;
+using UnityEngine.UIElements;
 
 public class InGameConsoleDev : MonoBehaviour {
     public GameObject inGameConsoleView;
+    public UIToolkitInGameConsole uIToolkitInGameConsole;
+
+    public enum EUseType {
+        GUI,
+        Toolkit,
+        Default
+    }
+
+    public EUseType typeToUse;
 
     DebugConsoleService debugConsoleService;
 
@@ -20,18 +30,55 @@ public class InGameConsoleDev : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         debugConsoleService = new DebugConsoleService();
-        service = new InGameDebugConsole(debugConsoleService);
-        service.SetInGameConsoleView(inGameConsoleView);
+        
 
-        SetupMockData();
-        inGameConsoleView.GetComponent<InGameDebugConsoleView>().RequestUpdateButtons();
-	}
-	
+        if(typeToUse == EUseType.GUI) {
+            service = new InGameDebugConsole(debugConsoleService);
+            service.RegisterDebugPanel("DebugPanel", "TestPanel", DebugPanelFactory);
+
+            SetupMockData();
+
+            uIToolkitInGameConsole.gameObject.SetActive(false);
+            inGameConsoleView.SetActive(true);
+            var view = inGameConsoleView.GetComponentInChildren<IInGameDebugConsoleView>(true);
+            service.SetInGameConsoleView(view);
+            inGameConsoleView.GetComponent<InGameDebugConsoleView>().RequestUpdateButtons();
+        } else if(typeToUse == EUseType.Toolkit) {
+            service = new InGameDebugConsole(debugConsoleService);
+            service.RegisterDebugPanel("DebugPanel", "TestPanel", DebugPanelFactory);
+
+            SetupMockData();
+
+            uIToolkitInGameConsole.gameObject.SetActive(true);
+            inGameConsoleView.SetActive(false);
+            service.SetInGameConsoleView(uIToolkitInGameConsole);
+        } else {
+            uIToolkitInGameConsole.gameObject.SetActive(false);
+            inGameConsoleView.SetActive(false);
+            service = InGameDebugConsole.CreateDefault(debugConsoleService);
+
+            service.RegisterDebugPanel("DebugPanel", "TestPanel", DebugPanelFactory);
+
+            SetupMockData();
+        }
+    }
+
+    private VisualElement DebugPanelFactory() {
+        var root = new VisualElement();
+        var b = new Button();
+        b.text = "my button";
+        root.Add(b);
+
+        var s = new Slider();
+        root.Add(s);
+        return root;
+    }
+
     private void SetupMockData() {
         this.debugConsoleService.RegisterCommand("echo", CommandCallback, "Debug", "Debug command that just logs the argument passed to it.");
         for(int i=0;i<10;i++) {
             for(int j=0;j<20;j++) {
-                this.debugConsoleService.RegisterAlias("Action " + i.ToString() + j.ToString(), "echo " + i + "." + j, "Action " + j, "Category " + i.ToString(), null);
+                this.debugConsoleService.RegisterAlias($"Action {i}{j}", $"echo {i}.{j}", $"Action {j}", $"Category {i}", null);
             }
         }
     }
