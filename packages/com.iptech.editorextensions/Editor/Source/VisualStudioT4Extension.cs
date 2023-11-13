@@ -15,27 +15,28 @@ namespace IPTech.EditorExtensions {
 		}
 
         public static string OnGeneratedCSProject(string path, string content) {
-            using (var sw = new StringWriter()) {
-                using (var sr = new StringReader(content)) {
-                    while (true) {
-                        string line = sr.ReadLine();
-                        if (line == null) break;
+            if(HaveT4TemplateAssets(content)) {
+                using(var sw = new StringWriter()) {
+                    using(var sr = new StringReader(content)) {
+                        while(true) {
+                            string line = sr.ReadLine();
+                            if(line == null) break;
 
-                        sw.WriteLine(ProcessLine(line));
+                            sw.WriteLine(ProcessLine(line));
+                        }
                     }
+                    return sw.ToString();
                 }
-                return sw.ToString();
+            } else {
+                return content;
             }
         }
 
+        static bool HaveT4TemplateAssets(string content) {
+            return content.Contains(".tt\"");
+        }
+
         static string ProcessLine(string line) {
-            var assetsPath = Application.dataPath;
-            var parentPath = Directory.GetParent(assetsPath);
-
-            var toTrimAmount = parentPath.FullName.Length + 1;
-
-            var toReturn = new List<string>();
-
             Regex regex = new Regex(".+<None Include=\"(.+\\.tt)\" \\/>");
             Match match = regex.Match(line);
 			if(match.Success) {
