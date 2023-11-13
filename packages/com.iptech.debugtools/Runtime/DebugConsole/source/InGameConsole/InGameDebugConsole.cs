@@ -11,37 +11,42 @@ using System.Collections.Generic;
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
+using UnityEngine.UIElements;
 
 namespace IPTech.DebugConsoleService.InGameConsole
 {
+	public interface IInGameDebugConsoleView {
+		void MinimizeConsole();
+        void RestoreConsole();
+        void UpdateButtons(IEnumerable<InGameDebugConsoleView.CommandData> actions);
+		event Action<string> OnExecuteCommand;
+		event Action OnWantsUpdatedCommands;
+		void Output(string msg);
+		void Notify(string msg);
+    }
+
 	public class InGameDebugConsole {
 		const string MESSAGE_SERVICE_UNAVAILABLE = "The debugConsoleService is unavailable.";
 		const string MESSAGE_INVALID_COMMAND = "The command entered is invalid.";
 
 		private IDebugConsoleService debugConsoleService;
-		private IList<string> parsedCommand;
-		private InGameDebugConsoleView inGameConsoleView;
+		private IInGameDebugConsoleView inGameConsoleView;
 		private IDebugCommands debugCommands;
+		private List<InGameDebugConsoleView.CommandData> debugPanels;
 
-		public string Command {
-			get {
-				return inGameConsoleView.Command;
-			}
-		}
-
-        public InGameDebugConsole(IDebugConsoleService debugConsoleService) : this(debugConsoleService, new DebugCommands()) { }
+		public InGameDebugConsole(IDebugConsoleService debugConsoleService) : this(debugConsoleService, new DebugCommands()) { }
         
 		public InGameDebugConsole(IDebugConsoleService debugConsoleService, IDebugCommands debugCommands) {
+			this.debugPanels = new List<InGameDebugConsoleView.CommandData>();
 			SetDebugConsoleService(debugConsoleService);
 			this.debugCommands = debugCommands;
 			debugCommands.RegisterDebugCommands(debugConsoleService);
 		}
 
-		public void ExecuteCommand() {
+		public void ExecuteCommand(string command) {
 			if(IsDebugConsoleServiceAvailable()) {
-				ParseCommand();
-				if(IsParsedCommandValid()) {
-					ProcessParsedCommand();
+				if(CommandParser.TryParseCommand(command, out var parsedCommand)) {
+					ProcessParsedCommand(parsedCommand);
 				} else {
 					Output(MESSAGE_INVALID_COMMAND);
 				}
@@ -50,63 +55,48 @@ namespace IPTech.DebugConsoleService.InGameConsole
 			}
 		}
 
+		public void RegisterDebugPanel(string category, string name, Func<VisualElement> panelFactory) {
+			debugPanels.Add(new InGameDebugConsoleView.CommandData() {
+				Category = category,
+				Command = $"DEBUGPANEL.{category}.{name}",
+				ShortName = name,
+				visualElementFactory = panelFactory
+			});
+        }
+
+		public void UnregisterDebugPanel(string category, string name) {
+			for(int i = debugPanels.Count-1;i>=0;i--) {
+				var dp = debugPanels[i];
+				if(dp.Category == category && dp.ShortName == name) {
+					debugPanels.RemoveAt(i);
+					return;
+                }
+            }
+        }
+
 		private bool IsDebugConsoleServiceAvailable() {
 			return this.debugConsoleService!=null;
 		}
 
-		private void ParseCommand() {
-			bool inString = false;
-			string currentString = "";
-			List<string> results = new List<string>();
-			for(int i=0;i<Command.Length;i++) {
-				char token = Command[i];
-				if(inString) {
-					if( token == '"') {
-						results.Add(currentString);
-						currentString = "";
-					} else {
-						currentString += token;
-					}
-				} else if(token=='"') {
-					inString = true;
-				} else if(token==' ') {
-					if(!string.IsNullOrEmpty(currentString)) {
-						results.Add(currentString);
-						currentString = "";
-					}
-				} else {
-					currentString += token;
-				}
-			}
-			if(!string.IsNullOrEmpty(currentString)) {
-				results.Add(currentString);
-			}
-			this.parsedCommand = results;
-		}
-
-		private bool IsParsedCommandValid() {
-			return this.parsedCommand.Count > 0;
-		}
-
-		private void ProcessParsedCommand() {
-			if(this.parsedCommand[0]=="/?" || this.parsedCommand[0]=="/??") {
-				ShowHelp();
-			} else if(this.parsedCommand[0]=="/hide") {
+		private void ProcessParsedCommand(List<string> parsedCommand) {
+			if(parsedCommand[0]=="/?" || parsedCommand[0]=="/??") {
+				ShowHelp(parsedCommand);
+			} else if(parsedCommand[0]=="/hide") {
 				this.inGameConsoleView.MinimizeConsole();
-			} else if(this.parsedCommand[0]=="/show") {
+			} else if(parsedCommand[0]=="/show") {
 				this.inGameConsoleView.RestoreConsole();
 			} else {
-				SendParsedCommandToDebugConsoleService();
+				SendParsedCommandToDebugConsoleService(parsedCommand);
 			}
 		}
 
-		private void ShowHelp() {
+		private void ShowHelp(List<string> parsedCommand) {
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine("<b>** Available Commands **</b>");
             sb.AppendLine("<b>-------------------------</b>");
             sb.AppendLine("<b>category : command : help</b>");
             sb.AppendLine("<b>-------------------------</b>");
-            if(this.parsedCommand.Count==1 || this.parsedCommand[1]=="console") {
+            if(parsedCommand.Count==1 || parsedCommand[1]=="console") {
 				sb.AppendLine("console : <b>/?</b> : quick help (no alias commands)");
 				sb.AppendLine("console : <b>/??</b> : quick help (show alias commands)");
 				sb.AppendLine("console : <b>/?</b> <category> : only show help for specific category (no alias commands)");
@@ -115,14 +105,14 @@ namespace IPTech.DebugConsoleService.InGameConsole
                 sb.AppendLine("console : <b>/hide</b> : hides the console");
                 sb.AppendLine("console : <b>/show</b> : shows the console");                
 			}
-			bool showAliasCommands = this.parsedCommand[0] == "/??";
+			bool showAliasCommands = parsedCommand[0] == "/??";
 			foreach(ICommandInfo cmd in this.debugConsoleService.GetDebugCommands()) {
 				if (cmd.CommandType == ECommandType.Alias && !showAliasCommands) {
 					//don't list aliases
 					continue;
 				}
-				if(this.parsedCommand.Count==1 
-					|| this.parsedCommand[1].Equals(cmd.Category, StringComparison.InvariantCultureIgnoreCase)) {
+				if(parsedCommand.Count==1 
+					|| parsedCommand[1].Equals(cmd.Category, StringComparison.InvariantCultureIgnoreCase)) {
 					sb.AppendFormat("{0} : <b>{1}</b> : <i>{2}</i>\n",
 						cmd.Category, cmd.Command, cmd.Help
 					);
@@ -131,10 +121,10 @@ namespace IPTech.DebugConsoleService.InGameConsole
 			Output(sb.ToString());
 		}
 
-		private void SendParsedCommandToDebugConsoleService() {
+		private void SendParsedCommandToDebugConsoleService(List<string> parsedCommand) {
 			this.debugConsoleService.ExecDebugCommand(
-				this.parsedCommand[0], 
-				this.parsedCommand.ToArray(),
+				parsedCommand[0], 
+				parsedCommand.ToArray(),
 				CommandResultHandler
 			);
 		}
@@ -159,9 +149,9 @@ namespace IPTech.DebugConsoleService.InGameConsole
             Output(string.Format("[{0}] : {1}", category, message));
         }
 
-		public void SetInGameConsoleView(GameObject inGameConsoleView) {
+		public void SetInGameConsoleView(IInGameDebugConsoleView inGameConsoleView) {
 			UnregisterHandler();
-			this.inGameConsoleView = inGameConsoleView.GetComponentInChildren<InGameDebugConsoleView>(true);
+			this.inGameConsoleView = inGameConsoleView;
 			UpdateButtons();
 			RegisterHandler();
 		}
@@ -171,7 +161,8 @@ namespace IPTech.DebugConsoleService.InGameConsole
 				IList<ICommandInfo> cmdInfos = this.debugConsoleService.GetDebugCommands();
                 IEnumerable<InGameDebugConsoleView.CommandData> actions = cmdInfos
 					.Where( ci => ci.CommandType==ECommandType.Alias )
-                    .Select( ci => new InGameDebugConsoleView.CommandData() { Category = ci.Category, Command = ci.Command, ShortName = ci.ShortName } );
+                    .Select( ci => new InGameDebugConsoleView.CommandData() { Category = ci.Category, Command = ci.Command, ShortName = ci.ShortName } )
+					.Concat(debugPanels);
 					
 				this.inGameConsoleView.UpdateButtons(actions);
 			}
@@ -179,15 +170,15 @@ namespace IPTech.DebugConsoleService.InGameConsole
 
 		private void UnregisterHandler() {
 			if(this.inGameConsoleView!=null) {
-				this.inGameConsoleView.ExecuteCommandClicked.RemoveListener(ExecuteCommand);
-				this.inGameConsoleView.WantsUpdatedButtons.RemoveListener(UpdateButtons);
+				this.inGameConsoleView.OnExecuteCommand -= ExecuteCommand;
+				this.inGameConsoleView.OnWantsUpdatedCommands -= UpdateButtons;
 			}
 		}
 
 		private void RegisterHandler() {
 			if(this.inGameConsoleView!=null) {
-				this.inGameConsoleView.ExecuteCommandClicked.AddListener(ExecuteCommand);
-				this.inGameConsoleView.WantsUpdatedButtons.AddListener(UpdateButtons);
+				this.inGameConsoleView.OnExecuteCommand += ExecuteCommand;
+				this.inGameConsoleView.OnWantsUpdatedCommands += UpdateButtons;
 			}
 		}
 
@@ -229,7 +220,8 @@ namespace IPTech.DebugConsoleService.InGameConsole
                 if(go!=null) {
                     InGameDebugConsole newConsole = new InGameDebugConsole(debugConsoleService);
 
-                    newConsole.SetInGameConsoleView(go);
+
+                    newConsole.SetInGameConsoleView(go.GetComponentInChildren<IInGameDebugConsoleView>());
                     return newConsole;
                 }
             }

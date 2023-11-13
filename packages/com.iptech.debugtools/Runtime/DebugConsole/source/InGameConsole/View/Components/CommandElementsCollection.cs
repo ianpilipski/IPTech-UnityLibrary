@@ -9,6 +9,9 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.UIElements;
+using Button = UnityEngine.UI.Button;
+using static IPTech.DebugConsoleService.InGameConsole.InGameDebugConsoleView;
 
 namespace IPTech.DebugConsoleService.InGameConsole
 {
@@ -24,9 +27,9 @@ namespace IPTech.DebugConsoleService.InGameConsole
 
         }
 
-        public void ClearNonExistantCommands(IEnumerable<KeyValuePair<string,string>> categoryCommandPairs) {
+        public void ClearNonExistantCommands(IEnumerable<KeyValuePair<string, string>> categoryCommandPairs) {
             string[] keys = null;
-            if(this.createdButtons.Count>0) {
+            if(this.createdButtons.Count > 0) {
                 keys = this.createdButtons.Keys.ToArray();
                 foreach(string category in keys) {
                     if(categoryCommandPairs == null || categoryCommandPairs.All(cat => cat.Key != category)) {
@@ -37,7 +40,7 @@ namespace IPTech.DebugConsoleService.InGameConsole
                         CategoryButton catButton = this.createdButtons[category];
                         string[] commands = catButton.commandToGameObjects.Keys.ToArray();
                         foreach(string command in commands) {
-                            if(categoryCommandPairs.All(kvp => kvp.Value!=command)) {
+                            if(categoryCommandPairs.All(kvp => kvp.Value != command)) {
                                 UnityEngine.Object.Destroy(catButton.commandToGameObjects[command]);
                                 catButton.commandToGameObjects.Remove(command);
                             }
@@ -47,7 +50,11 @@ namespace IPTech.DebugConsoleService.InGameConsole
             }
         }
 
-        public void AddCategoryCommand(string category, string command, string shortName, Button tabButtonTemplate, GameObject tabGroupTemplate) {
+        public void AddCategoryCommand(CommandData cmd, Button tabButtonTemplate, TabGroupTemplate tabGroupTemplate) {
+            var category = cmd.Category;
+            var shortName = cmd.ShortName;
+            var command = cmd.Command;
+
             if(!HasCategory(category)) {
                 AddCategory(category, tabButtonTemplate, tabGroupTemplate);
             }
@@ -57,37 +64,49 @@ namespace IPTech.DebugConsoleService.InGameConsole
             }
 
             CategoryButton catButton = this.createdButtons[category];
-            Transform buttonTemplate = catButton.categoryGroupObject.transform.GetChild(0);
-            Button buttonObject = buttonTemplate.GetComponent<Button>();
 
-            Button btn = UnityEngine.Object.Instantiate(buttonObject);
-            catButton.commandToGameObjects.Add(command, btn.gameObject);
-            btn.gameObject.name = command;
-            btn.transform.SetParent(buttonObject.transform.parent);
-            btn.transform.localScale = buttonObject.transform.localScale;
-            btn.onClick.AddListener(() => {
-               OnCommandButtonClicked(command);
-            });
-            Text tx = btn.GetComponentInChildren<Text>();
-            if(tx!=null) {
-                tx.text = shortName;
+            if(command.StartsWith("DEBUGPANEL")) {
+                UIDocument templateDoc = catButton.categoryGroupObject.templateUIDocument;
+                templateDoc = UnityEngine.Object.Instantiate(templateDoc);
+                catButton.commandToVisualElement.Add(command, templateDoc);
+                templateDoc.gameObject.name = command;
+                templateDoc.transform.SetParent(catButton.categoryGroupObject.templateUIDocument.transform.parent);
+                templateDoc.transform.localScale = catButton.categoryGroupObject.templateUIDocument.transform.localScale;
+                var d = templateDoc.gameObject.AddComponent<TemplateUIDoc>();
+                d.visualElement = cmd.visualElementFactory();
+                templateDoc.gameObject.SetActive(true);
+            } else {
+                Button buttonObject = catButton.categoryGroupObject.templatButton;
+
+                Button btn = UnityEngine.Object.Instantiate(buttonObject);
+                catButton.commandToGameObjects.Add(command, btn.gameObject);
+                btn.gameObject.name = command;
+                btn.transform.SetParent(buttonObject.transform.parent);
+                btn.transform.localScale = buttonObject.transform.localScale;
+                btn.onClick.AddListener(() => {
+                    OnCommandButtonClicked(command);
+                });
+                Text tx = btn.GetComponentInChildren<Text>();
+                if(tx != null) {
+                    tx.text = shortName;
+                }
+                btn.gameObject.SetActive(true);
             }
-            btn.gameObject.SetActive(true);
         }
 
         private bool HasCategory(string category) {
-            if(this.createdButtons.Count==0)
+            if(this.createdButtons.Count == 0)
                 return false;
 
             return this.createdButtons.ContainsKey(category);
         }
 
         private bool HasCategoryCommand(string category, string command) {
-            if(this.createdButtons.Count==0) {
+            if(this.createdButtons.Count == 0) {
                 return false;
             }
 
-            return this.createdButtons.Any( kvp => kvp.Key==category && kvp.Value.commandToGameObjects.ContainsKey(command) );
+            return this.createdButtons.Any(kvp => kvp.Key == category && kvp.Value.ContainsCommand(command));
         }
 
         private void OnCommandButtonClicked(string command) {
@@ -100,7 +119,7 @@ namespace IPTech.DebugConsoleService.InGameConsole
 
         private void CategoryButtonClicked(string category) {
             foreach(KeyValuePair<string, CategoryButton> kvp in this.createdButtons) {
-                kvp.Value.categoryGroupObject.SetActive(kvp.Key==category);
+                kvp.Value.categoryGroupObject.gameObject.SetActive(kvp.Key==category);
             }
             if(this.CategoryClicked!=null) {
                 try {
@@ -109,7 +128,7 @@ namespace IPTech.DebugConsoleService.InGameConsole
             }
         }
 
-        private void AddCategory(string category, Button tabButtonTemplate, GameObject tabGroupTemplate) {
+        private void AddCategory(string category, Button tabButtonTemplate, TabGroupTemplate tabGroupTemplate) {
             Button btn = UnityEngine.Object.Instantiate(tabButtonTemplate);
             btn.transform.SetParent(tabButtonTemplate.transform.parent);
             btn.transform.localScale = tabButtonTemplate.transform.localScale;
@@ -119,13 +138,13 @@ namespace IPTech.DebugConsoleService.InGameConsole
                 tx.text = category;
             }
 
-            GameObject groupContainer = CreateGroupContainer(category, tabGroupTemplate);
+            TabGroupTemplate groupContainer = CreateGroupContainer(category, tabGroupTemplate);
             this.createdButtons.Add(category, new CategoryButton(btn, groupContainer));
             btn.gameObject.SetActive(true);
         }
 
-        private GameObject CreateGroupContainer(string category, GameObject tabGroupTemplate) {
-            GameObject newGroupContainer = UnityEngine.Object.Instantiate(tabGroupTemplate);
+        private TabGroupTemplate CreateGroupContainer(string category, TabGroupTemplate tabGroupTemplate) {
+            var newGroupContainer = UnityEngine.Object.Instantiate<TabGroupTemplate>(tabGroupTemplate);
             newGroupContainer.transform.SetParent(tabGroupTemplate.transform.parent);
             newGroupContainer.transform.localScale = tabGroupTemplate.transform.localScale;
             newGroupContainer.name = "CategoryGroup " + category.ToString();
@@ -134,13 +153,19 @@ namespace IPTech.DebugConsoleService.InGameConsole
 
         private class CategoryButton {
             public readonly Button button;
-            public readonly GameObject categoryGroupObject;
+            public readonly TabGroupTemplate categoryGroupObject;
             public IDictionary<string, GameObject> commandToGameObjects;
+            public IDictionary<string, UIDocument> commandToVisualElement;
 
-            public CategoryButton(Button button, GameObject categoryGroup) {
+            public CategoryButton(Button button, TabGroupTemplate categoryGroup) {
                 this.button = button;
                 this.categoryGroupObject = categoryGroup;
                 this.commandToGameObjects = new Dictionary<string, GameObject>();
+                this.commandToVisualElement = new Dictionary<string, UIDocument>();
+            }
+
+            public bool ContainsCommand(string command) {
+                return this.commandToGameObjects.ContainsKey(command) || commandToVisualElement.ContainsKey(command);
             }
         }
     }

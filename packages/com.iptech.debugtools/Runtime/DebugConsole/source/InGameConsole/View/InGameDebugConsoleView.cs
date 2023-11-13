@@ -13,10 +13,12 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
 using Object = UnityEngine.Object;
+using UnityEngine.UIElements;
+using Button = UnityEngine.UI.Button;
 
 namespace IPTech.DebugConsoleService.InGameConsole
 {
-	public class InGameDebugConsoleView : MonoBehaviour, IInitializePotentialDragHandler, IEndDragHandler, IDragHandler {
+	public class InGameDebugConsoleView : MonoBehaviour, IInGameDebugConsoleView, IInitializePotentialDragHandler, IEndDragHandler, IDragHandler {
 
 		const int MAX_SCROLLBACK_COUNT = 1000;
 		static char[] NEWLINESPLITARRAY = new char[] { '\n' };
@@ -36,11 +38,14 @@ namespace IPTech.DebugConsoleService.InGameConsole
 		public RectTransform sizerHandle;
         public Text currentCategoryText;
 		public Button tabButtonTemplate;
-        public GameObject tabGroupTemplate;
+        public TabGroupTemplate tabGroupTemplate;
 
 		public UnityEvent ExecuteCommandClicked;
 		public UnityEvent WantsUpdatedButtons;
         public UnityEventString RecievedNotification;
+
+		public event Action<string> OnExecuteCommand;
+		public event Action OnWantsUpdatedCommands;
 
 		void Awake() {
             InitializeScrollbackBuffer();
@@ -96,8 +101,9 @@ namespace IPTech.DebugConsoleService.InGameConsole
 				this.tabButtonTemplate.gameObject.SetActive(false);
 			}
             if(this.tabGroupTemplate!=null) {
-                this.tabGroupTemplate.SetActive(false);
-                this.tabGroupTemplate.transform.GetChild(0).gameObject.SetActive(false);
+                this.tabGroupTemplate.gameObject.SetActive(false);
+                this.tabGroupTemplate.templatButton.gameObject.SetActive(false);
+				this.tabGroupTemplate.templateUIDocument.gameObject.SetActive(false);
             }
 		}
 
@@ -253,6 +259,7 @@ namespace IPTech.DebugConsoleService.InGameConsole
 			resetCommandIter();
 
 			this.ExecuteCommandClicked.Invoke();
+			OnExecuteCommand?.Invoke(Command);
 
 			this.commandInputField.text = "";
 			this.commandInputField.ActivateInputField();
@@ -280,6 +287,7 @@ namespace IPTech.DebugConsoleService.InGameConsole
 
 		public void RequestUpdateButtons() {
 			this.WantsUpdatedButtons.Invoke();
+			OnWantsUpdatedCommands?.Invoke();
 		}
 
 		public void UpdateButtons(IEnumerable<CommandData> commands) {
@@ -288,7 +296,7 @@ namespace IPTech.DebugConsoleService.InGameConsole
 
                 if(commands!=null) {
     				foreach(CommandData cmd in commands) {
-    					this.commandElements.AddCategoryCommand(cmd.Category, cmd.Command, cmd.ShortName, this.tabButtonTemplate, this.tabGroupTemplate);
+    					this.commandElements.AddCategoryCommand(cmd, this.tabButtonTemplate, this.tabGroupTemplate);
     				}
                 }
 			}
@@ -327,7 +335,8 @@ namespace IPTech.DebugConsoleService.InGameConsole
             public string Category;
             public string Command;
             public string ShortName;
-        }
+			public Func<VisualElement> visualElementFactory;
+		}
 
         [Serializable]
         public class UnityEventString : UnityEvent<String> {}
