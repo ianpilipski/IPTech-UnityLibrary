@@ -294,10 +294,12 @@ namespace IPTech.DebugConsoleService
         #endregion
 
 
-        public static IDebugConsoleService Create(bool inGameConsole, bool telnetConsole, bool useBuiltInCommands = true) {
+        public static IDebugConsoleService Create(bool createGameConsole, bool telnetConsole, bool useBuiltInCommands, out InGameConsole.InGameDebugConsole inGameConsole) {
             var dc = new DebugConsoleService(useBuiltInCommands);
-            if(inGameConsole) {
-                _ = InGameConsole.InGameDebugConsole.CreateDefault(dc);
+
+            inGameConsole = null;
+            if(createGameConsole) {
+                inGameConsole = InGameConsole.InGameDebugConsole.CreateDefault(dc);
             }
 
             if(telnetConsole) {
