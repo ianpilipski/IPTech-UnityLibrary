@@ -12,11 +12,12 @@ namespace IPTech.DebugConsoleService.InGameConsole {
         private readonly List<string> output;
         public readonly ListView listView;
         public float MaxHeight;
+        bool notSelectable;
 
         public ListViewOutput(ListView listView) {
             this.listView = listView;
             this.output = new();
-
+            
             RegisterEvents();
         }
 
