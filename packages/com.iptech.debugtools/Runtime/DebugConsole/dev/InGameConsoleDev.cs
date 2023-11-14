@@ -86,5 +86,9 @@ public class InGameConsoleDev : MonoBehaviour {
     private void CommandCallback(string[] args, Action<string> result) {
         result("finished action " + args[1]);
     }
+
+    public void UIButtonClicked() {
+        service.Notify("UIButton Clicked");
+    }
 }
 #endif
