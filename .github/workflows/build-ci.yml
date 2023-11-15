@@ -29,9 +29,9 @@ jobs:
       fail-fast: false
       matrix:
         projectPath:
-          - unity/unity-iptechunitylibrary
-          - unity/unity-applovin
-          - unity/unity-iptechunitylibrary-unityservice
+          - unity/iptech-unitylibrary
+          - unity/iptech-applovin
+          - unity/iptech-unityservice
         unityVersion:
           - auto
         testMode:
