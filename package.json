@@ -2,7 +2,7 @@
   "name": "root",
   "private": true,
   "workspaces": [
-    "IPTech-UnityLibrary/Packages/*"
+    "packages/*"
   ],
   "devDependencies": {
     "lerna": "^6.5.0"
