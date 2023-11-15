@@ -49,6 +49,7 @@ namespace IPTech.DebugConsoleService.InGameConsole {
 
         private void Awake() {
             doc = GetComponent<UIDocument>();
+            DontDestroyOnLoad(gameObject);
         }
 
         void Start()
