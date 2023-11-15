@@ -22,7 +22,7 @@ env:
 
 jobs:
   test:
-    name: Test version ${{ matrix.unityVersion }}
+    name: Test ${{ matrix.projectPath }} ${{ matrix.buildTarget }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
@@ -30,6 +30,8 @@ jobs:
       matrix:
         projectPath:
           - unity/unity-iptechunitylibrary
+          - unity/unity-applovin
+          - unity/unity-iptechunitylibrary-unityservice
         unityVersion:
           - auto
         testMode:
