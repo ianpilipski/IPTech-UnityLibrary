@@ -1,4 +1,15 @@
 {
     "packages/com.iptech.coroutines": "2.0.0",
-    "packages/com.iptech.nsubstitute": "2.0.4"
+    "packages/com.iptech.nsubstitute": "2.0.4",
+    "packages/com.iptech.applovin.maxsdk": "5.11.5-0.0.1",
+    "packages/com.iptech.buildtool": "1.0.0",
+    "packages/com.iptech.debugtools": "1.0.0",
+    "packages/com.iptech.externaldependencymanager": "1.2.177-0.0.1",
+    "packages/com.iptech.packagecreator": "1.0.0",
+    "packages/com.iptech.platform": "1.0.0",
+    "packages/com.iptech.platform.api": "1.0.0",
+    "packages/com.iptech.platform.applovin.maxsdk": "1.0.0",
+    "packages/com.iptech.unityservices": "1.0.0",
+    "packages/com.iptech.unityservices.advertising": "1.0.0",
+    "packages/com.iptech.unityservices.analytics": "1.0.0"
 }
