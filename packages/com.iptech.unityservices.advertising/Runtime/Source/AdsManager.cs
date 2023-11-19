@@ -98,7 +98,7 @@ namespace IPTech.UnityServices {
 
             var didConsent = consentValue.Consent == EConsentValue.Accepted;
             var didConsentString = didConsent ? "true" : "false";
-            var isUnder13String = consentValue.AgeInfo == EConsentAge.Over13 ? "false" : "true";
+            var isUnder13String = consentValue.AgeInfo == EConsentAge.Adult ? "false" : "true";
 
             // IRONSOURCE end-user delete request url https://ironsrc.formtitan.com/Data_Subject_Request
             IronSource.Agent.setMetaData("do_not_sell", didConsentString); // true/false
@@ -106,7 +106,7 @@ namespace IPTech.UnityServices {
             IronSource.Agent.setMetaData("is_child_directed", isUnder13String);
             
             // for childen or users of unkown age ...
-            if(consentValue.Consent != EConsentValue.Accepted || consentValue.AgeInfo != EConsentAge.Over13) {
+            if(consentValue.Consent != EConsentValue.Accepted || consentValue.AgeInfo != EConsentAge.Adult) {
                 IronSource.Agent.setMetaData("is_deviceid_optout", "true");
                 IronSource.Agent.setMetaData("Google_Family_Self_Certified_SDKS","true");
                 IronSource.Agent.setMetaData("UnityAds_coppa", "true");
@@ -244,7 +244,7 @@ namespace IPTech.UnityServices {
 #else
     public class AdsManager {
         public event Action<ShowAdResult> AdShown;
-        public AdsManager(IUnityServicesManager unityServicesManager) {}
+        public AdsManager(IIPTechPlatform unityServicesManager) {}
         public Task<ShowAdResult> ShowAd(EAdType adType, string placementName) {
             throw new Exception("you must integrate IronSource for this to work.");
         }

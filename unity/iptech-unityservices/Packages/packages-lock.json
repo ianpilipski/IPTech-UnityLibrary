@@ -7,9 +7,9 @@
       "dependencies": {}
     },
     "com.iptech.platform": {
-      "version": "file:com.iptech.platform",
+      "version": "file:../../../packages/com.iptech.platform",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {
         "com.iptech.platform.api": "0.0.1",
         "com.iptech.utils": "0.0.1"
