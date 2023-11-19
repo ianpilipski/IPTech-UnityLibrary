@@ -1,13 +1,13 @@
 {
   "name": "com.iptech.applovin.maxsdk",
   "displayName": "IPTech.AppLovin.MaxSdk",
-  "version": "0.0.1-5.11.5",
+  "version": "5.11.5-0.0.1",
   "unity": "2021.3",
   "unityRelease": "31f1",
   "keywords": [],
   "category": "",
   "dependencies": {
-    "com.iptech.externaldependencymanager": "0.0.1-1.2.177"
+    "com.iptech.externaldependencymanager": "1.2.177-0.0.1"
   },
   "samples": [],
   "author": {
