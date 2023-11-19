@@ -1,8 +1,11 @@
 {
+    "bootstrap-sha": "5b6a370b32885c2f263ed64344e3e2f1a64a594d",
     "release-type": "node",
     "monorepo-tags": true,
     "packages": {
-        "packages/com.iptech.applovin.maxsdk": {},
+        "packages/com.iptech.applovin.maxsdk": {
+            "release-as": "5.11.5-0.0.1"
+        },
         "packages/com.iptech.audio": {},
         "packages/com.iptech.buildtool": {},
         "packages/com.iptech.clickerengine": {},
@@ -10,7 +13,9 @@
         "packages/com.iptech.debutools": {},
         "packages/com.iptech.dialogmanager": {},
         "packages/com.iptech.editorextensions": {},
-        "pacakges/com.iptech.externaldependencymanager": {},
+        "pacakges/com.iptech.externaldependencymanager": {
+            "release-as": "1.2.177-0.0.1"
+        },
         "packages/com.iptech.fonts": {},
         "packages/com.iptech.hexmap": {},
         "packages/com.iptech.mathutils": {},
