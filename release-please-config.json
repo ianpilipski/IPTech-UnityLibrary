@@ -13,7 +13,7 @@
         "packages/com.iptech.debugtools": {},
         "packages/com.iptech.dialogmanager": {},
         "packages/com.iptech.editorextensions": {},
-        "pacakges/com.iptech.externaldependencymanager": {
+        "packages/com.iptech.externaldependencymanager": {
             "release-as": "1.2.177-0.0.1"
         },
         "packages/com.iptech.fonts": {},

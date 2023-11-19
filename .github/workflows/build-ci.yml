@@ -88,7 +88,7 @@ jobs:
         if: ${{ steps.release.outputs.releases_created }}
         run: |
           npm install
-          npx lerna bootstrap
+          npx lerna init --packages="packages/*"
 
       # Release Please has already incremented versions and published tags, so we just
       # need to publish all unpublished versions to NPM here
