@@ -2,6 +2,7 @@
     "bootstrap-sha": "5b6a370b32885c2f263ed64344e3e2f1a64a594d",
     "release-type": "node",
     "monorepo-tags": true,
+    "plugins": [ "node-workspace" ],
     "packages": {
         "packages/com.iptech.applovin.maxsdk": {
             "release-as": "5.11.5-0.0.1"
