@@ -811,6 +811,7 @@ PlayerSettings:
   scriptingDefineSymbols:
     Android: IPTECH_IRONSOURCE_INSTALLED
     Standalone: IPTECH_IRONSOURCE_INSTALLED
+    iPhone: IPTECH_IRONSOURCE_INSTALLED
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}
