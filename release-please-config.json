@@ -5,7 +5,7 @@
     "plugins": [ "node-workspace" ],
     "packages": {
         "packages/com.iptech.applovin.maxsdk": {
-            "release-as": "5.11.5-0.0.1"
+            "release-as": "6.0.1-0.0.1"
         },
         "packages/com.iptech.audio": {},
         "packages/com.iptech.buildtool": {},

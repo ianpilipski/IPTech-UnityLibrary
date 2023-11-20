@@ -25,7 +25,7 @@ namespace IPTech.UnityServices {
         public AdResult AdResult;
         public string PlacementID;
         public bool UserClicked;
-        public IronSourceAdInfo Info;
+        public object Info;
 
         public override string ToString()
         {

@@ -7,7 +7,7 @@
   "keywords": [],
   "category": "",
   "dependencies": {
-    "com.iptech.applovin.maxsdk": "0.0.1-5.11.5",
+    "com.iptech.applovin.maxsdk": "6.0.1-0.0.1",
     "com.iptech.platform.api": "0.0.1"
   },
   "samples": [],
