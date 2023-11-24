@@ -16,6 +16,8 @@ namespace IPTech.DebugConsoleService.InGameConsole {
     [RequireComponent(typeof(UIDocument))]
     public class UIToolkitInGameConsole : MonoBehaviour, IInGameDebugConsoleView
     {
+        const int MINIMIZEDHEIGHT = 110;
+
         UIDocument doc;
         List<CategoryData> categories = new();
 
@@ -27,6 +29,7 @@ namespace IPTech.DebugConsoleService.InGameConsole {
         ScrollView topWindowScrollView;
         VisualElement topWindowConsolePanel;
         VisualElement handle;
+        Label handleLabel;
         VisualElement root;
         VisualElement main;
         TextField textFieldCommand;
@@ -61,6 +64,7 @@ namespace IPTech.DebugConsoleService.InGameConsole {
             root = doc.rootVisualElement;
             main = root.Q<VisualElement>("sub");
             handle = main.Q<VisualElement>("handle");
+            handleLabel = handle.Q<Label>("labelHandle");
             textFieldCommand = main.Q<TextField>("textFieldCommand");
             buttonGo = main.Q<Button>("buttonGo");
             buttonGo.clicked += () => {
@@ -122,7 +126,7 @@ namespace IPTech.DebugConsoleService.InGameConsole {
             if(pos > 600) pos = 600;
             if(pos < 0) pos = 0;
 
-            if(heightInPixels < 110) heightInPixels = 110;
+            if(heightInPixels < MINIMIZEDHEIGHT) heightInPixels = MINIMIZEDHEIGHT;
             if(heightInPixels > 640) heightInPixels = 640;
 
             var pp = main.transform.position;
@@ -135,7 +139,7 @@ namespace IPTech.DebugConsoleService.InGameConsole {
         private void HandleMouseUp(MouseUpEvent evt) {
             if(dragging) {
                 if((DateTime.Now - dragStartTime).TotalSeconds < 0.25f) {
-                    if(main.resolvedStyle.height <= 110) {
+                    if(main.resolvedStyle.height <= MINIMIZEDHEIGHT + 50) {
                         RestoreConsole();
                     } else {
                         MinimizeConsole();
@@ -166,6 +170,9 @@ namespace IPTech.DebugConsoleService.InGameConsole {
         void ShowConsoleView(bool show) {
             topWindowScrollView.style.display = show ? DisplayStyle.None : DisplayStyle.Flex;
             topWindowConsolePanel.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
+            if(show) {
+                handleLabel.text = "Console";
+            }
         }
 
         public void UpdateButtons(IEnumerable<InGameDebugConsoleView.CommandData> commands) {
@@ -260,6 +267,9 @@ namespace IPTech.DebugConsoleService.InGameConsole {
 
             foreach(var cat in categories) {
                 var vis = cat == obj;
+                if(vis) {
+                    handleLabel.text = cat.name;
+                }
                 foreach(var ab in cat.aliasButtons) {
                     ab.visualElement.style.display = vis ? DisplayStyle.Flex : DisplayStyle.None;
                 }
