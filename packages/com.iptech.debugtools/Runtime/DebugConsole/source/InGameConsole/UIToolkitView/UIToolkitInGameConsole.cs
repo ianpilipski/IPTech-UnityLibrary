@@ -160,6 +160,10 @@ namespace IPTech.DebugConsoleService.InGameConsole {
                 startHandlePosX = handle.resolvedStyle.left;
                 handle.CaptureMouse();
                 evt.StopPropagation();
+
+                if(main.resolvedStyle.height <= MINIMIZEDHEIGHT + 50) {
+                    OnWantsUpdatedCommands?.Invoke();
+                }
             }
         }
 
