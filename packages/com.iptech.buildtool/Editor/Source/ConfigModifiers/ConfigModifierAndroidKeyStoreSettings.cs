@@ -46,7 +46,7 @@ namespace IPTech.BuildTool {
         string SaveTempKeyStore(FileData fileData) {
             var tmpFileName = Path.GetRandomFileName();
             var tmpDir = Path.Combine(Application.dataPath, "..", "Temp");
-            var tmpFilePath = Path.Combine(tmpDir, tmpFileName);
+            var tmpFilePath = Path.GetFullPath(Path.Combine(tmpDir, tmpFileName));
 
             if(!Directory.Exists(tmpDir)) {
                 Directory.CreateDirectory(tmpDir);

@@ -15,7 +15,7 @@
         "packages/com.iptech.dialogmanager": {},
         "packages/com.iptech.editorextensions": {},
         "packages/com.iptech.externaldependencymanager": {
-            "release-as": "1.2.177-0.0.1"
+            "release-as": "1.2.813-iptech.0"
         },
         "packages/com.iptech.fonts": {},
         "packages/com.iptech.hexmap": {},
