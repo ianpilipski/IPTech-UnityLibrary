@@ -384,7 +384,7 @@ namespace IPTech.BuildTool
         }
 
         void CreateNewBuildType(Type type) {
-            string name = EditorUtility.SaveFilePanel("Config Name", Path.Combine("Assets", GetBuildConfigFolderPath()), "NewBuildConfig", ".asset");
+            string name = EditorUtility.SaveFilePanel("Config Name", GetBuildConfigFolderPath(), "NewBuildConfig", ".asset");
             if(!string.IsNullOrEmpty(name)) {
                 if(TryGetAssetRelativeBuildConfigPath(name, out string destFolder)) {
                     destFolder = Path.Combine("Assets", destFolder);
