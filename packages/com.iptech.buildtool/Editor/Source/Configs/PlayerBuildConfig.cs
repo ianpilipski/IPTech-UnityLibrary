@@ -17,53 +17,29 @@ namespace IPTech.BuildTool
         public BuildOptions BuildOptions;
         [InlineCreation]
         public List<BuildProcessor> BuildProcessors;
+        [InlineCreation]
+        public List<ConfigModifier> ConfigModifiers;
         
         Stack<ConfigModifier> undoModifiers = new Stack<ConfigModifier>();
-        List<ConfigModifier> configModifiers;
-        
-        protected virtual void OnEnable() {
-            CleanupSubAssets();
-        }
+        List<ConfigModifier> cachedConfigModifiers;
 
-        protected virtual void OnValidate() {
-            CleanupSubAssets();
-        }
-
-        void CleanupSubAssets() {
-            var subAssets = PopulateSubAssetsList();
-            List<BuildProcessor> removedBps = new List<BuildProcessor>();
-            foreach(var sub in subAssets) {
-                if(sub is BuildProcessor bp) {
-                    if(BuildProcessors==null || !BuildProcessors.Contains(bp)) {
-                        removedBps.Add(bp);
-                    }
+        private void Awake() {
+            // migration code for older configs
+            if(ConfigModifiers == null || ConfigModifiers.Count == 0) {
+                var mods = LoadConfigModifiers();
+                if(mods.Any()) {
+                    ConfigModifiers = new List<ConfigModifier>(mods);
                 }
             }
-            if(removedBps.Count>0) {
-                EditorApplication.delayCall += () => {
-                    foreach(var bp in removedBps) {
-                        if(bp != null) {
-                            AssetDatabase.RemoveObjectFromAsset(bp);
-                            EditorUtility.SetDirty(bp);
-                            AssetDatabase.SaveAssetIfDirty(bp);
-                        } else {
-                            Debug.LogWarning("bp is null");
-                        }
-                    }
-                    EditorUtility.SetDirty(this);
-                    AssetDatabase.SaveAssetIfDirty(this);
-                };
-            }
-
-
         }
 
-        IEnumerable<UnityEngine.Object> PopulateSubAssetsList() {
-            var subs = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this));
-            if(subs != null) {
-                return subs.Where(s => s != this && s != null);
+        protected override bool IsSubAssetValid(UnityEngine.Object subAsset) {
+            if(subAsset is BuildProcessor bp) {
+                return BuildProcessors?.Contains(bp) == true;
+            } else if(subAsset is ConfigModifier) {
+                return ConfigModifiers?.Contains(subAsset) == true;
             }
-            return EmptySubAssets;
+            return false;
         }
 
         public override void Build(IDictionary<string, string> args) {
@@ -92,27 +68,28 @@ namespace IPTech.BuildTool
         }
 
         void InstanceConfigModifiers() {
+            if(ConfigModifiers == null) return;
+
             //Doing this allows the configModifiers list to survive after the build and the editor
             //does a domain reload.  If we referenced the saved scriptable objects they would null out
-            configModifiers = new List<ConfigModifier>();
-            foreach(var cm in LoadConfigModifiers()) {
+            cachedConfigModifiers = ConfigModifiers.Select(cm => {
                 var inst = (ConfigModifier)ScriptableObject.Instantiate(cm);
                 inst.hideFlags = (HideFlags.DontUnloadUnusedAsset | HideFlags.HideAndDontSave) & ~HideFlags.NotEditable;
-                configModifiers.Add(inst);
-            }
+                return inst;
+            }).ToList();
         }
 
         void DestroyConfigModifierInstances() {
-            foreach(var cm in configModifiers) {
+            foreach(var cm in cachedConfigModifiers) {
                 DestroyImmediate(cm);
             }
-            configModifiers = null;
+            cachedConfigModifiers = null;
         }
 
         protected virtual BuildPlayerOptions ModifyEditorProperties(IDictionary<string,string> args, BuildPlayerOptions options) {
             SetBuildNumber(args);
             
-            foreach(var cm in configModifiers) {
+            foreach(var cm in cachedConfigModifiers) {
                 try {
                     options = ApplyModification(cm, options);
                 } catch {
