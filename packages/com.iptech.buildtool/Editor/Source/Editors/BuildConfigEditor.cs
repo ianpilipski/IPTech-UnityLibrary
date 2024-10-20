@@ -1,9 +1,18 @@
 using UnityEditor;
+using UnityEditorInternal;
 
 namespace IPTech.BuildTool
 {
     [CustomEditor(typeof(BuildConfig), true)]
     public class BuildConfigEditor : Editor {
+        //ReorderableList list;
+        //SerializedProperty propConfigModifiers;
+
+        //public void OnEnable() {
+        //    propConfigModifiers = serializedObject.FindProperty(nameof(Prop))
+        //    list = new ReorderableList(serializedObject, propConfigModifiers);
+        //}
+
         public override void OnInspectorGUI() {
             //using(var ss = new EditorGUILayout.ScrollViewScope(scrollPos)) {
             //    scrollPos = ss.scrollPosition;

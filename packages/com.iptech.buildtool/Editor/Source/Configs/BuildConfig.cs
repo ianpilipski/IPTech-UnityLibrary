@@ -25,18 +25,16 @@ namespace IPTech.BuildTool
 
         protected virtual bool IsSubAssetValid(Object obj) { return true; }
 
-        protected virtual void OnEnable() {
-            CleanupSubAssets();
-        }
-
         protected virtual void OnValidate() {
             CleanupSubAssets();
         }
 
         void CleanupSubAssets() {
-            var subAssets = PopulateSubAssetsList();
+            var subs = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this));
+            var subAssets = subs.Where(s => s != this && s != null);
             var removedBps = subAssets.Where(sa => !IsSubAssetValid(sa));
             if(removedBps.Any()) {
+                Debug.LogWarning($"removing sub assets {removedBps.Select(n => n.name).Aggregate((a, b) => $"{a}, {b}")}");
                 EditorApplication.delayCall += () => {
                     foreach(var bp in removedBps) {
                         if(bp != null) {
@@ -51,16 +49,6 @@ namespace IPTech.BuildTool
                     AssetDatabase.SaveAssetIfDirty(this);
                 };
             }
-
-
-        }
-
-        IEnumerable<UnityEngine.Object> PopulateSubAssetsList() {
-            var subs = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this));
-            if(subs != null) {
-                return subs.Where(s => s != this && s != null);
-            }
-            return EmptySubAssets;
         }
     }
 }

@@ -23,21 +23,27 @@ namespace IPTech.BuildTool
         Stack<ConfigModifier> undoModifiers = new Stack<ConfigModifier>();
         List<ConfigModifier> cachedConfigModifiers;
 
-        private void Awake() {
+        protected override void OnValidate() {
+            Debug.LogWarning("on validate was called");
             // migration code for older configs
             if(ConfigModifiers == null || ConfigModifiers.Count == 0) {
+                Debug.LogWarning("attempting migrating configmodifiers");
                 var mods = LoadConfigModifiers();
                 if(mods.Any()) {
+                    Debug.LogWarning($"migrating configmodifiers {mods.Select(m => m.name).Aggregate((a,b) => $"{a}, {b}")}");
                     ConfigModifiers = new List<ConfigModifier>(mods);
+                    EditorUtility.SetDirty(this);
+                    AssetDatabase.SaveAssetIfDirty(this);
                 }
             }
+            base.OnValidate();
         }
 
         protected override bool IsSubAssetValid(UnityEngine.Object subAsset) {
-            if(subAsset is BuildProcessor bp) {
+            if(subAsset is ConfigModifier cm) {
+                return ConfigModifiers?.Contains(cm) == true;
+            } else if(subAsset is BuildProcessor bp) {
                 return BuildProcessors?.Contains(bp) == true;
-            } else if(subAsset is ConfigModifier) {
-                return ConfigModifiers?.Contains(subAsset) == true;
             }
             return false;
         }

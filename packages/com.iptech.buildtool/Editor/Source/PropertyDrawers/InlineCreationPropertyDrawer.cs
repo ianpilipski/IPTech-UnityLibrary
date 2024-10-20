@@ -18,93 +18,140 @@ namespace IPTech.BuildTool
         string[] createList;
         IReadOnlyList<Type> createTypes;
         
-        Dictionary<string, float> propertyHeights;
+        Dictionary<string, float> propertyHeights = new Dictionary<string, float>();
         SerializedObject soTarget;
         float propHeight = 0F;
         bool shouldDrawItem;
         Type propType;
         string toolTipAttributeText;
-        float toolTipHeight;
-
-        public AllowRefOrInstPropertyDrawer() {
-            propertyHeights = new Dictionary<string, float>();
-        }
         
+        private float ToolTipHeight => string.IsNullOrWhiteSpace(toolTipAttributeText) ? 0 : EditorGUIUtility.singleLineHeight * 4;
+
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
             UpdatePropertyType(property);
-            return base.GetPropertyHeight(property, label) + propHeight;
+
+            var ttHeight = 0F;
+            if(ToolTipHeight > 0 && soTarget != null) {
+                var p = soTarget.FindProperty("m_Script");
+                ttHeight = EditorGUIUtility.singleLineHeight;
+                ttHeight += (p == null || !p.isExpanded) ? 0F : ToolTipHeight;
+            }
+
+            var lineCount = 1 + (shouldDrawItem ? (3 + propertyHeights.Count + ((ToolTipHeight > 0) ? 1 : 0)) : 0);
+            var totalPropHeight = propertyHeights.Sum(kvp => kvp.Value);
+            return EditorGUIUtility.singleLineHeight + totalPropHeight + ttHeight + (lineCount - 1) * EditorGUIUtility.standardVerticalSpacing;
         }
 
+        Rect NextControl(Rect pos) {
+            return NextControl(pos, EditorGUIUtility.singleLineHeight);
+        }
+
+        Rect NextControl(Rect pos, float height) {
+            pos.y += pos.height + EditorGUIUtility.standardVerticalSpacing;
+            pos.height = height;
+            return pos;
+        }
+
+        GUIContent GetPropertyLabel(SerializedProperty property, GUIContent label) {
+            if(property.name == "data") { // this is an array member so replace "element" label with our name
+                if(property.objectReferenceValue != null) {
+                    return new GUIContent(property.objectReferenceValue.name);
+                }
+            }
+            return label;
+        }
+
+        Rect DrawMainProperty(Rect position, SerializedProperty property, GUIContent label) {
+            position.height = EditorGUIUtility.singleLineHeight;
+
+            var pos = position;
+            using(var ps = new EditorGUI.PropertyScope(pos, GetPropertyLabel(property, label), property)) {
+                const int buttonWidth = 100;
+                pos.width -= buttonWidth + 4;
+                EditorGUI.PropertyField(pos, property, ps.content);
+
+                pos = new Rect(pos.x + (position.width - buttonWidth), pos.y, buttonWidth, pos.height);
+                int val = EditorGUI.Popup(pos, 0, createList);
+                if(val > 0) {
+                    val--;
+                    var t = createTypes[val];
+                    if(t.IsSubclassOf(typeof(ScriptableObject))) {
+                        property.objectReferenceValue = CreateObject(property, t);
+
+                    } else {
+                        property.objectReferenceValue = Activator.CreateInstance(t) as UnityEngine.Object;
+                    }
+                }
+            }
+            return position;
+        }
+
+        Rect DrawBackGround(Rect pos, Rect orignalRect) {
+            var backgroundRect = pos;
+            backgroundRect.height = orignalRect.height - (pos.y - orignalRect.y) - EditorGUIUtility.standardVerticalSpacing;
+            EditorGUI.HelpBox(backgroundRect, "", MessageType.None);
+            pos.y += EditorGUIUtility.standardVerticalSpacing;
+            pos.x += EditorGUIUtility.standardVerticalSpacing;
+            pos.width -= EditorGUIUtility.standardVerticalSpacing * 2;
+            pos.height = EditorGUIUtility.singleLineHeight;
+            return pos;
+        }
+
+        
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             UpdatePropertyType(property);
 
             var pos = position;
+            pos.height = EditorGUIUtility.singleLineHeight;
             
             if(propType!=null) {
                 var origObjectReference = property.objectReferenceValue;
-                
-                using(var ps = new EditorGUI.PropertyScope(pos, label, property)) {
-                    
-                    const int buttonWidth = 100;
-                    pos.width -= buttonWidth + 4;
-                    pos.height = HEIGHT;
-                    if(origObjectReference != null) {
-                        //label = new GUIContent(origObjectReference.name);
-                    }
-                    EditorGUI.PropertyField(pos, property, ps.content);
 
+                pos = DrawMainProperty(pos, property, label);
                 
-                    pos = new Rect(pos.x + (position.width - buttonWidth), pos.y, buttonWidth, pos.height);
-                    int val = EditorGUI.Popup(pos, 0, createList);
-
-                    if(val > 0) {
-                        val--;
-                        var t = createTypes[val];
-                        if(t.IsSubclassOf(typeof(ScriptableObject))) {
-                            property.objectReferenceValue = CreateObject(property, t);
-                            
-                        } else {
-                            property.objectReferenceValue = Activator.CreateInstance(t) as UnityEngine.Object;
-                        }
-                    }
-                }
-                
-                if(shouldDrawItem && soTarget!=null) {
+                if(shouldDrawItem && soTarget!=null ) {
                     EditorGUI.indentLevel++;
+                    pos = EditorGUI.IndentedRect(pos);
+                    EditorGUI.indentLevel--;
 
-                    pos = position;
-                    pos.height -= NEXT_PROP_HEIGHT;
-                    pos.y += NEXT_PROP_HEIGHT;
-                    pos.x += 16F;
-                    pos.width -= 16F;
-
-                    EditorGUI.HelpBox(pos, "", MessageType.None);
+                    pos = NextControl(pos);
+                    pos = DrawBackGround(pos, position);
 
                     soTarget.Update();
                     var p = soTarget.GetIterator();
                     EditorGUI.BeginProperty(pos, new GUIContent(p.displayName), p);
-                    pos.height = HEIGHT;
                     p.NextVisible(true);
-                    float lastProperyHeight = 0F;
+                    var first = true;
                     do {
                         if(p.propertyPath == "m_Script") {
                             if(!string.IsNullOrEmpty(toolTipAttributeText)) {
-                                pos.y = pos.y + lastProperyHeight;
-                                lastProperyHeight = toolTipHeight + PROP_MARGIN;
-                                pos.height = lastProperyHeight - PROP_MARGIN;
-                                EditorGUI.HelpBox(pos, toolTipAttributeText, MessageType.Info);
+                                if(!first) {
+                                    pos = NextControl(pos);
+                                }
+                                var newVal = EditorGUI.Foldout(pos, p.isExpanded, new GUIContent("info"));
+                                if(newVal != p.isExpanded) {
+                                    p.isExpanded = newVal;
+                                    GUI.changed = true;
+                                    Event.current.Use();
+                                }
+                                if(p.isExpanded) {
+                                    pos = NextControl(pos, ToolTipHeight);
+                                    EditorGUI.HelpBox(pos, toolTipAttributeText, MessageType.Info);
+                                }
+                                first = false;
                             }
-                        } else { 
-                            pos.y = pos.y + lastProperyHeight;
-                            lastProperyHeight = propertyHeights[p.propertyPath] + PROP_MARGIN;
-                            pos.height = lastProperyHeight - PROP_MARGIN;
+                        } else {
+                            if(!first) {
+                                pos = NextControl(pos, propertyHeights[p.propertyPath]);
+                            } else {
+                                pos.height = propertyHeights[p.propertyPath];
+                            }
                             EditorGUI.PropertyField(pos, p);
+                            first = false;
                         }
                     } while(p.NextVisible(false));
                     EditorGUI.EndProperty();
                     soTarget.ApplyModifiedProperties();
-
-                    EditorGUI.indentLevel--;
                 }
             } else {
                 EditorGUI.LabelField(position, "the property type is not supported for this property drawer");
@@ -146,13 +193,14 @@ namespace IPTech.BuildTool
             }
             
             shouldDrawItem = !IsPropertyInst();
-            if(shouldDrawItem && prop.objectReferenceValue != null) {
+            if(shouldDrawItem) {
                 if(UpdateScriptableObjectReference()) {
                     CalculateAdditionalPropertyHeights();
                 }
             } else {
                 ClearScriptableObjectReference();
             }
+            shouldDrawItem = soTarget != null && (propertyHeights.Count > 0 || ToolTipHeight > 0);
             return propType != null;
 
             bool UpdateScriptableObjectReference() {
@@ -160,13 +208,13 @@ namespace IPTech.BuildTool
                     soTarget = new SerializedObject(prop.objectReferenceValue);
                     return true;
                 }
-                return soTarget.UpdateIfRequiredOrScript();
+                soTarget.UpdateIfRequiredOrScript();
+                return true;
             }
 
             void ClearScriptableObjectReference() {
                 soTarget = null;
                 toolTipAttributeText = null;
-                propHeight = 0F;
                 propertyHeights.Clear();
             }
 
@@ -178,14 +226,11 @@ namespace IPTech.BuildTool
             }
 
             void CalculateAdditionalPropertyHeights() {
-                propHeight = 0;
                 var p = soTarget.GetIterator();
                 p.NextVisible(true);
                 do {
                     if(p.propertyPath != "m_Script") {
-                        var h = EditorGUI.GetPropertyHeight(p);
-                        propertyHeights[p.propertyPath] = h;
-                        propHeight += h + PROP_MARGIN;
+                        propertyHeights[p.propertyPath] = EditorGUI.GetPropertyHeight(p);
                     }
                 } while(p.NextVisible(false));
 
@@ -195,9 +240,6 @@ namespace IPTech.BuildTool
                     foreach(var attrib in attribs) {
                         if(attrib is TooltipAttribute tt) {
                             toolTipAttributeText = tt.tooltip;
-                            var hss = EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).GetStyle("helpBox");
-                            toolTipHeight = hss.CalcHeight(new GUIContent(toolTipAttributeText), Mathf.Max(EditorGUIUtility.currentViewWidth - 100, 100));
-                            propHeight += toolTipHeight + PROP_MARGIN;
                             break;
                         }
                     }
@@ -217,6 +259,11 @@ namespace IPTech.BuildTool
                 };
             }
             return obj;
+        }
+
+        float CalcToolTipHeight(string toolTipText, float width) {
+            var hss = EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).GetStyle("helpBox");
+            return hss.CalcHeight(new GUIContent(toolTipAttributeText), width);
         }
     }
 }
