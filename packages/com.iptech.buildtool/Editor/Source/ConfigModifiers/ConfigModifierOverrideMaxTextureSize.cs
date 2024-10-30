@@ -1,4 +1,4 @@
-using UnityEditor;
+using IPTech.BuildTool.Processors;
 
 namespace IPTech.BuildTool
 {
@@ -15,15 +15,11 @@ namespace IPTech.BuildTool
             Max2048 = 2048
         }
 
-        int origValue;
-
-        public override void ModifyProject(BuildTarget buildTarget) {
-            origValue = EditorUserBuildSettings.overrideMaxTextureSize;
-            EditorUserBuildSettings.overrideMaxTextureSize = (int)OverrideMaxTextureSize;
-        }
-
-        public override void RestoreProject(BuildTarget buildTarget) {
-            EditorUserBuildSettings.overrideMaxTextureSize = origValue;
+        public override BuildProcessor ConvertToBuildProcessor() {
+            var bp = CreateInstance<SetOverrideMaxTextureSize>();
+            bp.name = nameof(SetOverrideMaxTextureSize);
+            bp.OverrideMaxTextureSize = (SetOverrideMaxTextureSize.EMaxTextureSize)(int)OverrideMaxTextureSize;
+            return bp;
         }
     }
 }

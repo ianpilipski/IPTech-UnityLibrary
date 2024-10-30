@@ -20,7 +20,7 @@ namespace IPTech.BuildTool
         
         Dictionary<string, float> propertyHeights = new Dictionary<string, float>();
         SerializedObject soTarget;
-        float propHeight = 0F;
+        
         bool shouldDrawItem;
         Type propType;
         string toolTipAttributeText;

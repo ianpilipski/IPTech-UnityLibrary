@@ -32,8 +32,7 @@ namespace IPTech.BuildTool
             //}
 
             bool ShouldPropertyBeExpanded(string propPath) {
-                return propPath == nameof(PlayerBuildConfig.BuildProcessors) ||
-                    propPath == nameof(PlayerBuildConfig.ConfigModifiers);
+                return propPath == nameof(PlayerBuildConfig.BuildProcessors);
             }
         }
     }

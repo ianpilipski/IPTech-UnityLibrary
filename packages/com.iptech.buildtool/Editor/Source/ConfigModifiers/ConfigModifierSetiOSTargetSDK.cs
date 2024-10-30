@@ -1,3 +1,4 @@
+using IPTech.BuildTool.Processors;
 using UnityEditor;
 
 namespace IPTech.BuildTool
@@ -5,15 +6,13 @@ namespace IPTech.BuildTool
     public class ConfigModifierSetiOSTargetSDK : ConfigModifier {
         public iOSSdkVersion TargetSDK;
 
-        iOSSdkVersion origValue;
 
-        public override void ModifyProject(BuildTarget buildTarget) {
-            origValue = PlayerSettings.iOS.sdkVersion;
-            PlayerSettings.iOS.sdkVersion = TargetSDK;
+        public override BuildProcessor ConvertToBuildProcessor() {
+            var bp = CreateInstance<SetiOSTargetSDK>();
+            bp.name = nameof(SetiOSTargetSDK);
+            bp.TargetSDK = TargetSDK;
+            return bp;
         }
 
-        public override void RestoreProject(BuildTarget buildTarget) {
-            PlayerSettings.iOS.sdkVersion = origValue;
-        }
     }
 }

@@ -17,31 +17,31 @@ namespace IPTech.BuildTool
         public BuildOptions BuildOptions;
         [InlineCreation]
         public List<BuildProcessor> BuildProcessors;
-        [InlineCreation]
-        public List<ConfigModifier> ConfigModifiers;
         
-        Stack<ConfigModifier> undoModifiers = new Stack<ConfigModifier>();
-        List<ConfigModifier> cachedConfigModifiers;
+        Stack<BuildProcessor> undoModifiers = new Stack<BuildProcessor>();
+        List<BuildProcessor> cachedBuildProcessors;
 
         protected override void OnValidate() {
-            Debug.LogWarning("on validate was called");
             // migration code for older configs
-            if(ConfigModifiers == null || ConfigModifiers.Count == 0) {
-                Debug.LogWarning("attempting migrating configmodifiers");
-                var mods = LoadConfigModifiers();
-                if(mods.Any()) {
-                    Debug.LogWarning($"migrating configmodifiers {mods.Select(m => m.name).Aggregate((a,b) => $"{a}, {b}")}");
-                    ConfigModifiers = new List<ConfigModifier>(mods);
-                    EditorUtility.SetDirty(this);
-                    AssetDatabase.SaveAssetIfDirty(this);
+            var mods = LoadConfigModifiers();
+            if(mods.Any()) {
+                Debug.LogWarning($"migrating configmodifiers {mods.Select(m => m.name).Aggregate((a,b) => $"{a}, {b}")}");
+                foreach(var mod in mods) {
+                    var bp = mod.ConvertToBuildProcessor();
+                    BuildProcessors.Add(bp);
+                    AssetDatabase.AddObjectToAsset(bp, this);
+                    AssetDatabase.RemoveObjectFromAsset(mod);
                 }
+                EditorUtility.SetDirty(this);
+                AssetDatabase.SaveAssetIfDirty(this);
+                AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(this));
             }
             base.OnValidate();
         }
 
         protected override bool IsSubAssetValid(UnityEngine.Object subAsset) {
             if(subAsset is ConfigModifier cm) {
-                return ConfigModifiers?.Contains(cm) == true;
+                return true;
             } else if(subAsset is BuildProcessor bp) {
                 return BuildProcessors?.Contains(bp) == true;
             }
@@ -54,7 +54,7 @@ namespace IPTech.BuildTool
 
             using(new CurrentBuildSettings.Scoped()) {
                 try {
-                    InstanceConfigModifiers();
+                    InstanceBuildProcessors();
 
                     BuildPlayerOptions options = GetBuildPlayerOptions(args);
                     options = ModifyEditorProperties(args, options);
@@ -66,36 +66,36 @@ namespace IPTech.BuildTool
                     UndoModifications();
                 } finally {
                     UndoModifications(false);
-                    DestroyConfigModifierInstances();
+                    DestroyBuildProcessorInstances();
                     CurrentlyBuildingConfig = null;
                     AssetDatabase.SaveAssets();
                 }
             }
         }
 
-        void InstanceConfigModifiers() {
-            if(ConfigModifiers == null) return;
+        void InstanceBuildProcessors() {
+            if(BuildProcessors == null) return;
 
             //Doing this allows the configModifiers list to survive after the build and the editor
             //does a domain reload.  If we referenced the saved scriptable objects they would null out
-            cachedConfigModifiers = ConfigModifiers.Select(cm => {
-                var inst = (ConfigModifier)ScriptableObject.Instantiate(cm);
+            cachedBuildProcessors = BuildProcessors.Select(cm => {
+                var inst = (BuildProcessor)ScriptableObject.Instantiate(cm);
                 inst.hideFlags = (HideFlags.DontUnloadUnusedAsset | HideFlags.HideAndDontSave) & ~HideFlags.NotEditable;
                 return inst;
             }).ToList();
         }
 
-        void DestroyConfigModifierInstances() {
-            foreach(var cm in cachedConfigModifiers) {
+        void DestroyBuildProcessorInstances() {
+            foreach(var cm in cachedBuildProcessors) {
                 DestroyImmediate(cm);
             }
-            cachedConfigModifiers = null;
+            cachedBuildProcessors = null;
         }
 
         protected virtual BuildPlayerOptions ModifyEditorProperties(IDictionary<string,string> args, BuildPlayerOptions options) {
             SetBuildNumber(args);
             
-            foreach(var cm in cachedConfigModifiers) {
+            foreach(var cm in cachedBuildProcessors) {
                 try {
                     options = ApplyModification(cm, options);
                 } catch {
@@ -106,7 +106,7 @@ namespace IPTech.BuildTool
             return options;
         }
 
-        BuildPlayerOptions ApplyModification(ConfigModifier modifier, BuildPlayerOptions options) {
+        BuildPlayerOptions ApplyModification(BuildProcessor modifier, BuildPlayerOptions options) {
             Debug.Log($"[IPTech.BuildTool] {modifier.name} modifying build properties.");
             modifier.ModifyProject(BuildTarget);
             undoModifiers.Push(modifier);

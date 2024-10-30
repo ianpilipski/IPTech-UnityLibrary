@@ -35,7 +35,7 @@ namespace IPTech.BuildTool
             var removedBps = subAssets.Where(sa => !IsSubAssetValid(sa));
             if(removedBps.Any()) {
                 Debug.LogWarning($"removing sub assets {removedBps.Select(n => n.name).Aggregate((a, b) => $"{a}, {b}")}");
-                EditorApplication.delayCall += () => {
+                //EditorApplication.delayCall += () => {
                     foreach(var bp in removedBps) {
                         if(bp != null) {
                             AssetDatabase.RemoveObjectFromAsset(bp);
@@ -47,7 +47,7 @@ namespace IPTech.BuildTool
                     }
                     EditorUtility.SetDirty(this);
                     AssetDatabase.SaveAssetIfDirty(this);
-                };
+                //};
             }
         }
     }
