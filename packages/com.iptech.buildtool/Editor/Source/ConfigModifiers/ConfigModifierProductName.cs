@@ -1,26 +1,15 @@
-using UnityEngine;
-using UnityEditor;
+using IPTech.BuildTool.Processors;
 
 namespace IPTech.BuildTool
 {
     public class ConfigModifierProductName : ConfigModifier {
         public string ProductName;
 
-        string orignalValue;
-
-        private void OnEnable() {
-            if(string.IsNullOrEmpty(ProductName)) {
-                ProductName = Application.productName;
-            }
-        }
-
-        public override void ModifyProject(BuildTarget buildTarget) {
-            orignalValue = PlayerSettings.productName;
-            PlayerSettings.productName = ProductName;
-        }
-
-        public override void RestoreProject(BuildTarget buildTarget) {
-            PlayerSettings.productName = orignalValue;
+        public override BuildProcessor ConvertToBuildProcessor() {
+            var bp = CreateInstance<SetProductName>();
+            bp.name = nameof(SetProductName);
+            bp.ProductName = ProductName;
+            return bp;
         }
     }
 }

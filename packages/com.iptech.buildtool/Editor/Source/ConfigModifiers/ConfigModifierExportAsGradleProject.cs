@@ -1,19 +1,15 @@
-using UnityEditor;
+using IPTech.BuildTool.Processors;
 
 namespace IPTech.BuildTool
 {
     public class ConfigModifierExportAsGradleProject : ConfigModifier {
         public bool ExportAsGradleProject;
 
-        bool origValue;
-
-        public override void ModifyProject(BuildTarget buildTarget) {
-            origValue = EditorUserBuildSettings.exportAsGoogleAndroidProject;
-            EditorUserBuildSettings.exportAsGoogleAndroidProject = ExportAsGradleProject;
-        }
-
-        public override void RestoreProject(BuildTarget buildTarget) {
-            EditorUserBuildSettings.exportAsGoogleAndroidProject = origValue;
+        public override BuildProcessor ConvertToBuildProcessor() {
+            var bp = CreateInstance<SetExportAsGradleProject>();
+            bp.name = nameof(SetExportAsGradleProject);
+            bp.ExportAsGradleProject = ExportAsGradleProject;
+            return bp;
         }
     }
 }

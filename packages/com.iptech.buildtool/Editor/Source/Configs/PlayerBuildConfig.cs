@@ -18,52 +18,34 @@ namespace IPTech.BuildTool
         [InlineCreation]
         public List<BuildProcessor> BuildProcessors;
         
-        Stack<ConfigModifier> undoModifiers = new Stack<ConfigModifier>();
-        List<ConfigModifier> configModifiers;
-        
-        protected virtual void OnEnable() {
-            CleanupSubAssets();
-        }
+        Stack<BuildProcessor> undoModifiers = new Stack<BuildProcessor>();
+        List<BuildProcessor> cachedBuildProcessors;
 
-        protected virtual void OnValidate() {
-            CleanupSubAssets();
-        }
-
-        void CleanupSubAssets() {
-            var subAssets = PopulateSubAssetsList();
-            List<BuildProcessor> removedBps = new List<BuildProcessor>();
-            foreach(var sub in subAssets) {
-                if(sub is BuildProcessor bp) {
-                    if(BuildProcessors==null || !BuildProcessors.Contains(bp)) {
-                        removedBps.Add(bp);
-                    }
+        protected override void OnValidate() {
+            // migration code for older configs
+            var mods = LoadConfigModifiers();
+            if(mods.Any()) {
+                Debug.LogWarning($"migrating configmodifiers {mods.Select(m => m.name).Aggregate((a,b) => $"{a}, {b}")}");
+                foreach(var mod in mods) {
+                    var bp = mod.ConvertToBuildProcessor();
+                    BuildProcessors.Add(bp);
+                    AssetDatabase.AddObjectToAsset(bp, this);
+                    AssetDatabase.RemoveObjectFromAsset(mod);
                 }
+                EditorUtility.SetDirty(this);
+                AssetDatabase.SaveAssetIfDirty(this);
+                AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(this));
             }
-            if(removedBps.Count>0) {
-                EditorApplication.delayCall += () => {
-                    foreach(var bp in removedBps) {
-                        if(bp != null) {
-                            AssetDatabase.RemoveObjectFromAsset(bp);
-                            EditorUtility.SetDirty(bp);
-                            AssetDatabase.SaveAssetIfDirty(bp);
-                        } else {
-                            Debug.LogWarning("bp is null");
-                        }
-                    }
-                    EditorUtility.SetDirty(this);
-                    AssetDatabase.SaveAssetIfDirty(this);
-                };
-            }
-
-
+            base.OnValidate();
         }
 
-        IEnumerable<UnityEngine.Object> PopulateSubAssetsList() {
-            var subs = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this));
-            if(subs != null) {
-                return subs.Where(s => s != this && s != null);
+        protected override bool IsSubAssetValid(UnityEngine.Object subAsset) {
+            if(subAsset is ConfigModifier cm) {
+                return true;
+            } else if(subAsset is BuildProcessor bp) {
+                return BuildProcessors?.Contains(bp) == true;
             }
-            return EmptySubAssets;
+            return false;
         }
 
         public override void Build(IDictionary<string, string> args) {
@@ -72,7 +54,7 @@ namespace IPTech.BuildTool
 
             using(new CurrentBuildSettings.Scoped()) {
                 try {
-                    InstanceConfigModifiers();
+                    InstanceBuildProcessors();
 
                     BuildPlayerOptions options = GetBuildPlayerOptions(args);
                     options = ModifyEditorProperties(args, options);
@@ -84,35 +66,36 @@ namespace IPTech.BuildTool
                     UndoModifications();
                 } finally {
                     UndoModifications(false);
-                    DestroyConfigModifierInstances();
+                    DestroyBuildProcessorInstances();
                     CurrentlyBuildingConfig = null;
                     AssetDatabase.SaveAssets();
                 }
             }
         }
 
-        void InstanceConfigModifiers() {
+        void InstanceBuildProcessors() {
+            if(BuildProcessors == null) return;
+
             //Doing this allows the configModifiers list to survive after the build and the editor
             //does a domain reload.  If we referenced the saved scriptable objects they would null out
-            configModifiers = new List<ConfigModifier>();
-            foreach(var cm in LoadConfigModifiers()) {
-                var inst = (ConfigModifier)ScriptableObject.Instantiate(cm);
+            cachedBuildProcessors = BuildProcessors.Select(cm => {
+                var inst = (BuildProcessor)ScriptableObject.Instantiate(cm);
                 inst.hideFlags = (HideFlags.DontUnloadUnusedAsset | HideFlags.HideAndDontSave) & ~HideFlags.NotEditable;
-                configModifiers.Add(inst);
-            }
+                return inst;
+            }).ToList();
         }
 
-        void DestroyConfigModifierInstances() {
-            foreach(var cm in configModifiers) {
+        void DestroyBuildProcessorInstances() {
+            foreach(var cm in cachedBuildProcessors) {
                 DestroyImmediate(cm);
             }
-            configModifiers = null;
+            cachedBuildProcessors = null;
         }
 
         protected virtual BuildPlayerOptions ModifyEditorProperties(IDictionary<string,string> args, BuildPlayerOptions options) {
             SetBuildNumber(args);
             
-            foreach(var cm in configModifiers) {
+            foreach(var cm in cachedBuildProcessors) {
                 try {
                     options = ApplyModification(cm, options);
                 } catch {
@@ -123,7 +106,7 @@ namespace IPTech.BuildTool
             return options;
         }
 
-        BuildPlayerOptions ApplyModification(ConfigModifier modifier, BuildPlayerOptions options) {
+        BuildPlayerOptions ApplyModification(BuildProcessor modifier, BuildPlayerOptions options) {
             Debug.Log($"[IPTech.BuildTool] {modifier.name} modifying build properties.");
             modifier.ModifyProject(BuildTarget);
             undoModifiers.Push(modifier);

@@ -12,13 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e8beb9335e7e409696d20ace8827a18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DefaultConfigPath: BuildConfigs
+  DefaultConfigPath: Assets/BuildConfigs
   EnableBuildWindowIntegration: 1
   BuildInEditorArguments:
   - -buildNumber
   - 0001
   BuildProcessors:
   - {fileID: 2}
+  - {fileID: 3}
 --- !u!114 &2
 MonoBehaviour:
   m_ObjectHideFlags: 53
@@ -30,4 +31,16 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 19f634fcf40e84c29ab481e3b607efc3, type: 3}
   m_Name: MoveKeyStoreToGradleProject
+  m_EditorClassIdentifier: 
+--- !u!114 &3
+MonoBehaviour:
+  m_ObjectHideFlags: 53
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efc06f3fcafb246c2bd2737dc49f6fb2, type: 3}
+  m_Name: AddBuildInfo
   m_EditorClassIdentifier: 
