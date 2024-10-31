@@ -10,7 +10,8 @@
         "GUID:5e0b455853cd340e0813387221dfd501",
         "GUID:d2e6d17c1b9cd4bb3b85d13f3ce0b269",
         "GUID:92c66b79875e04ed39664e294fb3e0ae",
-        "GUID:5f9f17e33d10f4a6dabc28e5012c193c"
+        "GUID:5f9f17e33d10f4a6dabc28e5012c193c",
+        "GUID:5540e30183c82e84b954c033c388e06c"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -29,6 +30,11 @@
             "name": "com.iptech.unityservices.advertising",
             "expression": "0",
             "define": "IPTECH_UNITYADVERTISING_INSTALLED"
+        },
+        {
+            "name": "com.unity.services.authentication",
+            "expression": "0",
+            "define": "UNITY_AUTHSERVICE_INSTALLED"
         }
     ],
     "noEngineReferences": false

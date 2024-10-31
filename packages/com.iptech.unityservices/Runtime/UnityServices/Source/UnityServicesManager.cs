@@ -109,8 +109,8 @@ namespace IPTech.UnityServices {
 
                     #if UNITY_AUTHSERVICE_INSTALLED
                     // remote config requires authentication for managing environment information
-                    if(!AuthenticationService.Instance.IsSignedIn) {
-                        await AuthenticationService.Instance.SignInAnonymouslyAsync();
+                    if(!Unity.Services.Authentication.AuthenticationService.Instance.IsSignedIn) {
+                        await Unity.Services.Authentication.AuthenticationService.Instance.SignInAnonymouslyAsync();
                     }
                     #endif
 
