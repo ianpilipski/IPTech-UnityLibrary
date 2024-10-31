@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8177501205728352793
+--- !u!114 &-7804917145911604863
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9,10 +9,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8f3be4cae07448a69e2dd094d67ab8c, type: 3}
-  m_Name: ConfigModifierExportAsGradleProject
+  m_Script: {fileID: 11500000, guid: d5d3d8526f5c1459eb7ecfef058928ad, type: 3}
+  m_Name: SetScriptingDefines
   m_EditorClassIdentifier: 
-  ExportAsGradleProject: 1
+  ScriptingDefines:
+  - TEST_DEFINE
+--- !u!114 &-6541323552834018332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4233fef7a09c3480cb3cbf4bb3caf455, type: 3}
+  m_Name: SetOverrideMaxTextureSize
+  m_EditorClassIdentifier: 
+  OverrideMaxTextureSize: 0
 --- !u!114 &-6428993854196455131
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37,7 +51,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19f634fcf40e84c29ab481e3b607efc3, type: 3}
   m_Name: MoveKeyStoreToGradleProject
   m_EditorClassIdentifier: 
---- !u!114 &-4383493769613627169
+--- !u!114 &-6166629892820392975
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -46,38 +60,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d6ddfb1581d2f488baeb5d5777e6bab2, type: 3}
-  m_Name: ConfigModifierBuildAsAppBundle
+  m_Script: {fileID: 11500000, guid: d984d58b51add4abb8806e3c818366c7, type: 3}
+  m_Name: SetExportAsGradleProject
   m_EditorClassIdentifier: 
-  BuildAsAppBundle: 1
---- !u!114 &-4016989282990832655
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fda6cf5c61d7d44f1b2f4022ec8d18e5, type: 3}
-  m_Name: ConfigModifierAndroidKeyStoreSettings
-  m_EditorClassIdentifier: 
-  KeyStoreSettings:
-    Name: 
-    FullTypeName: IPTech.BuildTool.Encryption.EncryptedItemAndroidKeyStoreSettings
---- !u!114 &-2520011451891189432
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 328952b49f4514eb29e0c966022dd477, type: 3}
-  m_Name: ConfigModifierApplicationIdentifier
-  m_EditorClassIdentifier: 
-  ApplicationIdentifier: com.IanPilipski.IPTech
+  ExportAsGradleProject: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -99,7 +85,14 @@ MonoBehaviour:
   - {fileID: 8752780421137883931}
   - {fileID: -6365768647241220362}
   - {fileID: -6365768647241220362}
---- !u!114 &1374997507863952230
+  - {fileID: -6166629892820392975}
+  - {fileID: 6560950039202633949}
+  - {fileID: 109868987184590978}
+  - {fileID: 4970698526620536069}
+  - {fileID: -7804917145911604863}
+  - {fileID: 1498469725596833981}
+  - {fileID: -6541323552834018332}
+--- !u!114 &109868987184590978
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -108,11 +101,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de9dfdc698f9043c0b60fb843d1b1fff, type: 3}
-  m_Name: ConfigModifierSetScriptingDefines
+  m_Script: {fileID: 11500000, guid: de385ea94ce63447e9ac331a0b076e0c, type: 3}
+  m_Name: SetAndroidKeyStoreSettings
   m_EditorClassIdentifier: 
-  ScriptingDefines:
-  - TEST_DEFINE
+  KeyStoreSettings:
+    Name: 
+    FullTypeName: IPTech.BuildTool.Encryption.EncryptedItemAndroidKeyStoreSettings
+--- !u!114 &1498469725596833981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7faaa44c2af7479f82c1361b80b25bf, type: 3}
+  m_Name: SetProductName
+  m_EditorClassIdentifier: 
+  ProductName: IPTech (Debug)
 --- !u!114 &2024863894052484801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -125,7 +132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0f0010790d1f43bcb4e67471cc40f3c, type: 3}
   m_Name: AddGradleWrapper
   m_EditorClassIdentifier: 
---- !u!114 &4889321739581757039
+--- !u!114 &4970698526620536069
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -134,11 +141,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bd6a74266956c421b8734e5884c7b0d3, type: 3}
-  m_Name: ConfigModifierProductName
+  m_Script: {fileID: 11500000, guid: 116b7039160b840679f59e156fd14cc1, type: 3}
+  m_Name: SetApplicationIdentifier
   m_EditorClassIdentifier: 
-  ProductName: IPTech (Debug)
---- !u!114 &7284089518607235508
+  ApplicationIdentifier: com.IanPilipski.IPTech
+--- !u!114 &6560950039202633949
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -147,10 +154,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f8e0480e982ef40d4bdda045277cf0cb, type: 3}
-  m_Name: ConfigModifierOverrideMaxTextureSize
+  m_Script: {fileID: 11500000, guid: 4944172c0e2644902973de92c0b859d7, type: 3}
+  m_Name: SetBuildAsAppBundle
   m_EditorClassIdentifier: 
-  OverrideMaxTextureSize: 0
+  BuildAsAppBundle: 1
 --- !u!114 &8752780421137883931
 MonoBehaviour:
   m_ObjectHideFlags: 0

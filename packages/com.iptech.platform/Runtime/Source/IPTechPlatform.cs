@@ -20,7 +20,11 @@ namespace IPTech.Platform {
         public event Action Initialized;
         public event Action<bool> ApplicationPaused;
 
-        public IPTechPlatform(Action<IServiceContext> createContext) {
+        [Obsolete("use the async constructor for createContext instead")]
+        public IPTechPlatform(Action<IServiceContext> createContext) : this((sc) => { createContext(sc); return Task.CompletedTask; }) {
+        }
+
+        public IPTechPlatform(Func<IServiceContext, Task> createContext) {
             consentHandler = new ConsentHandler();
             networkDetector = new NetworkDetector(this, 30);
             serviceContext = new ServiceContext();
@@ -44,14 +48,14 @@ namespace IPTech.Platform {
             remove => consentHandler.ConsentValueChanged -= value;
         }
 
-        async void Initialize(Action<IServiceContext> createContext) {
+        async void Initialize(Func<IServiceContext, Task> createContext) {
             try {
                 Debug.Log("Initializing IPTechPlatform .. ");
                 Debug.Log("[IPTechPlatform] waiting for mono behaviour ..");
                 await HookMbInst();
                 Debug.Log("[IPTechPlatform] found mono behaviour");
                 Debug.Log("[IPTechPlatform] Creating Context .. ");
-                createContext(serviceContext);
+                await createContext(serviceContext);
                 Debug.Log("[IPTechPlatform] Context Created");
                 State = EServiceState.Online;
             } catch(OperationCanceledException) {
