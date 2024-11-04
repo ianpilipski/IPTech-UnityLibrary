@@ -1,0 +1,16 @@
+{
+  "name": "com.iptech.unityservices.leaderboards",
+  "displayName": "IPTech.UnityServices.Leaderboards",
+  "version": "0.0.1",
+  "unity": "2021.3",
+  "dependencies": {
+    "com.iptech.unityservices": "0.0.0"
+  },
+  "keywords": [],
+  "category": "",
+  "samples": [],
+  "author": {
+    "name": "Ian Pilipski",
+    "url": ""
+  }
+}

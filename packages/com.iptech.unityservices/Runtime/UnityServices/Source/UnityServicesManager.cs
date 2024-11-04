@@ -20,25 +20,33 @@ namespace IPTech.UnityServices {
         readonly List<Action> initializedListeners = new();
         readonly IIPTechPlatform platform;
         
-        #if IPTECH_UNITYANALYTICS_INSTALLED
-        public readonly AnalyticsManager AnalyticsManager;
-        #endif
-        #if IPTECH_UNITYADVERTISING_INSTALLED
+#if IPTECH_UNITYANALYTICS_INSTALLED
+        public readonly IAnalyticsManager AnalyticsManager;
+#endif
+
+#if IPTECH_UNITYADVERTISING_INSTALLED
         public readonly AdsManager AdsManager;
-        #endif
-        
+#endif
+
+#if IPTECH_UNITYLEADERBOARDS_INSTALLED
+        public readonly ILeaderboardsManager LeaderboardsManager;
+#endif
+
         public UnityServicesManager(IIPTechPlatform platform) {
             State = EServiceState.Initializing;
             this.platform = platform;
             
-            #if IPTECH_UNITYANALYTICS_INSTALLED
-            //services.Add(typeof(IAnalyticsManager), new AnalyticsManager(this));
+#if IPTECH_UNITYANALYTICS_INSTALLED
             this.AnalyticsManager = new AnalyticsManager(this);
-            #endif
+#endif
 
-            #if IPTECH_UNITYADVERTISING_INSTALLED
+#if IPTECH_UNITYADVERTISING_INSTALLED
             this.AdsManager = new AdsManager(platform);
-            #endif
+#endif
+
+#if IPTECH_UNITYLEADERBOARDS_INSTALLED
+            this.LeaderboardsManager = new IPTech.UnityServices.Leaderboards.LeaderboardsManager(this);
+#endif
 
             var go = new GameObject("IPTechUnityServicesApplicationEvents");
             var appEvents =  go.AddComponent<ApplicationEvents>();
@@ -107,12 +115,16 @@ namespace IPTech.UnityServices {
                     options.SetEnvironmentName(EnvironmentID);
                     await UEServices.InitializeAsync(options);
 
-                    #if UNITY_AUTHSERVICE_INSTALLED
+#if UNITY_AUTHSERVICE_INSTALLED || UNITY_LEADERBOARDS_INSTALLED || UNITY_REMOTECONFIG_INSTALLED
+#if UNITY_AUTHSERVICE_INSTALLED
                     // remote config requires authentication for managing environment information
                     if(!Unity.Services.Authentication.AuthenticationService.Instance.IsSignedIn) {
                         await Unity.Services.Authentication.AuthenticationService.Instance.SignInAnonymouslyAsync();
                     }
-                    #endif
+#else
+#error you need to install unity Authorization services to work with one of the packages you have installed
+#endif
+#endif
 
                     return EServiceState.Online;
                 } catch(Exception e) {

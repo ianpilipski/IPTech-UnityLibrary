@@ -12,5 +12,7 @@ namespace IPTech.Platform {
         EServiceState State { get; }
         event Action<ConsentInfo> ConsentValueChanged;
         event Action<bool> ApplicationPaused;
+
+        public ILeaderboardsManager Leaderboards { get; }
     }
 }
