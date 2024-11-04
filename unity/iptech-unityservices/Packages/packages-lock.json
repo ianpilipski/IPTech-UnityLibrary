@@ -55,7 +55,8 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.iptech.unityservices": "0.0.0"
+        "com.iptech.unityservices": "0.0.0",
+        "com.unity.services.leaderboards": "1.0.0"
       }
     },
     "com.iptech.utils": {
