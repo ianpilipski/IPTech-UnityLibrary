@@ -6,6 +6,7 @@
     "com.iptech.unityservices": "file:../../../packages/com.iptech.unityservices",
     "com.iptech.unityservices.advertising": "file:../../../packages/com.iptech.unityservices.advertising",
     "com.iptech.unityservices.analytics": "file:../../../packages/com.iptech.unityservices.analytics",
+    "com.iptech.unityservices.leaderboards": "file:../../../packages/com.iptech.unityservices.leaderboards",
     "com.iptech.utils": "file:../../../packages/com.iptech.utils",
     "com.unity.ide.visualstudio": "2.0.22",
     "com.unity.remote-config": "3.3.2",

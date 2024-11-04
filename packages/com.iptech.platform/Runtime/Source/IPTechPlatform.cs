@@ -36,6 +36,7 @@ namespace IPTech.Platform {
         public INetworkDetector Network => networkDetector;
         public IServiceLocator Services => serviceContext;
 
+        public IAnalyticsManager Analytics => serviceContext.GetService<IAnalyticsManager>();
         public ILeaderboardsManager Leaderboards => serviceContext.GetService<ILeaderboardsManager>();
 
         public EServiceState State { get; private set; } //TODO: implement state with init

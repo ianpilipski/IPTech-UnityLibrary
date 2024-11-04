@@ -51,9 +51,9 @@
       }
     },
     "com.iptech.unityservices.leaderboards": {
-      "version": "file:com.iptech.unityservices.leaderboards",
+      "version": "file:../../../packages/com.iptech.unityservices.leaderboards",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {
         "com.iptech.unityservices": "0.0.0",
         "com.unity.services.leaderboards": "1.0.0"

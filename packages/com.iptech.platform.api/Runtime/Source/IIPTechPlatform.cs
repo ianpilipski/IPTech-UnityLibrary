@@ -13,6 +13,7 @@ namespace IPTech.Platform {
         event Action<ConsentInfo> ConsentValueChanged;
         event Action<bool> ApplicationPaused;
 
+        public IAnalyticsManager Analytics { get; }
         public ILeaderboardsManager Leaderboards { get; }
     }
 }
