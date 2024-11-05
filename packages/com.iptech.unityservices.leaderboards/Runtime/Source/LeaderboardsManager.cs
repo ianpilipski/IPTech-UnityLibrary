@@ -4,10 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using IPTech.Platform;
 using Unity.Services.Leaderboards;
+using UnityEngine;
 
 namespace IPTech.UnityServices.Leaderboards {
     public class LeaderboardsManager : ILeaderboardsManager {
         private readonly IUnityServicesManager unityServicesManager;
+        private ILeaderboardsService service;
 
         public bool Initialized { get; private set; }
 
@@ -17,18 +19,18 @@ namespace IPTech.UnityServices.Leaderboards {
         }
 
         public async Task<ILeaderboardEntry> AddScore(string leaderboardId, double score) {
-            AssertInitialized();
-            return new LeaderboardEntryAdapter(await LeaderboardsService.Instance.AddPlayerScoreAsync(leaderboardId, score));
+            await WaitUntilInitialized();
+            return new LeaderboardEntryAdapter(await service.AddPlayerScoreAsync(leaderboardId, score));
         }
 
         public async Task<ILeaderboardScoresPage> GetScores(string leaderboardId) {
-            AssertInitialized();
-            return new LeaderboardScoresPageAdapter(await LeaderboardsService.Instance.GetScoresAsync(leaderboardId));
+            await WaitUntilInitialized();
+            return new LeaderboardScoresPageAdapter(await service.GetScoresAsync(leaderboardId));
         }
 
         public async Task<List<ILeaderboardEntry>> GetScoresInPlayerRange(string leaderboardId, int rangeLimit) {
-            AssertInitialized();
-            var res = await LeaderboardsService.Instance.GetPlayerRangeAsync(leaderboardId, new GetPlayerRangeOptions { RangeLimit = rangeLimit });
+            await WaitUntilInitialized();
+            var res = await service.GetPlayerRangeAsync(leaderboardId, new GetPlayerRangeOptions { RangeLimit = rangeLimit });
             return res.Results.Select(r => (ILeaderboardEntry)new LeaderboardEntryAdapter(r)).ToList();
         }
 
@@ -41,12 +43,20 @@ namespace IPTech.UnityServices.Leaderboards {
         }
 
         void HandleInitialized() {
+            if(unityServicesManager.State == EServiceState.Online) {
+                service = LeaderboardsService.Instance;
+            }
             Initialized = true;
         }
 
-        void AssertInitialized() {
-            if(Initialized) return;
-            throw new InvalidOperationException("the platform has not yet been initialized");
+        async Task WaitUntilInitialized() {
+            while(!Initialized) {
+                await Task.Yield();
+                if(!Application.isPlaying) throw new OperationCanceledException("unity editor exited play mode");
+            }
+            if(unityServicesManager.State == EServiceState.NotOnline) {
+                throw new ApiUnavailableException(nameof(LeaderboardsManager));
+            }
         }
     }
 }

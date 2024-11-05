@@ -73,7 +73,9 @@ namespace IPTech.UnityServices {
                 await WaitUntilOnline();
                 State = await InitializeUnityServices();
             } catch(Exception e) {
-                Debug.LogException(e);
+                if(!(e is OperationCanceledException)) {
+                    Debug.LogException(e);
+                }
                 State = EServiceState.NotOnline;
             }
 

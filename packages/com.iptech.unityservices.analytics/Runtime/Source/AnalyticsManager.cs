@@ -60,7 +60,9 @@ namespace IPTech.UnityServices {
 
         void Initialize(ConsentInfo consent) {
             try {
-                service = USA.AnalyticsService.Instance;
+                if(this.unityServicesManager.State == EServiceState.Online) {
+                    service = USA.AnalyticsService.Instance;
+                }
                 ChangeStateBasedOnConsent(consent);
                 ProcessEvents();
             } catch(Exception e) {

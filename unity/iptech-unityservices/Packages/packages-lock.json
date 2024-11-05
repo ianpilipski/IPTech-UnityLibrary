@@ -46,7 +46,7 @@
       "depth": 0,
       "source": "local",
       "dependencies": {
-        "com.unity.services.analytics": "5.0.1",
+        "com.unity.services.analytics": "5.0.2",
         "com.iptech.unityservices": "0.0.1"
       }
     },
@@ -113,7 +113,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.services.analytics": {
-      "version": "5.0.1",
+      "version": "5.0.2",
       "depth": 1,
       "source": "registry",
       "dependencies": {
