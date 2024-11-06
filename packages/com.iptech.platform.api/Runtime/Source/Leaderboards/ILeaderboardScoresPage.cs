@@ -5,6 +5,6 @@ namespace IPTech.Platform {
         int Offset { get; }
         int Limit { get; }
         int Total { get; }
-        IList<ILeaderboardEntry> Entries { get; }
+        List<ILeaderboardEntry> Entries { get; }
     }
 }

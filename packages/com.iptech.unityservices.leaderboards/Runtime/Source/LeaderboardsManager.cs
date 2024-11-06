@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using IPTech.Platform;
 using Unity.Services.Leaderboards;
+using Unity.Services.Leaderboards.Exceptions;
 using UnityEngine;
 
 namespace IPTech.UnityServices.Leaderboards {
@@ -30,8 +31,16 @@ namespace IPTech.UnityServices.Leaderboards {
 
         public async Task<List<ILeaderboardEntry>> GetScoresInPlayerRange(string leaderboardId, int rangeLimit) {
             await WaitUntilInitialized();
-            var res = await service.GetPlayerRangeAsync(leaderboardId, new GetPlayerRangeOptions { RangeLimit = rangeLimit });
-            return res.Results.Select(r => (ILeaderboardEntry)new LeaderboardEntryAdapter(r)).ToList();
+            try {
+                var res = await service.GetPlayerRangeAsync(leaderboardId, new GetPlayerRangeOptions { RangeLimit = rangeLimit });
+                return res.Results.Select(r => (ILeaderboardEntry)new LeaderboardEntryAdapter(r)).ToList();
+            } catch(LeaderboardsException lex) {
+                if(lex.Reason == LeaderboardsExceptionReason.EntryNotFound) {
+                    var res = await GetScores(leaderboardId);
+                    return res.Entries;
+                }
+                throw;
+            }
         }
 
         void Initialize() {

@@ -23,6 +23,6 @@ namespace IPTech.UnityServices.Leaderboards {
 
         public int Total => page.Total;
 
-        public IList<ILeaderboardEntry> Entries => entries;
+        public List<ILeaderboardEntry> Entries => entries;
     }
 }
