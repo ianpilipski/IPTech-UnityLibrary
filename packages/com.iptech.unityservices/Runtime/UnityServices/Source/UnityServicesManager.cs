@@ -1,4 +1,3 @@
-
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -8,6 +7,7 @@ using System.Collections.Generic;
 
 namespace IPTech.UnityServices {
     using Internal;
+    using Authentication;
     using Platform;
 
     using UEServices = global::Unity.Services.Core.UnityServices;
@@ -19,6 +19,9 @@ namespace IPTech.UnityServices {
         readonly List<Action<ConsentInfo>> consentListeners = new();
         readonly List<Action> initializedListeners = new();
         readonly IIPTechPlatform platform;
+        readonly AuthenticationManager authenticationManager;
+
+        public IAuthentication Authentication => authenticationManager;
         
 #if IPTECH_UNITYANALYTICS_INSTALLED
         public readonly IAnalyticsManager AnalyticsManager;
@@ -35,7 +38,8 @@ namespace IPTech.UnityServices {
         public UnityServicesManager(IIPTechPlatform platform) {
             State = EServiceState.Initializing;
             this.platform = platform;
-            
+            this.authenticationManager = new AuthenticationManager();
+
 #if IPTECH_UNITYANALYTICS_INSTALLED
             this.AnalyticsManager = new AnalyticsManager(this);
 #endif
@@ -117,16 +121,9 @@ namespace IPTech.UnityServices {
                     options.SetEnvironmentName(EnvironmentID);
                     await UEServices.InitializeAsync(options);
 
-#if UNITY_AUTHSERVICE_INSTALLED || UNITY_LEADERBOARDS_INSTALLED || UNITY_REMOTECONFIG_INSTALLED
-#if UNITY_AUTHSERVICE_INSTALLED
-                    // remote config requires authentication for managing environment information
-                    if(!Unity.Services.Authentication.AuthenticationService.Instance.IsSignedIn) {
-                        await Unity.Services.Authentication.AuthenticationService.Instance.SignInAnonymouslyAsync();
+                    if(authenticationManager.IsInstalled) {
+                        await authenticationManager.EnsureSignedInAnonymously();
                     }
-#else
-#error you need to install unity Authorization services to work with one of the packages you have installed
-#endif
-#endif
 
                     return EServiceState.Online;
                 } catch(Exception e) {

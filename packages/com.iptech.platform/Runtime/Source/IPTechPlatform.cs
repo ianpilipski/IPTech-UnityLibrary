@@ -38,6 +38,7 @@ namespace IPTech.Platform {
 
         public IAnalyticsManager Analytics => serviceContext.GetService<IAnalyticsManager>();
         public ILeaderboardsManager Leaderboards => serviceContext.GetService<ILeaderboardsManager>();
+        public IAuthentication Authentication => serviceContext.GetService<IAuthentication>();
 
         public EServiceState State { get; private set; } //TODO: implement state with init
 
