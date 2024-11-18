@@ -35,6 +35,7 @@ namespace IPTech.Platform {
         }
 
         public IPTechPlatform(IIPTechPlatformConfig config) {
+            serviceContext = new ServiceContext();
             consentHandler = new ConsentHandler();
             networkDetector = new NetworkDetector(this, 30); // TODO: make this configurable
             serviceContext.AddService<IIPTechPlatform>(this);
