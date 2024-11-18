@@ -56,6 +56,7 @@ namespace IPTech.UnityServices {
             var appEvents =  go.AddComponent<ApplicationEvents>();
             go.hideFlags = HideFlags.HideAndDontSave;
             GameObject.DontDestroyOnLoad(go);
+            Initialize();
         }
 
         public EOnlineState OnlineState {
@@ -86,32 +87,36 @@ namespace IPTech.UnityServices {
 
         public EServiceState State { get; private set; }
 
-        public async Task Initialize() {
-            if(alreadyCalledInitialize) return;
-            alreadyCalledInitialize = true;
-
+        async void Initialize() {
             try {
-                await WaitUntilOnline();
-                State = await InitializeUnityServices();
-                if(State == EServiceState.Initialized) {
-                    if(platform.Network.State == ENetworkState.Reachable) {
-                        OnlineState = EOnlineState.Online;
+                if(alreadyCalledInitialize) return;
+                alreadyCalledInitialize = true;
+
+                try {
+                    await WaitUntilOnline();
+                    State = await InitializeUnityServices();
+                    if(State == EServiceState.Initialized) {
+                        if(platform.Network.State == ENetworkState.Reachable) {
+                            OnlineState = EOnlineState.Online;
+                        }
+                    }
+                    platform.Network.NetworkStateChanged += HandleNetworkStateChanged;
+                } catch(Exception e) {
+                    if(!(e is OperationCanceledException)) {
+                        Debug.LogException(e);
+                    }
+                    State = EServiceState.FailedToInitialize;
+                }
+
+                foreach(var l in initializedListeners) {
+                    try {
+                        l.Invoke(State);
+                    } catch(Exception e) {
+                        Debug.LogException(e);
                     }
                 }
-                platform.Network.NetworkStateChanged += HandleNetworkStateChanged;
             } catch(Exception e) {
-                if(!(e is OperationCanceledException)) {
-                    Debug.LogException(e);
-                }
-                State = EServiceState.FailedToInitialize;
-            }
-
-            foreach(var l in initializedListeners) {
-                try {
-                    l.Invoke(State);
-                } catch(Exception e) {
-                    Debug.LogException(e);
-                }
+                Debug.LogException(e);
             }
         }
 
