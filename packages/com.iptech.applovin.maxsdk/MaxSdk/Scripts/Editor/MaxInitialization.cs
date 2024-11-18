@@ -1,4 +1,4 @@
-﻿//
+//
 //  MaxInitialization.cs
 //  AppLovin MAX Unity Plugin
 //

@@ -21,24 +21,19 @@ namespace IPTech.UnityServices {
         readonly IIPTechPlatform platform;
         readonly AuthenticationManager authenticationManager;
 
-        public IAuthentication Authentication => authenticationManager;
-        
-#if IPTECH_UNITYANALYTICS_INSTALLED
-        public readonly IAnalyticsManager AnalyticsManager;
-#endif
+        public IAuthentication Authentication => authenticationManager;        
+        public IAnalyticsManager AnalyticsManager { get; }
 
 #if IPTECH_UNITYADVERTISING_INSTALLED
-        public readonly AdsManager AdsManager;
+        public AdsManager AdsManager { get; }
 #endif
 
-#if IPTECH_UNITYLEADERBOARDS_INSTALLED
-        public readonly ILeaderboardsManager LeaderboardsManager;
-#endif
+        public ILeaderboardsManager LeaderboardsManager { get;}
 
         public UnityServicesManager(IIPTechPlatform platform) {
             State = EServiceState.Initializing;
             this.platform = platform;
-            this.authenticationManager = new AuthenticationManager();
+            this.authenticationManager = new AuthenticationManager(this);
 
 #if IPTECH_UNITYANALYTICS_INSTALLED
             this.AnalyticsManager = new AnalyticsManager(this);
@@ -80,7 +75,7 @@ namespace IPTech.UnityServices {
                 if(!(e is OperationCanceledException)) {
                     Debug.LogException(e);
                 }
-                State = EServiceState.NotOnline;
+                State = EServiceState.FailedToInitialize;
             }
 
             foreach(var l in initializedListeners) {
@@ -125,12 +120,12 @@ namespace IPTech.UnityServices {
                         await authenticationManager.EnsureSignedInAnonymously();
                     }
 
-                    return EServiceState.Online;
+                    return EServiceState.Initialized;
                 } catch(Exception e) {
                     Debug.LogException(e);
                 }
             }
-            return EServiceState.NotOnline;
+            return EServiceState.FailedToInitialize;
         }
 
         public bool IsInitialized => State != EServiceState.Initializing;

@@ -1,4 +1,4 @@
-﻿namespace IPTech.Platform {
+namespace IPTech.Platform {
     public enum AdProvider {
         AdColony,
         AdMob,

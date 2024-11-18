@@ -24,6 +24,7 @@ namespace IPTech.Platform {
         public IPTechPlatform(Action<IServiceContext> createContext) : this((sc) => { createContext(sc); return Task.CompletedTask; }) {
         }
 
+        [Obsolete("use constructure with configuration instead")]
         public IPTechPlatform(Func<IServiceContext, Task> createContext) {
             consentHandler = new ConsentHandler();
             networkDetector = new NetworkDetector(this, 30);
@@ -31,6 +32,13 @@ namespace IPTech.Platform {
             serviceContext.AddService<IIPTechPlatform>(this);
 
             Initialize(createContext);
+        }
+
+        public IPTechPlatform(IIPTechPlatformConfig config) {
+            consentHandler = new ConsentHandler();
+            networkDetector = new NetworkDetector(this, 30); // TODO: make this configurable
+            serviceContext.AddService<IIPTechPlatform>(this);
+            Initialize(config);
         }
 
         public INetworkDetector Network => networkDetector;
@@ -52,6 +60,16 @@ namespace IPTech.Platform {
             remove => consentHandler.ConsentValueChanged -= value;
         }
 
+        void Initialize(IIPTechPlatformConfig config) {
+            _ = HookMbInst();
+            foreach(var factory in config.Factories) {
+                serviceContext.AddService(factory.CreatesType, new ServiceCreatorCallback((l, t) => {
+                    return factory.Create(this);
+                }));
+            }
+        }
+
+        [Obsolete("use the configuration to create the service context")]
         async void Initialize(Func<IServiceContext, Task> createContext) {
             try {
                 Debug.Log("Initializing IPTechPlatform .. ");
@@ -61,11 +79,11 @@ namespace IPTech.Platform {
                 Debug.Log("[IPTechPlatform] Creating Context .. ");
                 await createContext(serviceContext);
                 Debug.Log("[IPTechPlatform] Context Created");
-                State = EServiceState.Online;
+                State = EServiceState.Initialized;
             } catch(OperationCanceledException) {
-                State = EServiceState.NotOnline;
+                State = EServiceState.FailedToInitialize;
             } catch(Exception e) {
-                State = EServiceState.NotOnline;
+                State = EServiceState.FailedToInitialize;
                 Debug.LogException(e);
             } finally {
                 OnInitialized();

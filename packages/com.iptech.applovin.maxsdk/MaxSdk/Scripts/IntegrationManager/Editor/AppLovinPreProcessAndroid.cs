@@ -1,4 +1,4 @@
-﻿//
+//
 //  AppLovinBuildPreProcessor.cs
 //  AppLovin MAX Unity Plugin
 //

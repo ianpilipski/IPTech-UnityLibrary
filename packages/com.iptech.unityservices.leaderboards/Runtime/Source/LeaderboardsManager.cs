@@ -52,7 +52,7 @@ namespace IPTech.UnityServices.Leaderboards {
         }
 
         void HandleInitialized() {
-            if(unityServicesManager.State == EServiceState.Online) {
+            if(unityServicesManager.State == EServiceState.Initialized) {
                 service = LeaderboardsService.Instance;
             }
             Initialized = true;
@@ -63,7 +63,7 @@ namespace IPTech.UnityServices.Leaderboards {
                 await Task.Yield();
                 if(!Application.isPlaying) throw new OperationCanceledException("unity editor exited play mode");
             }
-            if(unityServicesManager.State == EServiceState.NotOnline) {
+            if(unityServicesManager.State == EServiceState.FailedToInitialize) {
                 throw new ApiUnavailableException(nameof(LeaderboardsManager));
             }
         }

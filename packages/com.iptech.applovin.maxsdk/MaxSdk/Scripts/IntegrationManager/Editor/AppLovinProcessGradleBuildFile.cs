@@ -1,4 +1,4 @@
-﻿//  AppLovin MAX Unity Plugin
+//  AppLovin MAX Unity Plugin
 //
 //  Created by Santosh Bagadi on 9/3/19.
 //  Copyright © 2019 AppLovin. All rights reserved.

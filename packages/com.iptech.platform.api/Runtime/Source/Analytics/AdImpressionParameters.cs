@@ -1,4 +1,4 @@
-﻿namespace IPTech.Platform {
+namespace IPTech.Platform {
     public struct AdImpressionParameters {
         public AdCompletionStatus AdCompletionStatus;
         public AdProvider AdProvider;

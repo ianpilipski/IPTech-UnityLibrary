@@ -1,4 +1,4 @@
-﻿//
+//
 //  MaxPostProcessBuildiOS.cs
 //  AppLovin MAX Unity Plugin
 //

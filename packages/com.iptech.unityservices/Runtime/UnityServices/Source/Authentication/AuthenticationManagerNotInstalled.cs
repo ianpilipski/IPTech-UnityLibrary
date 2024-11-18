@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using IPTech.Platform;
 
@@ -9,6 +10,7 @@ namespace IPTech.UnityServices.Authentication {
         public string PlayerId => throw new System.NotImplementedException(INSTALLMSG);
         public string PlayerName => throw new System.NotImplementedException(INSTALLMSG);
         public bool IsSignedIn => throw new System.NotImplementedException(INSTALLMSG);
+        public event Action SignInChanged;
 
         public Task EnsureSignedInAnonymously() {
             throw new System.NotImplementedException(INSTALLMSG);

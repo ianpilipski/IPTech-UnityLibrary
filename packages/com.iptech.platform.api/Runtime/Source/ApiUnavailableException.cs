@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace IPTech.Platform {
     public class ApiUnavailableException : Exception {

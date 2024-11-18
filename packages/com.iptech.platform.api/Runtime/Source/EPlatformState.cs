@@ -1,12 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System;
 
 namespace IPTech.Platform
 {
     public enum EServiceState {
         Initializing,
-        NotOnline,
-        Online
+        FailedToInitialize,
+        Initialized,
+        [Obsolete("use FailedToInitialize")] NotOnline = FailedToInitialize,
+        [Obsolete("use Initialized")] Online = Initialized
     }
 }

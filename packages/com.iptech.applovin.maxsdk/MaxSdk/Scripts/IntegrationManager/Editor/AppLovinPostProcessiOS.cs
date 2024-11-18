@@ -1,4 +1,4 @@
-﻿//
+//
 //  MaxIntegrationManager.cs
 //  AppLovin MAX Unity Plugin
 //

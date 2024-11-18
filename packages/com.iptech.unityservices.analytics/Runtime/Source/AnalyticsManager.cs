@@ -43,7 +43,7 @@ namespace IPTech.UnityServices {
         void ChangeStateBasedOnConsent(ConsentInfo consent) {
             try {
                 if(service!=null) {
-                    if(consent.Consent == EConsentValue.Accepted && unityServicesManager.State == EServiceState.Online) {
+                    if(consent.Consent == EConsentValue.Accepted && unityServicesManager.State == EServiceState.Initialized) {
                         service.StartDataCollection();
                     } else {
                         service.StopDataCollection();
@@ -60,7 +60,7 @@ namespace IPTech.UnityServices {
 
         void Initialize(ConsentInfo consent) {
             try {
-                if(this.unityServicesManager.State == EServiceState.Online) {
+                if(this.unityServicesManager.State == EServiceState.Initialized) {
                     service = USA.AnalyticsService.Instance;
                 }
                 ChangeStateBasedOnConsent(consent);

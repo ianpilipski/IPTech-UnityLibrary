@@ -2,10 +2,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace IPTech.Utils {
     public delegate object ServiceCreatorCallback(IServiceLocator locator, Type serviceType);
+
+    public interface IServiceFactory {
+        bool CanCreateType(Type type);
+        object Create(Type type);
+    }
 
     public interface IServiceLocator {
         bool HasService<T>();
@@ -32,7 +38,9 @@ namespace IPTech.Utils {
 
 
     public class ServiceContext : IServiceContext {
+        CircularReferenceManager circularReferenceManager = new();
         Dictionary<Type, RegisteredService> services = new();
+        List<IServiceFactory> factories;
 
         public event Action<Type> ServiceAdded;
         public event Action<Type> ServiceRemoved;
@@ -67,7 +75,9 @@ namespace IPTech.Utils {
 
         public bool TryGetService(Type type, out object service) {
             if(services.TryGetValue(type, out var regService)) {
+                circularReferenceManager.Push(type);
                 service = regService.Instance;
+                circularReferenceManager.Pop();
                 return true;
             }
             service = null;
@@ -150,5 +160,17 @@ namespace IPTech.Utils {
             }
         }
 
+        class CircularReferenceManager : Stack<Type> {
+            public new void Push(Type type) {
+                AssertDoesNotContain(type);
+                base.Push(type);
+            }
+
+            public void AssertDoesNotContain(Type type) {
+                if(this.Contains(type)) {
+                    throw new Exception($"Circular reference detected in locator stack. {type.Name}");
+                }
+            }
+        }
     }
 }
