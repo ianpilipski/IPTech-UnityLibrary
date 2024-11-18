@@ -20,13 +20,13 @@ namespace IPTech.UnityServices {
 
         void HookInitialize() {
             if(this.unityServicesManager.State != EServiceState.Initializing) {
-                HandleInitialized();
+                HandleInitialized(this.unityServicesManager.State);
             } else {
                 this.unityServicesManager.Initialized += HandleInitialized;
             }
         }
 
-        void HandleInitialized() {
+        void HandleInitialized(EServiceState state) {
             unityServicesManager.ConsentValueChanged += HandleConsentChanged;
             HandleConsentChanged(unityServicesManager.Consent);
         }

@@ -60,15 +60,23 @@ namespace IPTech.Platform {
             remove => consentHandler.ConsentValueChanged -= value;
         }
 
-        void Initialize(IIPTechPlatformConfig config) {
-            _ = HookMbInst();
-            foreach(var factory in config.Factories) {
-                serviceContext.AddService(factory.CreatesType, new ServiceCreatorCallback((l, t) => {
-                    return factory.Create(this);
-                }));
+        async void Initialize(IIPTechPlatformConfig config) {
+            try {
+                await HookMbInst();
+                foreach(var factory in config.Factories) {
+                    serviceContext.AddService(factory.CreatesType, new ServiceCreatorCallback((l, t) => {
+                        return factory.Create(this);
+                    }));
+                }
+                State = EServiceState.Initialized;
+            } catch(Exception e) {
+                State = EServiceState.FailedToInitialize;
+                Debug.LogException(e);
+            } finally {
+                OnInitialized();
             }
         }
-
+       
         [Obsolete("use the configuration to create the service context")]
         async void Initialize(Func<IServiceContext, Task> createContext) {
             try {

@@ -1,11 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using UnityEngine;
+using System;
 
 namespace IPTech.Platform {
     public interface IIPTechPlatformService {
         EServiceState State { get; }
-        void Initialize(IIPTechPlatform platform);
+        EOnlineState OnlineState { get; }
+        
+        event Action<EServiceState> Initialized;
+        event Action<EOnlineState> OnlineStateChanged;
     }
 }

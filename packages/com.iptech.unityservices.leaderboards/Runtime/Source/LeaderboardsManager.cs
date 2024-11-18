@@ -11,12 +11,31 @@ namespace IPTech.UnityServices.Leaderboards {
     public class LeaderboardsManager : ILeaderboardsManager {
         private readonly IUnityServicesManager unityServicesManager;
         private ILeaderboardsService service;
-
-        public bool Initialized { get; private set; }
+        private EOnlineState onlineState;
 
         public LeaderboardsManager(IUnityServicesManager unityServicesManager) {
+            onlineState = EOnlineState.Offline;
             this.unityServicesManager = unityServicesManager;
             Initialize();
+        }
+
+        public event Action<EServiceState> Initialized;
+        public event Action<EOnlineState> OnlineStateChanged;
+
+        public EServiceState State { get; private set; }
+        public EOnlineState OnlineState {
+            get => onlineState;
+            set {
+                if(value != onlineState) {
+                    onlineState = value;
+                    OnOnlineStateChanged();
+                }
+                return;
+
+                void OnOnlineStateChanged() {
+                    OnlineStateChanged?.Invoke(onlineState);
+                }
+            }
         }
 
         public async Task<ILeaderboardEntry> AddScore(string leaderboardId, double score) {
@@ -48,18 +67,25 @@ namespace IPTech.UnityServices.Leaderboards {
                 unityServicesManager.Initialized += HandleInitialized;
                 return;
             }
-            HandleInitialized();
+            HandleInitialized(unityServicesManager.State);
         }
 
-        void HandleInitialized() {
-            if(unityServicesManager.State == EServiceState.Initialized) {
+        void HandleInitialized(EServiceState state) {
+            if(state == EServiceState.Initialized) {
                 service = LeaderboardsService.Instance;
+                OnlineState = unityServicesManager.OnlineState;
+                unityServicesManager.OnlineStateChanged += HandleOnlineStateChanged;
             }
-            Initialized = true;
+            State = state;
+            Initialized?.Invoke(State);
+        }
+
+        private void HandleOnlineStateChanged(EOnlineState obj) {
+            OnlineState = obj;
         }
 
         async Task WaitUntilInitialized() {
-            while(!Initialized) {
+            while(State == EServiceState.Initializing) {
                 await Task.Yield();
                 if(!Application.isPlaying) throw new OperationCanceledException("unity editor exited play mode");
             }

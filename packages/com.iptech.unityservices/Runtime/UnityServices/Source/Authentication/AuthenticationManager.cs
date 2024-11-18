@@ -19,7 +19,7 @@ namespace IPTech.UnityServices.Authentication {
                 _unityServicesManager.Initialized += HandleInitialized;
                 return;
             }
-            HandleInitialized();
+            HandleInitialized(_unityServicesManager.State);
         }
 
         public bool IsInstalled => true;
@@ -37,9 +37,9 @@ namespace IPTech.UnityServices.Authentication {
             }
         }
 
-        private void HandleInitialized() {
+        private void HandleInitialized(EServiceState state) {
             _isInitialized = true;
-            if(_unityServicesManager.State == EServiceState.Initialized) {
+            if(state == EServiceState.Initialized) {
                 _instance = Unity.Services.Authentication.AuthenticationService.Instance;
             }
         }

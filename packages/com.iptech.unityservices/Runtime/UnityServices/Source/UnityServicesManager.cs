@@ -16,10 +16,13 @@ namespace IPTech.UnityServices {
         const string CONSENT_KEY = "_iptech_unityservices_consentvalue";
 
         bool alreadyCalledInitialize;
+        EOnlineState onlineState;
         readonly List<Action<ConsentInfo>> consentListeners = new();
-        readonly List<Action> initializedListeners = new();
+        readonly List<Action<EServiceState>> initializedListeners = new();
         readonly IIPTechPlatform platform;
         readonly AuthenticationManager authenticationManager;
+
+        public event Action<EOnlineState> OnlineStateChanged;
 
         public IAuthentication Authentication => authenticationManager;        
         public IAnalyticsManager AnalyticsManager { get; }
@@ -32,6 +35,8 @@ namespace IPTech.UnityServices {
 
         public UnityServicesManager(IIPTechPlatform platform) {
             State = EServiceState.Initializing;
+            onlineState = EOnlineState.Offline;
+
             this.platform = platform;
             this.authenticationManager = new AuthenticationManager(this);
 
@@ -53,6 +58,23 @@ namespace IPTech.UnityServices {
             GameObject.DontDestroyOnLoad(go);
         }
 
+        public EOnlineState OnlineState {
+            get {
+                return onlineState;
+            }
+            private set {
+                if(value != onlineState) {
+                    onlineState = value;
+                    OnOnlineStateChanged();
+                }
+                return;
+
+                void OnOnlineStateChanged() {
+                    OnlineStateChanged.Invoke(onlineState);
+                }
+            }
+        }
+
         public string EnvironmentID {
             get {
                 if(Debug.isDebugBuild) {
@@ -71,6 +93,12 @@ namespace IPTech.UnityServices {
             try {
                 await WaitUntilOnline();
                 State = await InitializeUnityServices();
+                if(State == EServiceState.Initialized) {
+                    if(platform.Network.State == ENetworkState.Reachable) {
+                        OnlineState = EOnlineState.Online;
+                    }
+                }
+                platform.Network.NetworkStateChanged += HandleNetworkStateChanged;
             } catch(Exception e) {
                 if(!(e is OperationCanceledException)) {
                     Debug.LogException(e);
@@ -79,8 +107,16 @@ namespace IPTech.UnityServices {
             }
 
             foreach(var l in initializedListeners) {
-                SafeInvoke(l);
+                try {
+                    l.Invoke(State);
+                } catch(Exception e) {
+                    Debug.LogException(e);
+                }
             }
+        }
+
+        private void HandleNetworkStateChanged(ENetworkState state) {
+            OnlineState = state == ENetworkState.Reachable ? EOnlineState.Online : EOnlineState.Offline;
         }
 
         async Task WaitUntilOnline() {
@@ -130,26 +166,17 @@ namespace IPTech.UnityServices {
 
         public bool IsInitialized => State != EServiceState.Initializing;
 
-        public event Action Initialized {
+        public event Action<EServiceState> Initialized {
             add {
                 initializedListeners.Add(value);
                 if(IsInitialized) {
-                    value.Invoke();
+                    value.Invoke(State);
                 }
             }
             remove {
                 initializedListeners.Remove(value);
             }
         }
-
-        void SafeInvoke(Action action) {
-            try {
-                action();
-            } catch(Exception e) {
-                Debug.LogException(e);
-            }
-        }
-
 
         public ConsentInfo Consent {
             get => platform.Consent;
