@@ -73,7 +73,10 @@ namespace IPTech.UnityServices.Leaderboards {
         void HandleInitialized(EServiceState state) {
             if(state == EServiceState.Initialized) {
                 service = LeaderboardsService.Instance;
-                OnlineState = unityServicesManager.OnlineState;
+                if(unityServicesManager.Authentication.IsSignedIn) {
+                    OnlineState = unityServicesManager.OnlineState;
+                }
+                unityServicesManager.Authentication.SignInChanged += HandleSignInChanged;
                 unityServicesManager.OnlineStateChanged += HandleOnlineStateChanged;
             }
             State = state;
@@ -81,7 +84,15 @@ namespace IPTech.UnityServices.Leaderboards {
         }
 
         private void HandleOnlineStateChanged(EOnlineState obj) {
-            OnlineState = obj;
+            HandleSignInChanged();
+        }
+
+        private void HandleSignInChanged() {
+            if(unityServicesManager.Authentication.IsSignedIn) {
+                OnlineState = unityServicesManager.OnlineState;
+            } else {
+                OnlineState = EOnlineState.Offline;
+            }
         }
 
         async Task WaitUntilInitialized() {

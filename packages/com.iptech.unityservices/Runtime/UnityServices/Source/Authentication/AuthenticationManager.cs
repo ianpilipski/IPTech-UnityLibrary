@@ -15,39 +15,25 @@ namespace IPTech.UnityServices.Authentication {
 
         public AuthenticationManager(IUnityServicesManager unityServicesManager) {
             _unityServicesManager = unityServicesManager;
-            if(_unityServicesManager.State == EServiceState.Initializing) {
-                _unityServicesManager.Initialized += HandleInitialized;
+            if(_unityServicesManager.State == EServiceState.Initialized) {
+                _instance = AuthenticationService.Instance;
                 return;
             }
-            HandleInitialized(_unityServicesManager.State);
+            _unityServicesManager.Initialized += _ => _instance = AuthenticationService.Instance;
         }
 
         public bool IsInstalled => true;
-        public string PlayerId => _instance.PlayerId;
-        public string PlayerName => _instance.PlayerName;
+        public string PlayerId => _instance?.PlayerId;
+        public string PlayerName => _instance?.PlayerName;
         public bool IsSignedIn => _instance?.IsSignedIn == true;
         public event Action SignInChanged;
 
         public async Task EnsureSignedInAnonymously() {
-            await WaitUntilInitialized();
-            if(_instance == null) return;
+            AssertIsOnline();
             if(!_instance.IsSignedIn) {
                 await _instance.SignInAnonymouslyAsync();
+                await _instance.GetPlayerNameAsync();
                 OnSignInChanged();
-            }
-        }
-
-        private void HandleInitialized(EServiceState state) {
-            _isInitialized = true;
-            if(state == EServiceState.Initialized) {
-                _instance = Unity.Services.Authentication.AuthenticationService.Instance;
-            }
-        }
-
-        async Task WaitUntilInitialized() {
-            while(!_isInitialized) {
-                await Task.Yield();
-                if(!Application.isPlaying) throw new OperationCanceledException("unity exited playmode");
             }
         }
 
@@ -57,6 +43,12 @@ namespace IPTech.UnityServices.Authentication {
             } catch(Exception e) {
                 Debug.LogException(e);
             }
+        }
+
+        void AssertIsOnline() {
+            if(_unityServicesManager.State != EServiceState.Initialized &&
+                _unityServicesManager.OnlineState != EOnlineState.Online && _instance!=null)
+                throw new InvalidOperationException("UnityServices must be initialized an online to call this api");
         }
     }
 }

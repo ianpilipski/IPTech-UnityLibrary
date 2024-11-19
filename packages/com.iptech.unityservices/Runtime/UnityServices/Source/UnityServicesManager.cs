@@ -71,7 +71,7 @@ namespace IPTech.UnityServices {
                 return;
 
                 void OnOnlineStateChanged() {
-                    OnlineStateChanged.Invoke(onlineState);
+                    OnlineStateChanged?.Invoke(onlineState);
                 }
             }
         }
@@ -115,6 +115,12 @@ namespace IPTech.UnityServices {
                         Debug.LogException(e);
                     }
                 }
+
+                if(OnlineState == EOnlineState.Online) {
+                    if(authenticationManager.IsInstalled) {
+                        await authenticationManager.EnsureSignedInAnonymously();
+                    }
+                }
             } catch(Exception e) {
                 Debug.LogException(e);
             }
@@ -156,10 +162,6 @@ namespace IPTech.UnityServices {
 
                     options.SetEnvironmentName(EnvironmentID);
                     await UEServices.InitializeAsync(options);
-
-                    if(authenticationManager.IsInstalled) {
-                        await authenticationManager.EnsureSignedInAnonymously();
-                    }
 
                     return EServiceState.Initialized;
                 } catch(Exception e) {
