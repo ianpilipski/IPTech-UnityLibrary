@@ -102,7 +102,9 @@ namespace IPTech.UnityServices {
                     }
                     platform.Network.NetworkStateChanged += HandleNetworkStateChanged;
                 } catch(Exception e) {
-                    if(!(e is OperationCanceledException)) {
+                    if(e is OperationCanceledException) {
+                        Debug.LogWarning($"UnityServices Initialization Cancelled: {e.Message}");
+                    } else { 
                         Debug.LogException(e);
                     }
                     State = EServiceState.FailedToInitialize;

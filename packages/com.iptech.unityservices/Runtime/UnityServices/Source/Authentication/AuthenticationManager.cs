@@ -19,7 +19,7 @@ namespace IPTech.UnityServices.Authentication {
                 _instance = AuthenticationService.Instance;
                 return;
             }
-            _unityServicesManager.Initialized += _ => _instance = AuthenticationService.Instance;
+            _unityServicesManager.Initialized += s => _instance = s == EServiceState.Initialized ? AuthenticationService.Instance : null;
         }
 
         public bool IsInstalled => true;
