@@ -57,6 +57,10 @@ namespace IPTech.DebugConsoleService.InGameConsole
             Object.DontDestroyOnLoad(this.transform.parent.gameObject);
 		}
 
+		public void Show(bool value) {
+			this.transform.parent.gameObject.SetActive(value);
+        }
+
         private void InitializeScrollbackBuffer() {
             this.scrollBackBuffer = new ScrollbackBuffer(MAX_SCROLLBACK_COUNT);
         }

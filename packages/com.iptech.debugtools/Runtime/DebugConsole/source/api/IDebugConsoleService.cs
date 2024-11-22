@@ -9,7 +9,9 @@ namespace IPTech.DebugConsoleService.Api
 	public interface IDebugConsoleService
 	{
 		void LogMessage(string message, string category);
+		void ShowView(bool value);
 		event Action<string, string> MessageLogged;
+		event Action<bool> ShowDebugViews;
 
         void RegisterAlias(string commandString, string commandStringToExecute, string shortName, string category, string help);
 		void UnregisterAlias(string commandName);

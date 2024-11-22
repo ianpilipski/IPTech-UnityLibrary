@@ -23,6 +23,7 @@ namespace IPTech.DebugConsoleService.InGameConsole
 		event Action OnWantsUpdatedCommands;
 		void Output(string msg);
 		void Notify(string msg);
+		void Show(bool value);
     }
 
 	public class InGameDebugConsole {
@@ -137,6 +138,7 @@ namespace IPTech.DebugConsoleService.InGameConsole
 		private void SetDebugConsoleService(IDebugConsoleService debugConsoleService) {
             this.debugConsoleService = debugConsoleService;	
             this.debugConsoleService.MessageLogged += HandleMessageLogged;
+			this.debugConsoleService.ShowDebugViews += HandleShowDebugViews;
 			RegisterDebugCommands();
 		}
 
@@ -147,6 +149,10 @@ namespace IPTech.DebugConsoleService.InGameConsole
         private void HandleMessageLogged(string message, string category)
         {
             Output(string.Format("[{0}] : {1}", category, message));
+        }
+
+		private void HandleShowDebugViews(bool value) {
+			this.inGameConsoleView?.Show(value);
         }
 
 		public void SetInGameConsoleView(IInGameDebugConsoleView inGameConsoleView) {

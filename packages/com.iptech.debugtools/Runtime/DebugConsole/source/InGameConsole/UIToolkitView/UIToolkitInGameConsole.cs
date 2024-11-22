@@ -55,11 +55,10 @@ namespace IPTech.DebugConsoleService.InGameConsole {
             DontDestroyOnLoad(gameObject);
         }
 
-        void Start()
-        {
-            Init();    
+        private void OnEnable() {
+            Init();
         }
-
+        
         void Init() {
             root = doc.rootVisualElement;
             main = root.Q<VisualElement>("sub");
@@ -278,6 +277,10 @@ namespace IPTech.DebugConsoleService.InGameConsole {
                     ab.visualElement.style.display = vis ? DisplayStyle.Flex : DisplayStyle.None;
                 }
             }
+        }
+
+        public void Show(bool value) {
+            this.root.visible = value;
         }
 
         public void MinimizeConsole() {

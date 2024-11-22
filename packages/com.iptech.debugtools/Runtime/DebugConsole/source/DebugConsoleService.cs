@@ -21,13 +21,15 @@ namespace IPTech.DebugConsoleService
 
         private IDictionary<string, CommandInfo> commandDictionary;
 
-        private Action<string, string> messageLogged;
+        public event Action<string, string> MessageLogged;
+        public event Action<bool> ShowDebugViews;
 
 		public DebugConsoleService(bool useBuiltInCommands = true) {
             this.commandDictionary = new Dictionary<string, CommandInfo>(preRegisteredCommands, StringComparer.InvariantCultureIgnoreCase);
 
 			if(useBuiltInCommands) {
 				DebugConsoleServiceMemoryCommands.RegisterDebugCommands(this);
+                DebugConsoleServiceUtilCommands.RegisterDebugCommands(this);
 			}
         }
 
@@ -47,19 +49,13 @@ namespace IPTech.DebugConsoleService
 
         #region IContainerDebugService implementation
 
-        public event Action<string,string> MessageLogged
-        {
-            add {
-                this.messageLogged += value;
-            }
-            remove {
-                this.messageLogged -= value;
-            }
+        public void ShowView(bool value) {
+            this.ShowDebugViews?.Invoke(value);
         }
-
+        
         public void LogMessage(string message, string category = null) {
-            if(this.messageLogged != null) {
-                Delegate[] dels = this.messageLogged.GetInvocationList();
+            if(this.MessageLogged != null) {
+                Delegate[] dels = this.MessageLogged.GetInvocationList();
                 for(int i = 0; i < dels.Length; i++) {
                     Delegate del = dels[i];
                     try {

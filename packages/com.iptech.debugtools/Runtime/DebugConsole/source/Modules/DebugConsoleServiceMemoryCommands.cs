@@ -8,6 +8,9 @@ using System;
 using System.Text;
 using System.Linq;
 using IPTech.DebugConsoleService.Api;
+using System.IO;
+using UnityEngine;
+using System.Threading.Tasks;
 
 namespace IPTech.DebugConsoleService {
     public static class DebugConsoleServiceMemoryCommands {
@@ -54,7 +57,6 @@ namespace IPTech.DebugConsoleService {
         private static string FormatMemoryDataForOutput(MemoryData md) {
             return string.Format("{0:F} MB : {1} bytes : {2} : {3}", md.SizeInMegabytes, md.SizeInBytes, md.Status, md.Name);
         }
-
     }
 }
 #endif
