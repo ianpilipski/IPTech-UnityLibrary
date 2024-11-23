@@ -7,9 +7,9 @@ using UnityEditor.iOS.Xcode;
 #endif
 
 namespace IPTech.BuildTool.Processors {
-    [Tooltip("This will update the Info.plist NSUserTrackingDescription")]
+    [Tooltip("This will update the Info.plist NSUserTrackingUsageDescription")]
     public class IOSNSUserTrackingDescription : BuildProcessor {
-        public string NSUserTrackingDescription = "Your data will be used to provide you a better and personalized ad experience.";
+        public string NSUserTrackingUsageDescription = "Your data will be used to provide you a better and personalized ad experience.";
 
         public override void PostProcessBuild(BuildReport report) {
 #if UNITY_IOS
@@ -20,7 +20,7 @@ namespace IPTech.BuildTool.Processors {
                 plist.ReadFromString(File.ReadAllText(plistPath));
 
                 PlistElementDict rootDict = plist.root;
-                rootDict.SetString("NSUserTrackingDescription", NSUserTrackingDescription);
+                rootDict.SetString("NSUserTrackingUsageDescription", NSUserTrackingUsageDescription);
 
                 File.WriteAllText(plistPath, plist.WriteToString()); // Override Info.plist
             }
