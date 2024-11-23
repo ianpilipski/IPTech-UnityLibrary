@@ -35,8 +35,10 @@ namespace IPTech.ConsentScreen {
                     if(Time.time > nextCheck) {
                         if(Application.isEditor) {
                             break;
-                        } else { 
-                            if(ATTrackingStatusBinding.GetAuthorizationTrackingStatus() == ATTrackingStatusBinding.AuthorizationTrackingStatus.NOT_DETERMINED) {
+                        } else {
+                            var status = ATTrackingStatusBinding.GetAuthorizationTrackingStatus();
+                            Debug.Log($"Checking ATTrackingStatus {status}");
+                            if(status == ATTrackingStatusBinding.AuthorizationTrackingStatus.NOT_DETERMINED) {
                                 if(firstTime) {
                                     ATTrackingStatusBinding.RequestAuthorizationTracking();
                                     firstTime = false;

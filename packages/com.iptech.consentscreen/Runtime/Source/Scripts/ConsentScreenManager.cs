@@ -71,7 +71,13 @@ namespace IPTech.ConsentScreen {
                 // has been sent, automatically destroy the popup to conserve memory
                 contextScreen.sentTrackingAuthorizationRequest += () => {
                     Destroy(contextScreen.gameObject);
-                    info.IOSAppTrackingStatus = Status(Application.isEditor ? ATTrackingStatusBinding.AuthorizationTrackingStatus.RESTRICTED : ATTrackingStatusBinding.GetAuthorizationTrackingStatus());
+                    var newStatus = ATTrackingStatusBinding.GetAuthorizationTrackingStatus();
+                    Debug.Log($"Recevied callback from ATTrackingStatus consent request: {newStatus}");
+                    if(Application.isEditor) {
+                        Debug.Log($"Setting ATTrackingStatus in editor to RESTRICTED");
+                        newStatus = ATTrackingStatusBinding.AuthorizationTrackingStatus.RESTRICTED;
+                    }
+                    info.IOSAppTrackingStatus = Status(newStatus);
                     LoadNextScene(info);
                     };
 
