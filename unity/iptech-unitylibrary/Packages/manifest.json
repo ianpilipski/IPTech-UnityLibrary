@@ -3,6 +3,7 @@
     "com.iptech.audio": "file:../../../packages/com.iptech.audio",
     "com.iptech.buildtool": "file:../../../packages/com.iptech.buildtool",
     "com.iptech.clickerengine": "file:../../../packages/com.iptech.clickerengine",
+    "com.iptech.consentscreen": "file:/Users/ian/github/IPTech-UnityLibrary/packages/com.iptech.consentscreen",
     "com.iptech.coroutines": "file:../../../packages/com.iptech.coroutines",
     "com.iptech.debugtools": "file:../../../packages/com.iptech.debugtools",
     "com.iptech.dialogmanager": "file:../../../packages/com.iptech.dialogmanager",

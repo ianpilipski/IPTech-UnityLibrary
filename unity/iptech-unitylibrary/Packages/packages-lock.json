@@ -18,6 +18,14 @@
       "source": "local",
       "dependencies": {}
     },
+    "com.iptech.consentscreen": {
+      "version": "file:/Users/ian/github/IPTech-UnityLibrary/packages/com.iptech.consentscreen",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.ads.ios-support": "1.0.0"
+      }
+    },
     "com.iptech.coroutines": {
       "version": "file:../../../packages/com.iptech.coroutines",
       "depth": 0,
@@ -154,6 +162,13 @@
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
+    },
+    "com.unity.ads.ios-support": {
+      "version": "1.0.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
     },
     "com.unity.ext.nunit": {
       "version": "2.0.3",

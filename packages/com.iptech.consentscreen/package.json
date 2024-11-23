@@ -1,0 +1,18 @@
+{
+    "name": "com.iptech.consentscreen",
+    "displayName": "IPTech.ConsentScreen",
+    "version": "0.0.1",
+    "unity": "2021.3",
+    "unityRelease": "31f1",
+    "keywords": [],
+    "category": "Utils",
+    "description": "A complete simple consent screen impelementation with callback to handle consent info.",
+    "samples": [],
+    "author": {
+        "name": "Ian Pilipski",
+        "url": "https://github.com/ianpilipski/IPTech-UnityLibrary"
+    },
+    "dependencies": {
+        "com.unity.ads.ios-support": "1.0.0"
+    }
+}
