@@ -18,7 +18,7 @@ namespace IPTech.BuildTool {
                     var window = ScriptableObject.CreateInstance<EncryptedStorageImportDialog>();
                     window.ShowWindowInternal(value, true);
                 } else {
-                    Debug.LogError("could not get encrypted item");
+                    BuildToolLogger.LogError("could not get encrypted item");
                 }
             }
         }
@@ -28,7 +28,7 @@ namespace IPTech.BuildTool {
             if(t!=null) {
                 ImportItem(t);
             } else {
-                Debug.LogError("could not find type " + fullTypeName);
+                BuildToolLogger.LogError("could not find type " + fullTypeName);
             }
         }
 

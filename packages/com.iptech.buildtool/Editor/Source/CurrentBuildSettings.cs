@@ -16,7 +16,6 @@ namespace IPTech.BuildTool
             public void Dispose() {
                 PlayerSettings.iOS.buildNumber = buildNumber;
                 PlayerSettings.Android.bundleVersionCode = bundleVersionCode;
-                
             }
         }
     }

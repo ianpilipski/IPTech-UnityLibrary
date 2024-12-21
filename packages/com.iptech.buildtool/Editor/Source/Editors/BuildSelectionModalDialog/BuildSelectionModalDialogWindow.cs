@@ -73,21 +73,6 @@ namespace IPTech.BuildTool.Internal {
             listView.itemsSource = allBuildConfigs;
             listView.selectionType = SelectionType.Single;
 
-            /*
-            listView.onItemsChosen += (_) => { Debug.Log("item chosen"); };
-            listView.onSelectionChange += (chosenObjects) => {
-                try {
-                    Debug.Log("whaa");
-                    foreach(var obj in chosenObjects) {
-                        PlayerBuildConfig bc = (PlayerBuildConfig)obj;
-                        BuildToolEditor.PerformBuild(bc);
-                        break;
-                    }
-                } catch(Exception e) {
-                    Debug.LogException(e);
-                }
-            };
-            */
 
             void HandleBuildButtonClicked(int index) {
                 Close();

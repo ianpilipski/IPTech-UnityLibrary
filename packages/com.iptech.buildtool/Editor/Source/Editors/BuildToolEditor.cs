@@ -376,7 +376,7 @@ namespace IPTech.BuildTool
                 Builder.BuildWithArguments(argsWithBuildConfig.ToArray());
                 EditorUtility.DisplayDialog("Build Succeeded", "You build finished without errors", "Ok");
             } catch(Exception e) {
-                Debug.LogException(e);
+                BuildToolLogger.LogException(e);
                 EditorUtility.DisplayDialog("Error Building", e.Message, "Ok");
             } finally {
                 isBuilding = false;

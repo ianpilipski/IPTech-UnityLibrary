@@ -15,7 +15,7 @@ namespace IPTech.BuildTool
                         yield return (ConfigModifier)sub;
                     }
                 } else {
-                    Debug.LogError("found sub that was null - scriptable object is missing, was it removed?");
+                    BuildToolLogger.LogError("found sub that was null - scriptable object is missing, was it removed?");
                 }
             }
         }
@@ -34,7 +34,7 @@ namespace IPTech.BuildTool
             var subAssets = subs.Where(s => s != this && s != null);
             var removedBps = subAssets.Where(sa => !IsSubAssetValid(sa));
             if(removedBps.Any()) {
-                Debug.LogWarning($"removing sub assets {removedBps.Select(n => n.name).Aggregate((a, b) => $"{a}, {b}")}");
+                BuildToolLogger.LogWarning($"removing sub assets {removedBps.Select(n => n.name).Aggregate((a, b) => $"{a}, {b}")}");
                 //EditorApplication.delayCall += () => {
                     foreach(var bp in removedBps) {
                         if(bp != null) {
@@ -42,7 +42,7 @@ namespace IPTech.BuildTool
                             EditorUtility.SetDirty(bp);
                             AssetDatabase.SaveAssetIfDirty(bp);
                         } else {
-                            Debug.LogWarning("bp is null");
+                            BuildToolLogger.LogWarning("bp is null");
                         }
                     }
                     EditorUtility.SetDirty(this);

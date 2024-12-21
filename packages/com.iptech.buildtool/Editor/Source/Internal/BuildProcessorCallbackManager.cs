@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
+using UnityEngine;
 #if UNITY_ANDROID
 using UnityEditor.Android;
 #endif
@@ -16,15 +17,24 @@ namespace IPTech.BuildTool.Internal {
         public int callbackOrder => 0;
 
         public void OnPostGenerateGradleAndroidProject(string path) {
-            ForEachBuildProcessor(bp => bp.PostGenerateGradleAndroidProject(path));
+            ForEachBuildProcessor(bp => {
+                BuildToolLogger.Log($"Calling PostGenerateGradleAndroidProject on {bp.name}");
+                bp.PostGenerateGradleAndroidProject(path);
+            });
         }
 
         public void OnPostprocessBuild(BuildReport report) {
-            ForEachBuildProcessor(bp => bp.PostProcessBuild(report));
+            ForEachBuildProcessor(bp => {
+                BuildToolLogger.Log($"Calling PostProcessBuild on {bp.name}");
+                bp.PostProcessBuild(report);
+            });
         }
 
         public void OnPreprocessBuild(BuildReport report) {
-            ForEachBuildProcessor(bp => bp.PreprocessBuild(report));
+            ForEachBuildProcessor(bp => {
+                BuildToolLogger.Log($"Calling PreprocessBuild on {bp.name}");
+                bp.PreprocessBuild(report);
+            });
         }
 
         void ForEachBuildProcessor(Action<BuildProcessor> action) {

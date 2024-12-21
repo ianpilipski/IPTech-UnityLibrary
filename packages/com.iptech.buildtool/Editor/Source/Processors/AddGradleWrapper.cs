@@ -21,7 +21,7 @@ namespace IPTech.BuildTool.Processors
 				string outputPath = CalculateWrapperOutputPath();
 				AndroidTools.AddGradleWrapperToPath(outputPath);
 			} catch(Exception e) {
-				Debug.LogException(e);
+				BuildToolLogger.LogException(e);
 				if(!UnityEditorInternal.InternalEditorUtility.inBatchMode) {
 					EditorUtility.DisplayDialog("Error Post Processing Project", e.Message, "Ok");
 				} else {

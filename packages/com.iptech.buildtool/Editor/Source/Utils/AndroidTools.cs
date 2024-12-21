@@ -137,7 +137,7 @@ project.gradle.startParameter.excludedTaskNames.add('signDebugBundle')
 				if(found) {
 					File.WriteAllText(gradleFile, resultFile.ToString());
                 } else {
-					Debug.LogWarning("could not find singingConfigs pointing to the keystore that you wanted to move");
+					BuildToolLogger.LogWarning("could not find singingConfigs pointing to the keystore that you wanted to move");
                 }
             }
 		}

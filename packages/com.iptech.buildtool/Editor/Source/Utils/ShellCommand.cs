@@ -30,10 +30,10 @@ namespace IPTech.BuildTool {
 			p.WaitForExit();
 
 			if(!string.IsNullOrEmpty(stdOut)) {
-				UnityEngine.Debug.Log(stdOut);
+				BuildToolLogger.Log(stdOut);
 			}
 			if(!string.IsNullOrEmpty(stdErr)) {
-				UnityEngine.Debug.LogError(stdErr);
+				BuildToolLogger.LogError(stdErr);
 			}
 
 			return p.ExitCode;

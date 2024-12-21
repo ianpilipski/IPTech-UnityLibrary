@@ -46,7 +46,7 @@ namespace IPTech.BuildTool
 
                 list(value);
             } catch(Exception e) {
-                Debug.LogException(e);
+                BuildToolLogger.LogException(e);
             }
         }
 
@@ -69,7 +69,7 @@ namespace IPTech.BuildTool
                     l.IsFinishedGenerating = true;
                 }
             } catch(Exception e) {
-                Debug.LogException(e);
+                BuildToolLogger.LogException(e);
             }
         }
 

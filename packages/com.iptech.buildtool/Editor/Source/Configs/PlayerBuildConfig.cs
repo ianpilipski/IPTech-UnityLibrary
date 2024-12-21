@@ -25,7 +25,7 @@ namespace IPTech.BuildTool
             // migration code for older configs
             var mods = LoadConfigModifiers();
             if(mods.Any()) {
-                Debug.LogWarning($"migrating configmodifiers {mods.Select(m => m.name).Aggregate((a,b) => $"{a}, {b}")}");
+                BuildToolLogger.Log($"migrating configmodifiers {mods.Select(m => m.name).Aggregate((a,b) => $"{a}, {b}")}");
                 foreach(var mod in mods) {
                     var bp = mod.ConvertToBuildProcessor();
                     BuildProcessors.Add(bp);
@@ -107,7 +107,7 @@ namespace IPTech.BuildTool
         }
 
         BuildPlayerOptions ApplyModification(BuildProcessor modifier, BuildPlayerOptions options) {
-            Debug.Log($"[IPTech.BuildTool] {modifier.name} modifying build properties.");
+            BuildToolLogger.Log($"[IPTech.BuildTool] {modifier.name} modifying build properties.");
             modifier.ModifyProject(BuildTarget);
             undoModifiers.Push(modifier);
             return modifier.ModifyBuildPlayerOptions(options);
@@ -118,11 +118,11 @@ namespace IPTech.BuildTool
             while(undoModifiers.Count>0) {
                 var cm = undoModifiers.Pop();
                 try {
-                    Debug.Log($"[IPTech.BuildTool] {cm.name} restoring build properties.");
+                    BuildToolLogger.Log($"[IPTech.BuildTool] {cm.name} restoring build properties.");
                     cm.RestoreProject(BuildTarget);
                 } catch(Exception e) {
                     hadError = true;
-                    Debug.LogException(e);
+                    BuildToolLogger.LogException(e);
                 }
             }
 
@@ -133,7 +133,7 @@ namespace IPTech.BuildTool
 
         protected void SetBuildNumber(IDictionary<string,string> args) {
             if(args.TryGetValue("-buildNumber", out string val)) {
-                Console.Out.WriteLine("Setting buildNumber / bundleVersionCode from -buildNumber commandline argument to " + val);
+                BuildToolLogger.Log("Setting buildNumber / bundleVersionCode from -buildNumber commandline argument to " + val);
                 
                 int i = int.Parse(val);
                 if(i<=0) i=1;

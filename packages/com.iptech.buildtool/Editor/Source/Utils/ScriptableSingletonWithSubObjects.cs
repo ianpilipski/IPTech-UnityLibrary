@@ -21,7 +21,7 @@ namespace IPTech.BuildTool
 
         protected override void Save(bool saveAsText) {
 			if((Object)instance == (Object)null) {
-				Debug.LogError("Cannot save ScriptableSingleton: no instance!");
+				BuildToolLogger.LogError("Cannot save ScriptableSingleton: no instance!");
 				return;
 			}
 			string filePath = GetFilePath();
