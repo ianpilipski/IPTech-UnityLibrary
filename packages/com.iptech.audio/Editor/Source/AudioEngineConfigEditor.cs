@@ -48,7 +48,8 @@ namespace IPTech.Audio.EditorExtensions {
 						scrollPos = scroll.scrollPosition;
 						foreach(var acc in config.AudioClips) {
 							if(acc != null) {
-								EditorGUILayout.LabelField(acc.name + " : " + acc.AudioMixer.name);
+								var mixerName = acc.AudioMixer != null ? acc.AudioMixer.name : "(no audio mixer assigned)";
+								EditorGUILayout.LabelField(acc.name + " : " + mixerName);
 								using(new EditorGUI.IndentLevelScope()) {
 									if(acc.AudioClips != null && acc.AudioClips.Length > 0) {
 										foreach(var ac in acc.AudioClips) {
