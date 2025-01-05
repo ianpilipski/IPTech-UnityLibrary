@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Audio;
 using Object = UnityEngine.Object;
@@ -66,8 +67,7 @@ namespace IPTech.Audio {
 
 		public void Stop(AudioHandle handle) {
 			if(idToAudioMap.TryGetValue(handle.ID, out AudioSource source)) {
-				source.Stop();
-				sourcepool[source] = FREEID;
+				StopSourceAvoidAudioPop(source);
 				idToAudioMap.Remove(handle.ID);
             }
 		}
@@ -76,11 +76,21 @@ namespace IPTech.Audio {
 			var keys = new List<AudioSource>(sourcepool.Keys);
 			foreach(var key in keys) {
 				if(key.isPlaying) {
-					key.Stop();
+					StopSourceAvoidAudioPop(key);
                 }
-				sourcepool[key] = FREEID;
             }
 			idToAudioMap.Clear();
+        }
+
+		private async void StopSourceAvoidAudioPop(AudioSource source) {
+			try {
+				source.volume = 0;
+				await Task.Yield();
+				source.Stop();
+				sourcepool[source] = FREEID;
+			} catch(Exception e) {
+				Debug.LogException(e);
+            }
         }
 
 		public bool IsPlaying(AudioHandle handle) {
