@@ -1,1 +1,26 @@
-{"name":"IPTech.BuildTool.Editor","references":["IPTech.BuildTool.Runtime"],"optionalUnityReferences":[],"includePlatforms":["Editor"],"excludePlatforms":[],"allowUnsafeCode":false,"overrideReferences":false,"precompiledReferences":[],"autoReferenced":true,"defineConstraints":[],"versionDefines":[],"noEngineReferences":false}
+{
+    "name": "IPTech.BuildTool.Editor",
+    "rootNamespace": "",
+    "references": [
+        "IPTech.BuildTool.Runtime",
+        "Unity.Addressables.Editor",
+        "Unity.Addressables"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.addressables",
+            "expression": "0.0.0",
+            "define": "ENABLE_UNITY_ADDRESSABLES"
+        }
+    ],
+    "noEngineReferences": false
+}
