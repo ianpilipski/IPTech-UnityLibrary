@@ -1,0 +1,22 @@
+{
+  "name": "com.iptech.unityservices.remoteconfig",
+  "displayName": "IPTech.UnityServices.RemoteConfig",
+  "version": "0.0.1",
+  "unity": "2021.3",
+  "dependencies": {
+    "com.iptech.unityservices": "0.0.0",
+    "com.unity.remote-config": "3.3.2"
+  },
+  "keywords": [
+    "remoteconfig",
+    "config",
+    "remote"
+  ],
+  "category": "",
+  "description": "Platform tech unity remote config package",
+  "samples": [],
+  "author": {
+    "name": "Ian Pilipski",
+    "url": ""
+  }
+}

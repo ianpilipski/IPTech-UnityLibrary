@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.iptech.packagecreator": {
-      "version": "file:/Users/ian/github/IPTech-UnityLibrary/packages/com.iptech.packagecreator",
+      "version": "file:../../../packages/com.iptech.packagecreator",
       "depth": 0,
       "source": "local",
       "dependencies": {}
@@ -57,6 +57,15 @@
       "dependencies": {
         "com.iptech.unityservices": "0.0.0",
         "com.unity.services.leaderboards": "1.0.0"
+      }
+    },
+    "com.iptech.unityservices.remoteconfig": {
+      "version": "file:../../../packages/com.iptech.unityservices.remoteconfig",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.iptech.unityservices": "0.0.0",
+        "com.unity.remote-config": "3.3.2"
       }
     },
     "com.iptech.utils": {

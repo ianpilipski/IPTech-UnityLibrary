@@ -2,6 +2,7 @@
 #if UNITY_AUTHSERVICE_INSTALLED
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using IPTech.Platform;
 using Unity.Services.Authentication;
@@ -28,9 +29,10 @@ namespace IPTech.UnityServices.Authentication {
         public bool IsSignedIn => _instance?.IsSignedIn == true;
         public event Action SignInChanged;
 
-        public async Task EnsureSignedInAnonymously() {
+        public async Task SignedInAnonymously(CancellationToken ct=default) {
             AssertIsOnline();
             if(!_instance.IsSignedIn) {
+                Debug.Log("[IPTech.UnityServices] attempting anonymous authentication with unity services...");
                 await _instance.SignInAnonymouslyAsync();
                 await _instance.GetPlayerNameAsync();
                 OnSignInChanged();
@@ -39,6 +41,7 @@ namespace IPTech.UnityServices.Authentication {
 
         void OnSignInChanged() {
             try {
+                Debug.Log($"[IPTech.UnityServices] unity services sign in changed (PlayerId={PlayerId})");
                 SignInChanged.Invoke();
             } catch(Exception e) {
                 Debug.LogException(e);

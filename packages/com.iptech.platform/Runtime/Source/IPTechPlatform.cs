@@ -48,6 +48,7 @@ namespace IPTech.Platform {
         public IAnalyticsManager Analytics => GetServiceWithConfigurationErrorMessage<IAnalyticsManager>();
         public ILeaderboardsManager Leaderboards => GetServiceWithConfigurationErrorMessage<ILeaderboardsManager>();
         public IAuthentication Authentication => GetServiceWithConfigurationErrorMessage<IAuthentication>();
+        public IRemoteConfigManager RemoteConfig => GetServiceWithConfigurationErrorMessage<IRemoteConfigManager>();
 
         public EServiceState State { get; private set; } //TODO: implement state with init
 

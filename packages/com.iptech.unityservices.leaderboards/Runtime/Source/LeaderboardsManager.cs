@@ -39,19 +39,27 @@ namespace IPTech.UnityServices.Leaderboards {
         }
 
         public async Task<ILeaderboardEntry> AddScore(string leaderboardId, double score) {
+            Debug.Log($"[IPTech.UnityServices.Leaderboards] adding score started leaderboardId={leaderboardId}, score={score}");
             await WaitUntilInitialized();
-            return new LeaderboardEntryAdapter(await service.AddPlayerScoreAsync(leaderboardId, score));
+            var res = await service.AddPlayerScoreAsync(leaderboardId, score);
+            Debug.Log($"[IPTech.UnityServices.Leaderboards] adding score finished leaderboardId={leaderboardId}, score={score}");
+            return new LeaderboardEntryAdapter(res);
         }
 
         public async Task<ILeaderboardScoresPage> GetScores(string leaderboardId) {
+            Debug.Log($"[IPTech.UnityServices.Leaderboards] get scores started leaderboardId={leaderboardId}");
             await WaitUntilInitialized();
-            return new LeaderboardScoresPageAdapter(await service.GetScoresAsync(leaderboardId));
+            var res = await service.GetScoresAsync(leaderboardId);
+            Debug.Log($"[IPTech.UnityServices.Leaderboards] get scores finished leaderboardId={leaderboardId}");
+            return new LeaderboardScoresPageAdapter(res);
         }
 
         public async Task<List<ILeaderboardEntry>> GetScoresInPlayerRange(string leaderboardId, int rangeLimit) {
+            Debug.Log($"[IPTech.UnityServices.Leaderboards] get scores in player range started leaderboardId={leaderboardId}, rangeLimit={rangeLimit}");
             await WaitUntilInitialized();
             try {
                 var res = await service.GetPlayerRangeAsync(leaderboardId, new GetPlayerRangeOptions { RangeLimit = rangeLimit });
+                Debug.Log($"[IPTech.UnityServices.Leaderboards] get scores in player range finished leaderboardId={leaderboardId}, rangeLimit={rangeLimit}");
                 return res.Results.Select(r => (ILeaderboardEntry)new LeaderboardEntryAdapter(r)).ToList();
             } catch(LeaderboardsException lex) {
                 if(lex.Reason == LeaderboardsExceptionReason.EntryNotFound) {
@@ -71,6 +79,7 @@ namespace IPTech.UnityServices.Leaderboards {
         }
 
         void HandleInitialized(EServiceState state) {
+            Debug.Log($"[IPTech.UnityServices.Leaderboards] initializing...");
             if(state == EServiceState.Initialized) {
                 service = LeaderboardsService.Instance;
                 if(unityServicesManager.Authentication.IsSignedIn) {
@@ -80,6 +89,7 @@ namespace IPTech.UnityServices.Leaderboards {
                 unityServicesManager.OnlineStateChanged += HandleOnlineStateChanged;
             }
             State = state;
+            Debug.Log($"[IPTech.UnityServices.Leaderboards] initialization complete: State={State}");
             Initialized?.Invoke(State);
         }
 

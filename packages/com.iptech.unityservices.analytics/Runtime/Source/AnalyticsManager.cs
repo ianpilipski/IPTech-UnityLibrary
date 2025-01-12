@@ -32,6 +32,7 @@ namespace IPTech.UnityServices {
         }
 
         void HandleConsentChanged(ConsentInfo consent) {
+            Debug.Log($"[IPTech.UnityServices.Analytics] consent value changed: Consent={consent.Consent}, Age={consent.AgeInfo}");
             if(consent.Consent == EConsentValue.Unknown) return;
             if(!isInitialized) {
                 Initialize(consent);
@@ -44,10 +45,13 @@ namespace IPTech.UnityServices {
             try {
                 if(service!=null) {
                     if(consent.Consent == EConsentValue.Accepted && unityServicesManager.State == EServiceState.Initialized) {
+                        Debug.Log($"[IPTech.UnityServices.Analytics] starting data collection");
                         service.StartDataCollection();
                     } else {
+                        Debug.Log($"[IPTech.UnityServices.Analytics] stopping data collection");
                         service.StopDataCollection();
                         if(consent.Consent == EConsentValue.DeclinedDeleteMyData) {
+                            Debug.Log($"[IPTech.UnityServices.Analytics] requesting data deletion");
                             service.RequestDataDeletion();
                         }
                     }
@@ -61,6 +65,7 @@ namespace IPTech.UnityServices {
         void Initialize(ConsentInfo consent) {
             try {
                 if(this.unityServicesManager.State == EServiceState.Initialized) {
+                    Debug.Log($"[IPTech.UnityServices.Analytics] initializing");
                     service = USA.AnalyticsService.Instance;
                 }
                 ChangeStateBasedOnConsent(consent);
