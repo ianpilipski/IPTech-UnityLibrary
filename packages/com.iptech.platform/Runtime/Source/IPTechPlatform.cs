@@ -45,9 +45,9 @@ namespace IPTech.Platform {
         public INetworkDetector Network => networkDetector;
         public IServiceLocator Services => serviceContext;
 
-        public IAnalyticsManager Analytics => serviceContext.GetService<IAnalyticsManager>();
-        public ILeaderboardsManager Leaderboards => serviceContext.GetService<ILeaderboardsManager>();
-        public IAuthentication Authentication => serviceContext.GetService<IAuthentication>();
+        public IAnalyticsManager Analytics => GetServiceWithConfigurationErrorMessage<IAnalyticsManager>();
+        public ILeaderboardsManager Leaderboards => GetServiceWithConfigurationErrorMessage<ILeaderboardsManager>();
+        public IAuthentication Authentication => GetServiceWithConfigurationErrorMessage<IAuthentication>();
 
         public EServiceState State { get; private set; } //TODO: implement state with init
 
@@ -173,6 +173,14 @@ namespace IPTech.Platform {
                     Debug.LogException(e);
                 }
             }
+        }
+
+        T GetServiceWithConfigurationErrorMessage<T>() {
+            if(serviceContext.HasService<T>()) {
+                return serviceContext.GetService<T>();
+            }
+
+            throw new IPTechExceptions.ServiceNotRegisteredException(typeof(T));
         }
     }
 }
