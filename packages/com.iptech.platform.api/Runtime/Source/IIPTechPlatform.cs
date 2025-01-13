@@ -16,5 +16,6 @@ namespace IPTech.Platform {
         IAuthentication Authentication { get; }
         IAnalyticsManager Analytics { get; }
         ILeaderboardsManager Leaderboards { get; }
+        IRemoteConfigManager RemoteConfig { get; }
     }
 }

@@ -34,6 +34,13 @@ namespace IPTech.UnityServices {
 #endif
 
 
+#if IPTECH_UNITYREMOTECONFIG_INSTALLED
+            config.RegisterFactory<IRemoteConfigManager>(new IPTechServiceFactory<IRemoteConfigManager>(p => {
+                return p.Services.GetService<IUnityServicesManager>().RemoteConfigManager;
+            }));
+#endif
+
+
             return config;
         }
     }

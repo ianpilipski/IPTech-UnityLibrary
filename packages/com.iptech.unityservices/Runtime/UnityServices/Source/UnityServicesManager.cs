@@ -15,6 +15,7 @@ namespace IPTech.UnityServices {
     public class UnityServicesManager : IUnityServicesManager {
         const string CONSENT_KEY = "_iptech_unityservices_consentvalue";
 
+        bool alreadyCalledSignIn;
         bool alreadyCalledInitialize;
         EOnlineState onlineState;
         readonly List<Action<ConsentInfo>> consentListeners = new();
@@ -24,8 +25,10 @@ namespace IPTech.UnityServices {
 
         public event Action<EOnlineState> OnlineStateChanged;
 
+        public INetworkDetector Network => platform.Network;
         public IAuthentication Authentication => authenticationManager;        
         public IAnalyticsManager AnalyticsManager { get; }
+        public IRemoteConfigManager RemoteConfigManager { get; }
 
 #if IPTECH_UNITYADVERTISING_INSTALLED
         public AdsManager AdsManager { get; }
@@ -50,6 +53,10 @@ namespace IPTech.UnityServices {
 
 #if IPTECH_UNITYLEADERBOARDS_INSTALLED
             this.LeaderboardsManager = new IPTech.UnityServices.Leaderboards.LeaderboardsManager(this);
+#endif
+
+#if IPTECH_UNITYREMOTECONFIG_INSTALLED
+            this.RemoteConfigManager = new IPTech.UnityServices.RemoteConfig.RemoteConfigManager(this);
 #endif
 
             var go = new GameObject("IPTechUnityServicesApplicationEvents");
@@ -92,8 +99,8 @@ namespace IPTech.UnityServices {
                 if(alreadyCalledInitialize) return;
                 alreadyCalledInitialize = true;
 
+                Debug.Log($"[IPTech.UnityServices] initializing...");
                 try {
-                    await WaitUntilOnline();
                     State = await InitializeUnityServices();
                     if(State == EServiceState.Initialized) {
                         if(platform.Network.State == ENetworkState.Reachable) {
@@ -109,6 +116,7 @@ namespace IPTech.UnityServices {
                     }
                     State = EServiceState.FailedToInitialize;
                 }
+                Debug.Log($"[IPTech.UnityServices] initialization completed with status: {State}");
 
                 foreach(var l in initializedListeners) {
                     try {
@@ -118,11 +126,7 @@ namespace IPTech.UnityServices {
                     }
                 }
 
-                if(OnlineState == EOnlineState.Online) {
-                    if(authenticationManager.IsInstalled) {
-                        await authenticationManager.EnsureSignedInAnonymously();
-                    }
-                }
+                EnsureSignedIn();
             } catch(Exception e) {
                 Debug.LogException(e);
             }
@@ -130,30 +134,20 @@ namespace IPTech.UnityServices {
 
         private void HandleNetworkStateChanged(ENetworkState state) {
             OnlineState = state == ENetworkState.Reachable ? EOnlineState.Online : EOnlineState.Offline;
+            EnsureSignedIn();
         }
 
-        async Task WaitUntilOnline() {
-            var networkDetector = platform.Network;
-            var online = networkDetector.State == ENetworkState.Reachable;
-            if(online) {
-                return;
-            }
-
-            DateTime timeoutTime = DateTime.Now.AddMinutes(5);
-            networkDetector.NetworkStateChanged += HandleNetworkStateChanged;
-            while(!online) {
-                await Task.Yield();
-                if(DateTime.Now > timeoutTime) {
-                    throw new OperationCanceledException("timed out waiting to go online");
+        async void EnsureSignedIn() {
+            try {
+                if(alreadyCalledSignIn) return;
+                if(OnlineState == EOnlineState.Online) {
+                    if(authenticationManager.IsInstalled && !authenticationManager.IsSignedIn) {
+                        alreadyCalledSignIn = true;
+                        await authenticationManager.SignedInAnonymously();
+                    }
                 }
-                if(!Application.isPlaying) {
-                    throw new OperationCanceledException("editor left playmode");
-                }
-            }
-            networkDetector.NetworkStateChanged -= HandleNetworkStateChanged;
-
-            void HandleNetworkStateChanged(ENetworkState newState) {
-                online = newState == ENetworkState.Reachable;
+            } catch(Exception e) {
+                Debug.LogException(e);
             }
         }
 
@@ -163,6 +157,7 @@ namespace IPTech.UnityServices {
                     var options = new InitializationOptions();
 
                     options.SetEnvironmentName(EnvironmentID);
+                    Debug.Log($"[IPTech.UnityServices] intializing unity services for environment = {EnvironmentID}");
                     await UEServices.InitializeAsync(options);
 
                     return EServiceState.Initialized;

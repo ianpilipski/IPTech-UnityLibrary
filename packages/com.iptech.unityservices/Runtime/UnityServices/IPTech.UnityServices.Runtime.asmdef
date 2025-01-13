@@ -13,7 +13,8 @@
         "GUID:5f9f17e33d10f4a6dabc28e5012c193c",
         "GUID:5540e30183c82e84b954c033c388e06c",
         "GUID:9d955c048cd12428286d0a3889c0526c",
-        "GUID:02a0c112b490542a884c421c5c524f3f"
+        "GUID:02a0c112b490542a884c421c5c524f3f",
+        "GUID:9d385c5649d7d4804ac53d4b5c760b0b"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -47,6 +48,11 @@
             "name": "com.unity.remote-config",
             "expression": "0",
             "define": "UNITY_REMOTECONFIG_INSTALLED"
+        },
+        {
+            "name": "com.iptech.unityservices.remoteconfig",
+            "expression": "0",
+            "define": "IPTECH_UNITYREMOTECONFIG_INSTALLED"
         }
     ],
     "noEngineReferences": false

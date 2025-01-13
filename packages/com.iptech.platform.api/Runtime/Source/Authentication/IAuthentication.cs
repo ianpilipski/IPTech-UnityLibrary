@@ -1,4 +1,7 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace IPTech.Platform {
     public interface IAuthentication {
         bool IsSignedIn { get; }
@@ -6,5 +9,7 @@ namespace IPTech.Platform {
         string PlayerId { get; }
 
         event Action SignInChanged;
+
+        Task SignedInAnonymously(CancellationToken ct=default);
     }
 }
