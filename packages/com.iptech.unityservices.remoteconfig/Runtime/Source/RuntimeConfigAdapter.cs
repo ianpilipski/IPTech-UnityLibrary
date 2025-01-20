@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +15,7 @@ namespace IPTech.UnityServices.RemoteConfig
         
 
         public RuntimeConfigAdapter(RuntimeConfig config) {
-            this.config = (JObject)config.config.DeepClone();
-
+            this.config = config.config;
             switch(config.origin) {
                 case ConfigOrigin.Cached:
                     Source = ConfigSource.Cached;
@@ -30,19 +30,35 @@ namespace IPTech.UnityServices.RemoteConfig
         }
 
         public ConfigSource Source { get; }
+        
+        public T Get<T>(string key, T defaultValue = default) {
+            try {
+                if(config.ContainsKey(key)) {
+                    var t = typeof(T);
+                    if(t.IsPrimitive || t == typeof(string)) {
+                        return config[key].Value<T>();
+                    } else {
+                        return config[key].ToObject<T>();
+                    }
+                }
+            } catch(Exception e) {
+                Debug.LogException(e);
+            }
+            return defaultValue;
+        }
 
         public object this[string key] {
             get {
                 if(config.ContainsKey(key)) {
-                   return config.Value<object>(key);
+                   return config[key];
                 }
                 throw new KeyNotFoundException($"the key {key} was not found in the collection");
             }
         }
 
-        public IEnumerable<string> Keys => config.Properties().Select(prop => prop.Name).ToArray<string>();
+        public IEnumerable<string> Keys => config.Properties().Select(prop => prop.Name);
 
-        public IEnumerable<object> Values => config.Values<object>().ToList();
+        public IEnumerable<object> Values => config.Values<object>();
 
         public int Count => config.Count;
 
@@ -51,7 +67,7 @@ namespace IPTech.UnityServices.RemoteConfig
         
         public bool TryGetValue(string key, out object value) {
             if(ContainsKey(key)) {
-                value = config.Value<object>(key);
+                value = config[key];
                 return true;
             }
             value = default;
@@ -60,7 +76,7 @@ namespace IPTech.UnityServices.RemoteConfig
 
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator() {
             foreach(var key in Keys) {
-                yield return new KeyValuePair<string, object>(key, config.Value<object>(key));
+                yield return new KeyValuePair<string, object>(key, config[key]);
             }
         }
 

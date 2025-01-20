@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace IPTech.Platform {
     public interface IRuntimeConfig : IReadOnlyDictionary<string, object> {
-        public ConfigSource Source { get; }
+        ConfigSource Source { get; }
+        T Get<T>(string key, T defaultValue = default);
     }
 
     public enum ConfigSource {
