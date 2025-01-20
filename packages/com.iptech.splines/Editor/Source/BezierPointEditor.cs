@@ -87,7 +87,11 @@ namespace IPTech.Splines
 		void OnSceneGUI() {
 
 			Handles.color = Color.green;
+#if UNITY_2022_3_OR_NEWER
+			Vector3 newPosition = Handles.FreeMoveHandle(point.position, HandleUtility.GetHandleSize(point.position) * 0.2f, Vector3.zero, Handles.CubeHandleCap);
+#else
 			Vector3 newPosition = Handles.FreeMoveHandle(point.position, point.transform.rotation, HandleUtility.GetHandleSize(point.position) * 0.2f, Vector3.zero, Handles.CubeHandleCap);
+#endif
 			if (point.position != newPosition) {
 				point.position = newPosition;
 				point.EditorConditionalUpdateCollision();
@@ -105,7 +109,11 @@ namespace IPTech.Splines
 		private static void HandleConnected(BezierPoint p) {
 			Handles.color = Color.cyan;
 
+#if UNITY_2022_3_OR_NEWER
+			Vector3 newGlobal1 = Handles.FreeMoveHandle(p.globalHandle1, HandleUtility.GetHandleSize(p.globalHandle1) * 0.15f, Vector3.zero, Handles.SphereHandleCap);
+#else
 			Vector3 newGlobal1 = Handles.FreeMoveHandle(p.globalHandle1, p.transform.rotation, HandleUtility.GetHandleSize(p.globalHandle1) * 0.15f, Vector3.zero, Handles.SphereHandleCap);
+#endif
 
 			if (newGlobal1 != p.globalHandle1) {
 				Undo.RecordObject(p, "Move Handle");
@@ -114,7 +122,11 @@ namespace IPTech.Splines
 				p.EditorConditionalUpdateCollision();
 			}
 
+#if UNITY_2022_3_OR_NEWER
+			Vector3 newGlobal2 = Handles.FreeMoveHandle(p.globalHandle2, HandleUtility.GetHandleSize(p.globalHandle2) * 0.15f, Vector3.zero, Handles.SphereHandleCap);
+#else
 			Vector3 newGlobal2 = Handles.FreeMoveHandle(p.globalHandle2, p.transform.rotation, HandleUtility.GetHandleSize(p.globalHandle2) * 0.15f, Vector3.zero, Handles.SphereHandleCap);
+#endif
 
 			if (newGlobal2 != p.globalHandle2) {
 				Undo.RecordObject(p, "Move Handle");
@@ -127,8 +139,13 @@ namespace IPTech.Splines
 		private static void HandleBroken(BezierPoint p) {
 			Handles.color = Color.cyan;
 
+#if UNITY_2022_3_OR_NEWER
+			Vector3 newGlobal1 = Handles.FreeMoveHandle(p.globalHandle1, HandleUtility.GetHandleSize(p.globalHandle1) * 0.15f, Vector3.zero, Handles.SphereHandleCap);
+			Vector3 newGlobal2 = Handles.FreeMoveHandle(p.globalHandle2, HandleUtility.GetHandleSize(p.globalHandle2) * 0.15f, Vector3.zero, Handles.SphereHandleCap);
+#else
 			Vector3 newGlobal1 = Handles.FreeMoveHandle(p.globalHandle1, Quaternion.identity, HandleUtility.GetHandleSize(p.globalHandle1) * 0.15f, Vector3.zero, Handles.SphereHandleCap);
 			Vector3 newGlobal2 = Handles.FreeMoveHandle(p.globalHandle2, Quaternion.identity, HandleUtility.GetHandleSize(p.globalHandle2) * 0.15f, Vector3.zero, Handles.SphereHandleCap);
+#endif
 
 			if (newGlobal1 != p.globalHandle1) {
 				Undo.RecordObject(p, "Move Handle");

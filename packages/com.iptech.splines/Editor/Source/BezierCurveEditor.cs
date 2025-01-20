@@ -223,9 +223,13 @@ namespace IPTech.Splines
 			Handles.Label(point.position + new Vector3(0, HandleUtility.GetHandleSize(point.position) * 0.4f, 0), point.gameObject.name);
 
 			Handles.color = Color.green;
+#if UNITY_2022_3_OR_NEWER
+			Vector3 newPosition = Handles.FreeMoveHandle(point.position, HandleUtility.GetHandleSize(point.position) * 0.1f, Vector3.zero, SelectedPointCap);
+#else
 			Vector3 newPosition = Handles.FreeMoveHandle(point.position, point.transform.rotation, HandleUtility.GetHandleSize(point.position) * 0.1f, Vector3.zero, SelectedPointCap);
-            
-			if (newPosition != point.position) {
+#endif
+
+			if(newPosition != point.position) {
 				Vector3 deltaPosition = newPosition - point.position;
 				for (int i = 0; i < point.curve.pointCount; i++) {
 					BezierPoint p = point.curve[i];
@@ -239,16 +243,24 @@ namespace IPTech.Splines
 
 			if (point.handleStyle != BezierPoint.HandleStyle.None) {
 				Handles.color = Color.cyan;
+#if UNITY_2022_3_OR_NEWER
+				Vector3 newGlobal1 = Handles.FreeMoveHandle(point.globalHandle1, HandleUtility.GetHandleSize(point.globalHandle1) * 0.075f, Vector3.zero, Handles.CircleHandleCap);
+#else
 				Vector3 newGlobal1 = Handles.FreeMoveHandle(point.globalHandle1, point.transform.rotation, HandleUtility.GetHandleSize(point.globalHandle1) * 0.075f, Vector3.zero, Handles.CircleHandleCap);
-				if (point.globalHandle1 != newGlobal1) {
+#endif
+				if(point.globalHandle1 != newGlobal1) {
 					Undo.RecordObject(point, "Move Handle");
 					point.globalHandle1 = newGlobal1;
 					if (point.handleStyle == BezierPoint.HandleStyle.Connected) point.globalHandle2 = -(newGlobal1 - point.position) + point.position;
 					point.EditorConditionalUpdateCollision();
 				}
 
+#if UNITY_2022_3_OR_NEWER
+				Vector3 newGlobal2 = Handles.FreeMoveHandle(point.globalHandle2, HandleUtility.GetHandleSize(point.globalHandle2) * 0.075f, Vector3.zero, Handles.CircleHandleCap);
+#else
 				Vector3 newGlobal2 = Handles.FreeMoveHandle(point.globalHandle2, point.transform.rotation, HandleUtility.GetHandleSize(point.globalHandle2) * 0.075f, Vector3.zero, Handles.CircleHandleCap);
-				if (point.globalHandle2 != newGlobal2) {
+#endif
+				if(point.globalHandle2 != newGlobal2) {
 					Undo.RecordObject(point, "Move Handle");
 					point.globalHandle2 = newGlobal2;
 					if (point.handleStyle == BezierPoint.HandleStyle.Connected) point.globalHandle1 = -(newGlobal2 - point.position) + point.position;
