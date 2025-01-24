@@ -14,11 +14,11 @@
             </ui:VisualElement>
             <ui:VisualElement name="mainWindow" style="flex-grow: 1;">
                 <ui:VisualElement name="topWindow" style="flex-grow: 1; background-image: url(&quot;project://database/Packages/com.iptech.debugtools/Runtime/DebugConsole/source/assets/Textures/frame_light.png?fileID=21300000&amp;guid=6ad424e86478d45c19fe48d8269b31b9&amp;type=3#frame_light&quot;); overflow: hidden;">
-                    <ui:ScrollView name="scrollViewTopWindow" mode="VerticalAndHorizontal" style="margin-top: 14px; margin-right: 14px; margin-bottom: 14px; margin-left: 14px; flex-grow: 1; display: none; overflow: hidden;">
+                    <ui:ScrollView name="scrollViewTopWindow" mode="Vertical" style="margin-top: 14px; margin-right: 14px; margin-bottom: 14px; margin-left: 14px; flex-grow: 1; display: none; overflow: hidden;">
                         <ui:VisualElement name="panelAliasButtons" style="flex-wrap: wrap; flex-direction: row; flex-grow: 1;" />
                     </ui:ScrollView>
                     <ui:VisualElement name="consolePanel" style="flex-grow: 1; display: flex; margin-top: 14px; margin-right: 14px; margin-bottom: 14px; margin-left: 14px; overflow: hidden;">
-                        <ui:ListView focusable="true" name="listViewOutput" selection-type="Single" show-bound-collection-size="false" show-alternating-row-backgrounds="ContentOnly" virtualization-method="DynamicHeight" style="flex-grow: 1; min-height: 22px; max-height: 600px; overflow: hidden;" />
+                        <ui:ListView focusable="true" name="listViewOutput" selection-type="Single" show-bound-collection-size="false" show-alternating-row-backgrounds="ContentOnly" virtualization-method="DynamicHeight" horizontal-scrolling="true" style="flex-grow: 1; min-height: 22px; max-height: 600px; overflow: hidden;" />
                         <ui:VisualElement style="flex-direction: row; flex-shrink: 0;">
                             <ui:TextField picking-mode="Ignore" text="(enter command)" name="textFieldCommand" style="flex-grow: 1; height: 40px; -unity-text-align: middle-left;" />
                             <ui:Button text="Go" display-tooltip-when-elided="false" enable-rich-text="false" name="buttonGo" style="height: 40px;" />
