@@ -80,8 +80,6 @@ namespace IPTech.ConsentScreen {
                     info.IOSAppTrackingStatus = Status(newStatus);
                     LoadNextScene(info);
                     };
-
-                contextScreen.RequestAuthorizationTracking();
             } else {
                 // iOS will reject us for not calling the ATT prompt even though we know what the answer is
                 if(!Application.isEditor) {
