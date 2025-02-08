@@ -28,8 +28,10 @@ namespace IPTech.ConsentScreen {
 #if UNITY_IOS
                 Debug.Log("Unity iOS Support: Requesting iOS App Tracking Transparency native dialog.");
 
-                bool firstTime = true;
-                
+                if(!Application.isEditor) {
+                    ATTrackingStatusBinding.RequestAuthorizationTracking();
+                }
+                                
                 float nextCheck = 0;
                 while(Application.isPlaying) {
                     if(Time.time > nextCheck) {
@@ -39,10 +41,7 @@ namespace IPTech.ConsentScreen {
                             var status = ATTrackingStatusBinding.GetAuthorizationTrackingStatus();
                             Debug.Log($"Checking ATTrackingStatus {status}");
                             if(status == ATTrackingStatusBinding.AuthorizationTrackingStatus.NOT_DETERMINED) {
-                                if(firstTime) {
-                                    ATTrackingStatusBinding.RequestAuthorizationTracking();
-                                    firstTime = false;
-                                }
+                                ATTrackingStatusBinding.RequestAuthorizationTracking();
                             } else {
                                 break;
                             }

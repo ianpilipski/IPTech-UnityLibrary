@@ -50,5 +50,5 @@
     },
     "omnisharp.useModernNet": false,
     "dotnet.codeLens.enableReferencesCodeLens": false,
-    "dotnet.defaultSolution": "unity-iptechunitylibrary.sln"
+    "dotnet.defaultSolution": "iptech-unitylibrary.sln"
 }
