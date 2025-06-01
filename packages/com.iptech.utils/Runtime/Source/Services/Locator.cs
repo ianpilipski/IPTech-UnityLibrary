@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace IPTech.Utils {
     public static class Locator {
         static IServiceLocator inst;
-        static readonly Dictionary<string, IServiceContext> namedContexts = new();
+        static readonly Dictionary<string, IServiceContainer> namedContexts = new();
 
         public static IServiceLocator Inst {
             get {
@@ -22,9 +22,9 @@ namespace IPTech.Utils {
             #endif
         }
 
-        public static IServiceContext GetContext(string name = null) {
+        public static IServiceContainer GetContext(string name = null) {
             lock(namedContexts) {
-                if(!namedContexts.ContainsKey(name)) namedContexts[name] = new ServiceContext();
+                if(!namedContexts.ContainsKey(name)) namedContexts[name] = new ServiceContainer();
             }
             return namedContexts[name];
         }

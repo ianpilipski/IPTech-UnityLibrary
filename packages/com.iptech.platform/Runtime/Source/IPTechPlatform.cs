@@ -14,36 +14,36 @@ namespace IPTech.Platform {
 
         readonly INetworkDetector networkDetector;
         readonly IConsentHandler consentHandler;
-        readonly IServiceContext serviceContext;
+        readonly IServiceContainer serviceContainer;
 
         List<Action> queudActions = new();
         public event Action Initialized;
         public event Action<bool> ApplicationPaused;
 
         [Obsolete("use the async constructor for createContext instead")]
-        public IPTechPlatform(Action<IServiceContext> createContext) : this((sc) => { createContext(sc); return Task.CompletedTask; }) {
+        public IPTechPlatform(Action<IServiceContainer> createContext) : this((sc) => { createContext(sc); return Task.CompletedTask; }) {
         }
 
         [Obsolete("use constructure with configuration instead")]
-        public IPTechPlatform(Func<IServiceContext, Task> createContext) {
+        public IPTechPlatform(Func<IServiceContainer, Task> createContext) {
             consentHandler = new ConsentHandler();
             networkDetector = new NetworkDetector(this, 30);
-            serviceContext = new ServiceContext();
-            serviceContext.AddService<IIPTechPlatform>(this);
+            serviceContainer = new ServiceContainer();
+            serviceContainer.AddService<IIPTechPlatform>(this);
 
             Initialize(createContext);
         }
 
         public IPTechPlatform(IIPTechPlatformConfig config) {
-            serviceContext = new ServiceContext();
+            serviceContainer = new ServiceContainer();
             consentHandler = new ConsentHandler();
             networkDetector = new NetworkDetector(this, 30); // TODO: make this configurable
-            serviceContext.AddService<IIPTechPlatform>(this);
+            serviceContainer.AddService<IIPTechPlatform>(this);
             Initialize(config);
         }
 
         public INetworkDetector Network => networkDetector;
-        public IServiceLocator Services => serviceContext;
+        public IServiceLocator Services => serviceContainer;
 
         public IAnalyticsManager Analytics => GetServiceWithConfigurationErrorMessage<IAnalyticsManager>();
         public ILeaderboardsManager Leaderboards => GetServiceWithConfigurationErrorMessage<ILeaderboardsManager>();
@@ -66,7 +66,7 @@ namespace IPTech.Platform {
             try {
                 await HookMbInst();
                 foreach(var factory in config.Factories) {
-                    serviceContext.AddService(factory.CreatesType, new ServiceCreatorCallback((l, t) => {
+                    serviceContainer.AddService(factory.CreatesType, new ServiceCreatorCallback((l, t) => {
                         return factory.Create(this);
                     }));
                 }
@@ -80,14 +80,14 @@ namespace IPTech.Platform {
         }
        
         [Obsolete("use the configuration to create the service context")]
-        async void Initialize(Func<IServiceContext, Task> createContext) {
+        async void Initialize(Func<IServiceContainer, Task> createContext) {
             try {
                 Debug.Log("Initializing IPTechPlatform .. ");
                 Debug.Log("[IPTechPlatform] waiting for mono behaviour ..");
                 await HookMbInst();
                 Debug.Log("[IPTechPlatform] found mono behaviour");
                 Debug.Log("[IPTechPlatform] Creating Context .. ");
-                await createContext(serviceContext);
+                await createContext(serviceContainer);
                 Debug.Log("[IPTechPlatform] Context Created");
                 State = EServiceState.Initialized;
             } catch(OperationCanceledException) {
@@ -177,8 +177,8 @@ namespace IPTech.Platform {
         }
 
         T GetServiceWithConfigurationErrorMessage<T>() {
-            if(serviceContext.HasService<T>()) {
-                return serviceContext.GetService<T>();
+            if(serviceContainer.HasService<T>()) {
+                return serviceContainer.GetService<T>();
             }
 
             throw new IPTechExceptions.ServiceNotRegisteredException(typeof(T));

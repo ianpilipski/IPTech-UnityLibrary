@@ -27,7 +27,7 @@ namespace IPTech.Utils {
         event Action<Type> ServiceRemoved;
     }
 
-    public interface IServiceContext : IServiceLocator {
+    public interface IServiceContainer : IServiceLocator {
         void AddService<T>(T service);
         void AddService(Type type, object service);
         void AddService<T>(ServiceCreatorCallback factory);
@@ -37,7 +37,7 @@ namespace IPTech.Utils {
     }
 
 
-    public class ServiceContext : IServiceContext {
+    public class ServiceContainer : IServiceContainer {
         CircularReferenceManager circularReferenceManager = new();
         Dictionary<Type, RegisteredService> services = new();
         List<IServiceFactory> factories;

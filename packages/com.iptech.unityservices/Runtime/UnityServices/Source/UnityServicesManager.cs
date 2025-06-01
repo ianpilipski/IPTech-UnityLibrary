@@ -59,10 +59,6 @@ namespace IPTech.UnityServices {
             this.RemoteConfigManager = new IPTech.UnityServices.RemoteConfig.RemoteConfigManager(this);
 #endif
 
-            var go = new GameObject("IPTechUnityServicesApplicationEvents");
-            var appEvents =  go.AddComponent<ApplicationEvents>();
-            go.hideFlags = HideFlags.HideAndDontSave;
-            GameObject.DontDestroyOnLoad(go);
             Initialize();
         }
 
