@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 using IPTech.Platform;
 
 namespace IPTech.UnityServices.Authentication {
-    public class AuthenticationManagerNotInstalled : IAuthentication {
+    public class AuthenticationManagerNotInstalled : IAuthentication
+    {
         const string INSTALLMSG = "you need to install unity Authorization services to work with this api";
 
         public bool IsInstalled => false;
@@ -15,7 +16,14 @@ namespace IPTech.UnityServices.Authentication {
         public event Action SignInChanged;
 #pragma warning restore
 
-        public Task SignedInAnonymously(CancellationToken ct = default) {
+        [Obsolete("Use SignInAnonymously instead.")]
+        public Task SignedInAnonymously(CancellationToken ct = default)
+        {
+            throw new System.NotImplementedException(INSTALLMSG);
+        }
+        
+        public Task SignInAnonymously(CancellationToken ct = default)
+        {
             throw new System.NotImplementedException(INSTALLMSG);
         }
     }
