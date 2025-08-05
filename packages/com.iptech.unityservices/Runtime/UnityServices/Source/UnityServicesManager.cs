@@ -6,7 +6,6 @@ using Unity.Services.Core.Environments;
 using System.Collections.Generic;
 
 namespace IPTech.UnityServices {
-    using Internal;
     using Authentication;
     using Platform;
 
