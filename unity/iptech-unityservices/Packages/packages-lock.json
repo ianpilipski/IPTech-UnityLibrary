@@ -28,7 +28,7 @@
       "depth": 0,
       "source": "local",
       "dependencies": {
-        "com.iptech.platform": "0.0.1",
+        "com.iptech.platform.api": "0.0.1",
         "com.unity.services.authentication": "3.4.0"
       }
     },
