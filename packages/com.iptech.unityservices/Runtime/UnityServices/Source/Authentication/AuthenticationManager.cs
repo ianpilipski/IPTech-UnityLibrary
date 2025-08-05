@@ -28,10 +28,30 @@ namespace IPTech.UnityServices.Authentication {
         public string PlayerName => _instance?.PlayerName;
         public bool IsSignedIn => _instance?.IsSignedIn == true;
         public event Action SignInChanged;
+        private Task _signInTask;
 
-        public async Task SignedInAnonymously(CancellationToken ct=default) {
+        [Obsolete("Use SignInAnonymously instead")]
+        public Task SignedInAnonymously(CancellationToken ct = default)
+        {
+            return SignInAnonymously(ct);
+        }
+        
+        public async Task SignInAnonymously(CancellationToken ct = default)
+        {
             AssertIsOnline();
-            if(!_instance.IsSignedIn) {
+            if (!_instance.IsSignedIn)
+            {
+                if (_signInTask != null && !_signInTask.IsCompleted)
+                {
+                    Debug.LogWarning("[IPTech.UnityServices] sign in already in progress, waiting for completion...");
+                    await _signInTask;
+                    return;
+                }
+                _signInTask = PerformSignIn();
+            }
+
+            async Task PerformSignIn()
+            {
                 Debug.Log("[IPTech.UnityServices] attempting anonymous authentication with unity services...");
                 await _instance.SignInAnonymouslyAsync();
                 await _instance.GetPlayerNameAsync();
@@ -42,7 +62,7 @@ namespace IPTech.UnityServices.Authentication {
         void OnSignInChanged() {
             try {
                 Debug.Log($"[IPTech.UnityServices] unity services sign in changed (PlayerId={PlayerId})");
-                SignInChanged.Invoke();
+                SignInChanged?.Invoke();
             } catch(Exception e) {
                 Debug.LogException(e);
             }

@@ -138,7 +138,7 @@ namespace IPTech.UnityServices {
                 if(OnlineState == EOnlineState.Online) {
                     if(authenticationManager.IsInstalled && !authenticationManager.IsSignedIn) {
                         alreadyCalledSignIn = true;
-                        await authenticationManager.SignedInAnonymously();
+                        await authenticationManager.SignInAnonymously();
                     }
                 }
             } catch(Exception e) {
