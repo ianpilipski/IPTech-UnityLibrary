@@ -2,93 +2,142 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Unity.Services.LevelPlay;
+using IPTech.Platform;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace IPTech.UnityServices.Internal {
     public class RewardAd : AdBase
     {
         bool rewardWasCalled;
+        private TaskCompletionSource<FillAdResult> _loadTaskCompletionSource;
+        private TaskCompletionSource<AdResult> _showAdCompletionSource;
+        private readonly LevelPlayRewardedAd _rewardAd;
 
-        public RewardAd(string placementName) : base(placementName) {
+        public RewardAd(string adUnitId) : base(adUnitId)
+        {
+            _rewardAd = new LevelPlayRewardedAd(adUnitId);
+            HookEvents();
         }
 
-        override protected void LoadAd() {
-            #if IPTECH_IRONSOURCE_INSTALLED
-            IronSource.Agent.loadRewardedVideo();
-            #endif
+        private void HookEvents()
+        {
+            _rewardAd.OnAdClicked += HandleAdClicked;
+            _rewardAd.OnAdClosed += HandleAdClosed;
+            _rewardAd.OnAdDisplayed += HandleAdDisplayed;
+            _rewardAd.OnAdDisplayFailed += HandleAdDisplayFailed;
+            _rewardAd.OnAdInfoChanged += HandleAdInfoChanged;
+            _rewardAd.OnAdLoaded += HandleAdLoaded;
+            _rewardAd.OnAdLoadFailed += HandleAdLoadFailed;
+            _rewardAd.OnAdRewarded += HandleAdRewarded;
         }
 
-        override protected async Task ShowAd() {
-            #if IPTECH_IRONSOURCE_INSTALLED
-            if (IronSource.Agent.isInterstitialReady()) {
-                IronSource.Agent.showInterstitial(result.PlacementID);
-                await WaitWhile(() => showState != ShowState.FinishedShowing );
-                if(result.AdResult == AdResult.Cancelled) {
-                    await WaitForRewardWithTimeout();
+        override protected Task<FillAdResult> LoadAd()
+        {
+            if(_loadTaskCompletionSource != null && !_loadTaskCompletionSource.Task.IsCompleted) throw new InvalidOperationException("Ad is already loading");
+            _loadTaskCompletionSource = new TaskCompletionSource<FillAdResult>();
+            _rewardAd.LoadAd();
+            return _loadTaskCompletionSource.Task;
+        }
+
+        override protected Task<AdResult> ShowAd(string placementName = null)
+        {
+            if (_showAdCompletionSource != null && !_showAdCompletionSource.Task.IsCompleted) throw new InvalidOperationException("Ad is already showing");
+            if (!_rewardAd.IsAdReady()) throw new InvalidOperationException("Ad must be loaded before showing");
+            if (string.IsNullOrWhiteSpace(placementName))
+            {
+                if (LevelPlayRewardedAd.IsPlacementCapped(placementName))
+                {
+                    return Task.FromResult(AdResult.FailedToShow);
                 }
-            } else {
-                result.AdResult = AdResult.FaildToLoad;
+                _showAdCompletionSource = new TaskCompletionSource<AdResult>();
+                _rewardAd.ShowAd();
             }
-            #endif
-        }
-
-        async Task WaitForRewardWithTimeout() {
-            DateTime timeout = DateTime.Now.AddSeconds(5);
-            while(!rewardWasCalled) {
-                await Task.Yield();
-                if(DateTime.Now > timeout) break;
+            else
+            {
+                _showAdCompletionSource = new TaskCompletionSource<AdResult>();
+                _rewardAd.ShowAd(placementName);
             }
+            return _showAdCompletionSource.Task;
+        }
 
-            if(rewardWasCalled) {
-                result.AdResult = AdResult.Watched;
+        private void HandleAdClicked(LevelPlayAdInfo adInfo)
+        {
+
+        }
+
+        private void HandleAdClosed(LevelPlayAdInfo adInfo)
+        {
+            if(_showAdCompletionSource == null)
+            {
+                Debug.LogError("Show task completion source is null when ad is closed.");
+                return;
+            }
+            WaitForReward();
+
+            async void WaitForReward()
+            {
+                var timeout = Task.Delay(5000); // Wait for 5 seconds for the reward to be called
+                await WaitWhile(() => !rewardWasCalled || !timeout.IsCompleted);
+                if (rewardWasCalled)
+                {
+                    _showAdCompletionSource.SetResult(AdResult.Watched);
+                }
+                _showAdCompletionSource.SetResult(AdResult.Cancelled);
             }
         }
 
-#if IPTECH_IRONSOURCE_INSTALLED
-        protected override void ReardedVideoOnAdAvailable(IronSourceAdInfo info)
+        private void HandleAdDisplayed(LevelPlayAdInfo adInfo)
         {
-            result.Info = info;
-            loadState = LoadState.Loaded;
+
         }
 
-        protected override void ReardedVideoOnAdUnavailable()
+#pragma warning disable 618
+        private void HandleAdDisplayFailed(LevelPlayAdDisplayInfoError errorInfo)
         {
-            loadState = LoadState.FailedToLoad;
+            if (_showAdCompletionSource == null)
+            {
+                Debug.LogError("Show task completion source is null when ad fails to display.");
+                return;
+            }
+            _showAdCompletionSource.SetResult(AdResult.FailedToShow);
+        }
+#pragma warning restore 618
+
+        private void HandleAdInfoChanged(LevelPlayAdInfo adInfo)
+        {
+            // Handle ad info changes if needed
         }
 
-        protected override void ReardedVideoOnAdClickedEvent(IronSourcePlacement placement, IronSourceAdInfo info)
+        private void HandleAdLoaded(LevelPlayAdInfo adInfo)
         {
-            result.Info = info;
-            result.UserClicked = true;
+            if (_loadTaskCompletionSource == null)
+            {
+                Debug.LogError("Load task completion source is null when ad is loaded.");
+                return;
+            }
+            _loadTaskCompletionSource.SetResult(FillAdResult.Loaded);
         }
 
-        // This may come out of order with Reward Event!!
-        protected override void ReardedVideoOnAdClosedEvent(IronSourceAdInfo info)
+        private void HandleAdLoadFailed(LevelPlayAdError errorInfo)
         {
-            result.Info = info;
-            result.AdResult = AdResult.Cancelled;
-            showState = ShowState.FinishedShowing;
-        }
-
-        protected override void ReardedVideoOnAdOpenedEvent(IronSourceAdInfo info)
-        {
-            result.Info = info;
-        }
-
-        // This may come out of order with Closed Event!!
-        protected override void ReardedVideoOnAdRewardedEvent(IronSourcePlacement placement, IronSourceAdInfo info)
-        {
-            result.Info = info;
-            rewardWasCalled = true;
-        }
-
-        protected override void ReardedVideoOnAdShowFailedEvent(IronSourceError error, IronSourceAdInfo info)
-        {
-            result.Info = info;
-            result.AdResult = AdResult.FailedToShow;
-            showState = ShowState.FinishedShowing;
-        }
-#endif
+            if (_loadTaskCompletionSource == null)
+            {
+                Debug.LogError("Load task completion source is null when ad fails to load.");
+                return;
+            }
+            _loadTaskCompletionSource.SetResult(FillAdResult.FailedToLoad);
+        }   
         
+        private void HandleAdRewarded(LevelPlayAdInfo adInfo, LevelPlayReward reward)
+        {
+            if (rewardWasCalled) return; // Prevent multiple calls
+            rewardWasCalled = true;
+
+            // Handle the reward logic here, e.g., grant in-game currency or items
+            Debug.Log($"Reward granted for ad: {adInfo.AdUnitId}");
+        }
+
     }
 }

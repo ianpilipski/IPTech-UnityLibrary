@@ -24,7 +24,9 @@ namespace IPTech.UnityServices {
 #endif
 
 #if IPTECH_UNITYADVERTISING_INSTALLED
-            //TODO: add ads
+            config.RegisterFactory<IAdsManager>(new IPTechServiceFactory<IAdsManager>((p) => {
+                return p.Services.GetService<IUnityServicesManager>().AdsManager;
+            }));
 #endif
 
 #if IPTECH_UNITYLEADERBOARDS_INSTALLED

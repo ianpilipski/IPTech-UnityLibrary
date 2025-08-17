@@ -7,7 +7,7 @@
   "keywords": [],
   "category": "",
   "dependencies": {
-    "com.unity.services.levelplay": "1.0.0",
+    "com.unity.services.levelplay": "8.10.1",
     "com.iptech.unityservices": "0.0.1"
   },
   "samples": [],

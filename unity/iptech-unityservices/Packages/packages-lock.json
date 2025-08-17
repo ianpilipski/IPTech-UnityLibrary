@@ -37,7 +37,7 @@
       "depth": 0,
       "source": "local",
       "dependencies": {
-        "com.unity.services.levelplay": "1.0.0",
+        "com.unity.services.levelplay": "8.10.1",
         "com.iptech.unityservices": "0.0.1"
       }
     },
@@ -97,6 +97,13 @@
       "dependencies": {
         "com.unity.test-framework": "1.1.9"
       },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.ide.vscode": {
+      "version": "1.2.5",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
       "url": "https://packages.unity.com"
     },
     "com.unity.nuget.newtonsoft-json": {
@@ -175,10 +182,12 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.services.levelplay": {
-      "version": "1.0.0",
-      "depth": 1,
+      "version": "8.10.1",
+      "depth": 0,
       "source": "registry",
-      "dependencies": {},
+      "dependencies": {
+        "com.unity.services.core": "1.8.1"
+      },
       "url": "https://packages.unity.com"
     },
     "com.unity.test-framework": {

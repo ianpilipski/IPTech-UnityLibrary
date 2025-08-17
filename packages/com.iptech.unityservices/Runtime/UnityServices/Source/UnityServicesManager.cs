@@ -27,11 +27,8 @@ namespace IPTech.UnityServices {
         public INetworkDetector Network => platform.Network;
         public IAuthentication Authentication => authenticationManager;        
         public IAnalyticsManager AnalyticsManager { get; }
+        public IAdsManager AdsManager { get; }
         public IRemoteConfigManager RemoteConfigManager { get; }
-
-#if IPTECH_UNITYADVERTISING_INSTALLED
-        public AdsManager AdsManager { get; }
-#endif
 
         public ILeaderboardsManager LeaderboardsManager { get;}
 

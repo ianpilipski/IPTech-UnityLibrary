@@ -2,77 +2,121 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using IPTech.Platform;
+using Unity.Services.LevelPlay;
 using UnityEngine;
 
 namespace IPTech.UnityServices.Internal {
     public class InterstitialAd : AdBase
     {
-        public InterstitialAd(string placementName) : base(placementName) {
+        private readonly LevelPlayInterstitialAd _levelPlayInterstitialAd;
+        private TaskCompletionSource<FillAdResult> _loadTaskCompletionSource;
+        private TaskCompletionSource<AdResult> _showAdCompletionSource;
+
+        public InterstitialAd(string adUnitId) : base(adUnitId)
+        {
+            _levelPlayInterstitialAd = new LevelPlayInterstitialAd(adUnitId);
+            HookEvents();
         }
 
-        override protected void LoadAd() {
-            #if IPTECH_IRONSOURCE_INSTALLED
-            IronSource.Agent.loadInterstitial();
-            #endif
+        private void HookEvents()
+        {
+            _levelPlayInterstitialAd.OnAdClicked += HandleAdClicked;
+            _levelPlayInterstitialAd.OnAdClosed += HandleAdClosed;
+            _levelPlayInterstitialAd.OnAdDisplayed += HandleAdDisplayed;
+            _levelPlayInterstitialAd.OnAdDisplayFailed += HandleAdDisplayFailed;
+            _levelPlayInterstitialAd.OnAdInfoChanged += HandleAdInfoChanged;
+            _levelPlayInterstitialAd.OnAdLoaded += HandleAdLoaded;
+            _levelPlayInterstitialAd.OnAdLoadFailed += HandleAdLoadFailed;
         }
 
-        override protected async Task ShowAd() {
-            #if IPTECH_IRONSOURCE_INSTALLED
-            if (IronSource.Agent.isInterstitialReady()) {
-                IronSource.Agent.showInterstitial(result.PlacementID);
-                await WaitWhile(() => showState != ShowState.FinishedShowing );
-            } else {
-                result.AdResult = AdResult.FaildToLoad;
+        override protected Task<FillAdResult> LoadAd()
+        {
+            if (_loadTaskCompletionSource != null && !_loadTaskCompletionSource.Task.IsCompleted) throw new InvalidOperationException("Ad is already loading");
+            _loadTaskCompletionSource = new TaskCompletionSource<FillAdResult>();
+
+            _levelPlayInterstitialAd.LoadAd();
+            return _loadTaskCompletionSource.Task;
+        }
+
+        override protected Task<AdResult> ShowAd(string placementName = null)
+        {
+            if (_showAdCompletionSource != null && !_showAdCompletionSource.Task.IsCompleted) throw new InvalidOperationException("Ad is already showing");
+            if (!_levelPlayInterstitialAd.IsAdReady()) throw new InvalidOperationException("Ad must be loaded before showing");
+            if (string.IsNullOrWhiteSpace(placementName))
+            {
+                if (LevelPlayInterstitialAd.IsPlacementCapped(placementName))
+                {
+                    return Task.FromResult(AdResult.FailedToShow);
+                }
+                _showAdCompletionSource = new TaskCompletionSource<AdResult>();
+                _levelPlayInterstitialAd.ShowAd();
             }
-            #endif
+            else
+            {
+                _showAdCompletionSource = new TaskCompletionSource<AdResult>();
+                _levelPlayInterstitialAd.ShowAd(placementName);
+            }
+            return _showAdCompletionSource.Task;
         }
 
-#if IPTECH_IRONSOURCE_INSTALLED
-        #region AdInfo Interstitial
-        // Invoked when the interstitial ad was loaded succesfully.
-        override protected void InterstitialOnAdReadyEvent(IronSourceAdInfo adInfo) {
-            result.Info = adInfo;
-            loadState = LoadState.Loaded;
+        private void HandleAdClicked(LevelPlayAdInfo adInfo)
+        {
+            
         }
 
-        // Invoked when the initialization process has failed.
-        override protected void InterstitialOnAdLoadFailed(IronSourceError ironSourceError) {
-            loadState = LoadState.FailedToLoad;
-            result.AdResult = AdResult.FaildToLoad;
+        private void HandleAdClosed(LevelPlayAdInfo adInfo)
+        {
+            if (_showAdCompletionSource == null)
+            {
+                Debug.LogError("Show task completion source is null, cannot complete show.");
+                return;
+            }
+            _showAdCompletionSource.SetResult(AdResult.Watched);
         }
 
-        // Invoked when the Interstitial Ad Unit has opened. This is the impression indication. 
-        override protected void InterstitialOnAdOpenedEvent(IronSourceAdInfo adInfo) {
-            result.Info = adInfo;
+        private void HandleAdDisplayed(LevelPlayAdInfo adInfo)
+        {
+            
         }
 
-        // Invoked when end user clicked on the interstitial ad
-        override protected void InterstitialOnAdClickedEvent(IronSourceAdInfo adInfo) {
-            result.Info = adInfo;
-            result.UserClicked = true;
+#pragma warning disable 618
+        private void HandleAdDisplayFailed(LevelPlayAdDisplayInfoError errorInfo)
+        {
+            if (_showAdCompletionSource == null)
+            {
+                Debug.LogError("Show task completion source is null, cannot complete show.");
+                return;
+            }
+            _showAdCompletionSource.SetResult(AdResult.FailedToShow);
+        }
+#pragma warning restore 618
+
+        private void HandleAdInfoChanged(LevelPlayAdInfo adInfo)
+        {
+            // This method can be used to update ad info if needed
         }
 
-        // Invoked before the interstitial ad was opened, and before the InterstitialOnAdOpenedEvent is reported.
-        // This callback is not supported by all networks, and we recommend using it only if  
-        // it's supported by all networks you included in your build. 
-        override protected void InterstitialOnAdShowSucceededEvent(IronSourceAdInfo adInfo) {
-            result.Info = adInfo;
+        private void HandleAdLoaded(LevelPlayAdInfo adInfo)
+        {
+            if (_loadTaskCompletionSource == null)
+            {
+                Debug.LogError("Load task completion source is null, cannot complete load.");
+                return;
+            }
+            _loadTaskCompletionSource.SetResult(FillAdResult.Loaded);
+            _loadTaskCompletionSource = null;
         }
 
-        // Invoked when the ad failed to show.
-        override protected void InterstitialOnAdShowFailedEvent(IronSourceError ironSourceError, IronSourceAdInfo adInfo) {
-            result.Info = adInfo;
-            result.AdResult = AdResult.FailedToShow;
-            showState = ShowState.FinishedShowing;
+        private void HandleAdLoadFailed(LevelPlayAdError errorInfo)
+        {
+            if (_loadTaskCompletionSource == null)
+            {
+                Debug.LogError("Load task completion source is null, cannot complete load.");
+                return;
+            }
+            _loadTaskCompletionSource.SetResult(FillAdResult.FailedToLoad);
+            _loadTaskCompletionSource = null;
         }
-
-        // Invoked when the interstitial ad closed and the user went back to the application screen.
-        override protected void InterstitialOnAdClosedEvent(IronSourceAdInfo adInfo) {
-            result.Info = adInfo;
-            result.AdResult = AdResult.Watched;
-            showState = ShowState.FinishedShowing;
-        }
-        #endregion
-#endif
     }
 }

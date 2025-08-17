@@ -1,46 +1,83 @@
 using System;
 using System.Threading.Tasks;
+using IPTech.Platform;
 using UnityEngine;
 
 namespace IPTech.UnityServices.Internal {
     public abstract class AdBase {
-        protected enum LoadState {
+        public enum AdState {
             NotLoaded,
+            Loading,
             Loaded,
-            FailedToLoad
+            FailedToLoad,
+            Showing
         }
 
-        protected enum ShowState {
-            NotShown,
-            FinishedShowing
-        }
+        private Task<FillAdResult> loadTask;
+        private Task<AdResult> showTask;
 
-        protected LoadState loadState;
-        protected ShowState showState;
         protected ShowAdResult result;
 
-        public AdBase(string placementName) {
-            result.PlacementID = placementName;
-            HookEvents();
+        public AdBase(string adUnitId) {
+            result.AdUnitId = adUnitId;
+        }
+        
+        public AdState CurrentState
+        {
+            get
+            {
+                if (showTask != null) return AdState.Showing;
+                if (loadTask == null) return AdState.NotLoaded;
+                if (!loadTask.IsCompleted) return AdState.Loading;
+                if (loadTask.IsCompletedSuccessfully) return AdState.Loaded;
+                return AdState.FailedToLoad;
+            }
         }
 
-        public async Task<ShowAdResult> Show() {
-            if(!await LoadAdInternal()) return result;
-            await ShowAd();
+        public Task<FillAdResult> Load()
+        {
+            if (loadTask != null)
+            {
+                if (!loadTask.IsCompleted) return loadTask;
+                if (loadTask.IsCompletedSuccessfully)
+                {
+                    return loadTask;
+                }
+            }
+
+            loadTask = LoadAd();
+            return loadTask;
+        }
+
+        public async Task<ShowAdResult> Show(string placementName)
+        {
+            if (showTask != null) throw new InvalidOperationException("Ad is already showing");
+            if (loadTask == null || !loadTask.IsCompletedSuccessfully) throw new InvalidOperationException("Ad must be loaded before showing");
+
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(placementName))
+                {
+                    result.PlacementID = placementName;
+                }
+                showTask = ShowAd(result.PlacementID);
+                result.AdResult = await showTask;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error showing ad: {ex.Message}");
+                result.AdResult = AdResult.FailedToShow;
+            }
+            finally
+            {
+                showTask = null;
+                loadTask = null;
+            }
             return result;
         }
 
-        private async Task<bool> LoadAdInternal() {
-            LoadAd();
-            await WaitWhile(() => loadState==LoadState.NotLoaded);
-            if(loadState == LoadState.FailedToLoad) {
-                result.AdResult = AdResult.FaildToLoad;
-            }
-            return loadState == LoadState.Loaded;
-        }
-
-        protected abstract void LoadAd();
-        protected abstract Task ShowAd();
+        protected abstract Task<FillAdResult> LoadAd();
+        protected abstract Task<AdResult> ShowAd(string placementName = null);
             
         protected async Task WaitWhile(Func<bool> condition) {
             while(condition()) {
@@ -53,69 +90,5 @@ namespace IPTech.UnityServices.Internal {
             if(Application.isPlaying) return;
             throw new OperationCanceledException("playmode state changed");
         }
-
-#if IPTECH_IRONSOURCE_INSTALLED
-        void HookEvents() {
-            IronSourceInterstitialEvents.onAdReadyEvent += InterstitialOnAdReadyEvent;
-            IronSourceInterstitialEvents.onAdLoadFailedEvent += InterstitialOnAdLoadFailed;
-            IronSourceInterstitialEvents.onAdOpenedEvent += InterstitialOnAdOpenedEvent;
-            IronSourceInterstitialEvents.onAdClickedEvent += InterstitialOnAdClickedEvent;
-            IronSourceInterstitialEvents.onAdShowSucceededEvent += InterstitialOnAdShowSucceededEvent;
-            IronSourceInterstitialEvents.onAdShowFailedEvent += InterstitialOnAdShowFailedEvent;
-            IronSourceInterstitialEvents.onAdClosedEvent += InterstitialOnAdClosedEvent;
-
-            IronSourceRewardedVideoEvents.onAdOpenedEvent += ReardedVideoOnAdOpenedEvent;
-            IronSourceRewardedVideoEvents.onAdClosedEvent += ReardedVideoOnAdClosedEvent;
-            IronSourceRewardedVideoEvents.onAdAvailableEvent += ReardedVideoOnAdAvailable;
-            IronSourceRewardedVideoEvents.onAdUnavailableEvent += ReardedVideoOnAdUnavailable;
-            IronSourceRewardedVideoEvents.onAdShowFailedEvent += ReardedVideoOnAdShowFailedEvent;
-            IronSourceRewardedVideoEvents.onAdRewardedEvent += ReardedVideoOnAdRewardedEvent;
-            IronSourceRewardedVideoEvents.onAdClickedEvent += ReardedVideoOnAdClickedEvent;
-        }
-
-
-        #region AdInfo Reward
-        protected virtual void ReardedVideoOnAdOpenedEvent(IronSourceAdInfo info) {}
-
-        protected virtual void ReardedVideoOnAdClosedEvent(IronSourceAdInfo info) {}
-
-        protected virtual void ReardedVideoOnAdAvailable(IronSourceAdInfo info) {}
-
-        protected virtual void ReardedVideoOnAdUnavailable() {}
-
-        protected virtual void ReardedVideoOnAdShowFailedEvent(IronSourceError error, IronSourceAdInfo info) {}
-
-        protected virtual void ReardedVideoOnAdRewardedEvent(IronSourcePlacement placement, IronSourceAdInfo info) {}
-
-        protected virtual void ReardedVideoOnAdClickedEvent(IronSourcePlacement placement, IronSourceAdInfo info) {}
-        #endregion
-
-        #region AdInfo Interstitial
-        // Invoked when the interstitial ad was loaded succesfully.
-        protected virtual void InterstitialOnAdReadyEvent(IronSourceAdInfo adInfo) {}
-
-        // Invoked when the initialization process has failed.
-        protected virtual void InterstitialOnAdLoadFailed(IronSourceError ironSourceError) {}
-
-        // Invoked when the Interstitial Ad Unit has opened. This is the impression indication. 
-        protected virtual void InterstitialOnAdOpenedEvent(IronSourceAdInfo adInfo) {}
-
-        // Invoked when end user clicked on the interstitial ad
-        protected virtual void InterstitialOnAdClickedEvent(IronSourceAdInfo adInfo) {}
-
-        // Invoked before the interstitial ad was opened, and before the InterstitialOnAdOpenedEvent is reported.
-        // This callback is not supported by all networks, and we recommend using it only if  
-        // it's supported by all networks you included in your build. 
-        protected virtual void InterstitialOnAdShowSucceededEvent(IronSourceAdInfo adInfo) {}
-
-        // Invoked when the ad failed to show.
-        protected virtual void InterstitialOnAdShowFailedEvent(IronSourceError ironSourceError, IronSourceAdInfo adInfo) {}
-
-        // Invoked when the interstitial ad closed and the user went back to the application screen.
-        protected virtual void InterstitialOnAdClosedEvent(IronSourceAdInfo adInfo) {}
-        #endregion
-#else
-        void HookEvents() {}
-#endif
     }
 }

@@ -7,6 +7,7 @@ namespace IPTech.UnityServices {
         INetworkDetector Network { get; }
         IAuthentication Authentication { get; }
         IAnalyticsManager AnalyticsManager { get; }
+        IAdsManager AdsManager { get; }
         ILeaderboardsManager LeaderboardsManager { get; }
         IRemoteConfigManager RemoteConfigManager { get; }
 
