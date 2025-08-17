@@ -1,3 +1,4 @@
+#if !UNITY_6000_0_OR_NEWER
 #if !(UNITY_EDITOR || DEVELOPMENT_BUILD || QA_BUILD)
 #define CONTAINERDEBUGSERVICE_DISABLED
 #endif
@@ -35,7 +36,7 @@ namespace IPTech.DebugConsoleService
             return CalculateMemory(textures);
         }
 
-        private static long CalculateRuntimeSizeInBytes(Texture2D tex2d) 
+        private static long CalculateRuntimeSizeInBytes(Texture2D tex2d)
         {
             TextureDataCalculator tdc = new TextureDataCalculator(tex2d);
             return tdc.RuntimeMemoryInBytes;
@@ -98,4 +99,5 @@ namespace IPTech.DebugConsoleService
     }
 }
 
+#endif
 #endif

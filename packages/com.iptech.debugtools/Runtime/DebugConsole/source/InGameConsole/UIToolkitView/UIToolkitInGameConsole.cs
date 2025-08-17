@@ -128,10 +128,15 @@ namespace IPTech.DebugConsoleService.InGameConsole {
             if(heightInPixels < MINIMIZEDHEIGHT) heightInPixels = MINIMIZEDHEIGHT;
             if(heightInPixels > 640) heightInPixels = 640;
 
+#if UNITY_6000_0_OR_NEWER
+            var pp = main.resolvedStyle.translate;
+            pp.y = pos;
+            main.style.translate = pp;
+#else
             var pp = main.transform.position;
             pp.y = pos;
             main.transform.position = pp;
-
+#endif
             main.style.height = new StyleLength(new Length(heightInPixels, LengthUnit.Pixel));
         }
 
@@ -155,7 +160,11 @@ namespace IPTech.DebugConsoleService.InGameConsole {
                 dragging = true;
                 dragStartTime = DateTime.Now;
                 startMousePos = evt.mousePosition;
+#if UNITY_6000_0_OR_NEWER
+                startPanelPos = main.resolvedStyle.translate;             
+#else
                 startPanelPos = main.transform.position;
+#endif
                 startHandlePosX = handle.resolvedStyle.left;
                 handle.CaptureMouse();
                 evt.StopPropagation();

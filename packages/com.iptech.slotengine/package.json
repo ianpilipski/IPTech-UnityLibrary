@@ -3,7 +3,7 @@
   "displayName": "IPTech.SlotEngine",
   "version": "0.0.1",
   "dependencies": {
-    "com.iptech.utils": ""
+    "com.iptech.utils": "0.0.1"
   },
   "keywords": [],
   "category": "",

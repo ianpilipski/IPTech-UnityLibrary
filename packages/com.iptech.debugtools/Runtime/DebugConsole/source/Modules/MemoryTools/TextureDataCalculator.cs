@@ -1,3 +1,4 @@
+#if !UNITY_6000_0_OR_NEWER
 #if !(UNITY_EDITOR || DEVELOPMENT_BUILD || QA_BUILD)
 #define CONTAINERDEBUGSERVICE_DISABLED
 #endif
@@ -318,4 +319,4 @@ namespace IPTech.DebugConsoleService
 }
 
 #endif
-
+#endif // !UNITY_2023_2_OR_NEWER

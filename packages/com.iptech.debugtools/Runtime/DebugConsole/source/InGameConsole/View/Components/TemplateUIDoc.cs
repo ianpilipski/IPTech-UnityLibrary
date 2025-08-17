@@ -31,9 +31,17 @@ namespace IPTech.DebugConsoleService.InGameConsole {
                 var panel = uiDoc.rootVisualElement.panel;
                 var panelPos = RuntimePanelUtils.ScreenToPanel(uiDoc.rootVisualElement.panel, rtPos);
                 Debug.Log($"panel pos: {rt.position}, {panelPos}");
+#if UNITY_6000_0_OR_NEWER
+                var pos = uiDoc.rootVisualElement.resolvedStyle.translate;
+#else
                 var pos = uiDoc.rootVisualElement.transform.position;
+#endif
                 pos.y = panelPos.y;
+#if UNITY_6000_0_OR_NEWER
+                uiDoc.rootVisualElement.style.translate = pos;
+#else
                 uiDoc.rootVisualElement.transform.position = pos;
+#endif
             }
         }
 
