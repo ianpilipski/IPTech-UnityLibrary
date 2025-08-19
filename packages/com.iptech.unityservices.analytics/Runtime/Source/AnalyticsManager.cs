@@ -5,6 +5,7 @@ using USA = Unity.Services.Analytics;
 
 namespace IPTech.UnityServices {
     using Platform;
+    using UnityEngine.UnityConsent;
 
     public class AnalyticsManager : IAnalyticsManager  {
         USA.IAnalyticsService service;
@@ -44,13 +45,27 @@ namespace IPTech.UnityServices {
         void ChangeStateBasedOnConsent(ConsentInfo consent) {
             try {
                 if(service!=null) {
-                    if(consent.Consent == EConsentValue.Accepted && unityServicesManager.State == EServiceState.Initialized) {
+                    if (consent.Consent == EConsentValue.Accepted && unityServicesManager.State == EServiceState.Initialized)
+                    {
                         Debug.Log($"[IPTech.UnityServices.Analytics] starting data collection");
-                        service.StartDataCollection();
-                    } else {
+                        var cs = EndUserConsent.GetConsentState();
+                        if (cs.AnalyticsIntent != ConsentStatus.Granted)
+                        {
+                            cs.AnalyticsIntent = ConsentStatus.Granted;
+                            EndUserConsent.SetConsentState(cs);
+                        }
+                    }
+                    else
+                    {
                         Debug.Log($"[IPTech.UnityServices.Analytics] stopping data collection");
-                        service.StopDataCollection();
-                        if(consent.Consent == EConsentValue.DeclinedDeleteMyData) {
+                        var cs = EndUserConsent.GetConsentState();
+                        if (cs.AnalyticsIntent != ConsentStatus.Denied)
+                        {
+                            cs.AnalyticsIntent = ConsentStatus.Denied;
+                            EndUserConsent.SetConsentState(cs);
+                        }
+                        if (consent.Consent == EConsentValue.DeclinedDeleteMyData)
+                        {
                             Debug.Log($"[IPTech.UnityServices.Analytics] requesting data deletion");
                             service.RequestDataDeletion();
                         }
@@ -106,7 +121,7 @@ namespace IPTech.UnityServices {
                 return;
             }
             if(service == null) return;
-            service.CustomData(eventName);
+            service.RecordEvent(new USA.CustomEvent(eventName));
         }
 
         public void CustomData(string eventName, IDictionary<string, object> eventParams) {
@@ -115,7 +130,11 @@ namespace IPTech.UnityServices {
                 return;
             }
             if(service == null) return;
-            service.CustomData(eventName, eventParams);
+            var customEvent = new USA.CustomEvent(eventName);
+            foreach(var kvp in eventParams) {
+                customEvent.Add(kvp.Key, kvp.Value);
+            }
+            service.RecordEvent(customEvent);
         }
 
         public void AdImpression(AdImpressionParameters adImpression) {
@@ -124,31 +143,35 @@ namespace IPTech.UnityServices {
                 return;
             }
             if(service == null) return;
-            service.AdImpression(Convert(adImpression));
+            service.RecordEvent(Convert(adImpression));
         }
 
-        Unity.Services.Analytics.AdImpressionParameters Convert(AdImpressionParameters parameters) {
-            return new Unity.Services.Analytics.AdImpressionParameters() {
+        USA.AdImpressionEvent Convert(AdImpressionParameters parameters)
+        {
+            var retVal = new USA.AdImpressionEvent()
+            {
                 AdCompletionStatus = Convert(parameters.AdCompletionStatus),
-                AdEcpmUsd = parameters.AdEcpmUsd,
-                AdHasClicked = parameters.AdHasClicked,
-                AdImpressionID = parameters.AdImpressionID,
-                AdLengthMs = parameters.AdLengthMs,
+                AdImpressionId = parameters.AdImpressionID,
                 AdMediaType = parameters.AdMediaType,
                 AdProvider = Convert(parameters.AdProvider),
                 AdSource = parameters.AdSource,
                 AdStatusCallback = parameters.AdStatusCallback,
-                AdStoreDstID = parameters.AdStoreDstID,
-                AdTimeCloseButtonShownMs = parameters.AdTimeCloseButtonShownMs,
-                AdTimeWatchedMs = parameters.AdTimeWatchedMs,
-                PlacementID = parameters.PlacementID,
+                AdStoreDestinationId = parameters.AdStoreDstID,
+                PlacementId = parameters.PlacementID,
                 PlacementName = parameters.PlacementName,
-                PlacementType = Convert(parameters.PlacementType),
-                SdkVersion = parameters.SdkVersion
+                AdSdkVersion = parameters.SdkVersion
             };
+
+            if (parameters.AdEcpmUsd.HasValue) retVal.AdEcpmUsd = parameters.AdEcpmUsd.Value;
+            if (parameters.AdHasClicked.HasValue) retVal.AdHasClicked = parameters.AdHasClicked.Value;
+            if (parameters.AdLengthMs.HasValue) retVal.AdLengthMs = parameters.AdLengthMs.Value;
+            if (parameters.AdTimeCloseButtonShownMs.HasValue) retVal.AdTimeCloseButtonShownMs = parameters.AdTimeCloseButtonShownMs.Value;
+            if (parameters.AdTimeWatchedMs.HasValue) retVal.AdTimeWatchedMs = parameters.AdTimeWatchedMs.Value;
+            if (parameters.PlacementType.HasValue) retVal.PlacementType = Convert(parameters.PlacementType.Value);
+            return retVal;
         }
 
-        Unity.Services.Analytics.AdCompletionStatus Convert(AdCompletionStatus status) {
+        USA.AdCompletionStatus Convert(AdCompletionStatus status) {
             return status switch {
                 AdCompletionStatus.Completed => USA.AdCompletionStatus.Completed,
                 AdCompletionStatus.Incomplete => USA.AdCompletionStatus.Incomplete,
@@ -157,7 +180,7 @@ namespace IPTech.UnityServices {
             };
         }
 
-        Unity.Services.Analytics.AdProvider Convert(AdProvider provider) {
+        USA.AdProvider Convert(AdProvider provider) {
             return provider switch {
                 AdProvider.AdColony => USA.AdProvider.AdColony,
                 AdProvider.AdMob => USA.AdProvider.AdMob,
@@ -179,8 +202,7 @@ namespace IPTech.UnityServices {
             };
         }
 
-        USA.AdPlacementType? Convert(AdPlacementType? placementType) {
-            if(placementType == null) return null;
+        USA.AdPlacementType Convert(AdPlacementType placementType) {
             return placementType switch {
                 AdPlacementType.BANNER => USA.AdPlacementType.BANNER,
                 AdPlacementType.INTERSTITIAL => USA.AdPlacementType.INTERSTITIAL,
