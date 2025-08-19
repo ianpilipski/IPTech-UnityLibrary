@@ -151,17 +151,17 @@ namespace IPTech.UnityServices {
             var retVal = new USA.AdImpressionEvent()
             {
                 AdCompletionStatus = Convert(parameters.AdCompletionStatus),
-                AdImpressionId = parameters.AdImpressionID,
-                AdMediaType = parameters.AdMediaType,
-                AdProvider = Convert(parameters.AdProvider),
-                AdSource = parameters.AdSource,
-                AdStatusCallback = parameters.AdStatusCallback,
-                AdStoreDestinationId = parameters.AdStoreDstID,
-                PlacementId = parameters.PlacementID,
-                PlacementName = parameters.PlacementName,
-                AdSdkVersion = parameters.SdkVersion
+                AdProvider = Convert(parameters.AdProvider)
             };
 
+            if(!string.IsNullOrWhiteSpace(parameters.AdImpressionID)) retVal.AdImpressionId = parameters.AdImpressionID;
+            if(!string.IsNullOrWhiteSpace(parameters.AdMediaType)) retVal.AdMediaType = parameters.AdMediaType;
+            if(!string.IsNullOrWhiteSpace(parameters.AdSource)) retVal.AdSource = parameters.AdSource;
+            if(!string.IsNullOrWhiteSpace(parameters.AdStatusCallback)) retVal.AdStatusCallback = parameters.AdStatusCallback;
+            if(!string.IsNullOrWhiteSpace(parameters.AdStoreDstID)) retVal.AdStoreDestinationId = parameters.AdStoreDstID;
+            if(!string.IsNullOrWhiteSpace(parameters.PlacementID)) retVal.PlacementId = parameters.PlacementID;
+            if(!string.IsNullOrWhiteSpace(parameters.PlacementName)) retVal.PlacementName = parameters.PlacementName;
+            if(!string.IsNullOrWhiteSpace(parameters.SdkVersion)) retVal.AdSdkVersion = parameters.SdkVersion;
             if (parameters.AdEcpmUsd.HasValue) retVal.AdEcpmUsd = parameters.AdEcpmUsd.Value;
             if (parameters.AdHasClicked.HasValue) retVal.AdHasClicked = parameters.AdHasClicked.Value;
             if (parameters.AdLengthMs.HasValue) retVal.AdLengthMs = parameters.AdLengthMs.Value;
