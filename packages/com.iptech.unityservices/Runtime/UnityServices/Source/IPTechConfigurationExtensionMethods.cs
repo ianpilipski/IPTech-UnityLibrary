@@ -2,9 +2,9 @@ using IPTech.Platform;
 
 namespace IPTech.UnityServices {
     public static class IPTechConfigurationExtensionMethods {
-        public static IIPTechPlatformConfig ConfigureUnityServices(this IIPTechPlatformConfig config) {
+        public static IIPTechPlatformConfig ConfigureUnityServices(this IIPTechPlatformConfig config, string adsApiKey = null) {
             config.RegisterFactory<IUnityServicesManager>(new IPTechServiceFactory<IUnityServicesManager>((p) => {
-                return new UnityServicesManager(p);
+                return new UnityServicesManager(p, adsApiKey);
             }));
 
 #if UNITY_AUTHSERVICE_INSTALLED || UNITY_LEADERBOARDS_INSTALLED || UNITY_REMOTECONFIG_INSTALLED

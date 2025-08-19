@@ -25,11 +25,11 @@ namespace IPTech.UnityServices {
 
         public event Action<ShowAdResult> AdShown;
 
-        public AdsManager(IIPTechPlatform platform)
+        public AdsManager(IIPTechPlatform platform, string adsApiKey)
         {
             this.platform = platform;
 
-            this.appKey = "<your app key here>";
+            this.appKey = adsApiKey ?? throw new ArgumentNullException(nameof(adsApiKey), "adsApiKey cannot be null, please provide a valid API key for Unity Ads");
             Initialize();
         }
 
@@ -62,7 +62,7 @@ namespace IPTech.UnityServices {
             alreadySetConsent = true;
 
             var didConsent = consentValue.Consent == EConsentValue.Accepted;
-            var didConsentString = didConsent ? "true" : "false";
+            var didConsentString = consentValue.OkToSell ? "true" : "false";
             var isUnder13String = consentValue.AgeInfo == EConsentAge.Adult ? "false" : "true";
 
             LevelPlay.SetConsent(didConsent);
@@ -225,7 +225,7 @@ namespace IPTech.UnityServices {
         {
             try
             {
-                AdShown.Invoke(res);
+                AdShown?.Invoke(res);
             }
             catch (Exception e)
             {

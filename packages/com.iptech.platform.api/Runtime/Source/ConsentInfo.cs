@@ -8,5 +8,6 @@ namespace IPTech.Platform
     {
         public EConsentValue Consent;
         public EConsentAge AgeInfo;
+        public bool OkToSell;
     }
 }

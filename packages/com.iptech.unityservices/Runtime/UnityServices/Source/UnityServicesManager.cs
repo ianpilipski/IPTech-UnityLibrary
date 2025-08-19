@@ -32,7 +32,7 @@ namespace IPTech.UnityServices {
 
         public ILeaderboardsManager LeaderboardsManager { get;}
 
-        public UnityServicesManager(IIPTechPlatform platform) {
+        public UnityServicesManager(IIPTechPlatform platform, string adsApiKey) {
             State = EServiceState.Initializing;
             onlineState = EOnlineState.Offline;
 
@@ -44,7 +44,7 @@ namespace IPTech.UnityServices {
 #endif
 
 #if IPTECH_UNITYADVERTISING_INSTALLED
-            this.AdsManager = new AdsManager(platform);
+            this.AdsManager = new AdsManager(platform, adsApiKey);
 #endif
 
 #if IPTECH_UNITYLEADERBOARDS_INSTALLED
