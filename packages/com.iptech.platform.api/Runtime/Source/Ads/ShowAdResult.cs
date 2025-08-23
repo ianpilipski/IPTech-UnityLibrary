@@ -4,6 +4,6 @@ namespace IPTech.Platform {
         public AdResult AdResult;
 
         public string AdUnitId;
-        public string PlacementID;
+        public string PlacementName;
     }
 }

@@ -12,10 +12,11 @@ namespace IPTech.UnityServices {
 
     public class AdsManager : IAdsManager
     {
-        readonly string appKey;
-        readonly IIPTechPlatform platform;
-        readonly Dictionary<string, Internal.InterstitialAd> interstitialAds = new ();
-        readonly Dictionary<string, Internal.RewardAd> rewardAds = new ();
+        readonly IUnityServicesManager unityServicesManager;
+        private IIPTechPlatform platform => unityServicesManager.Platform;
+        readonly Dictionary<string, Internal.InterstitialAd> interstitialAds = new();
+        readonly Dictionary<string, Internal.RewardAd> rewardAds = new();
+        readonly Config config;
 
         bool initialized;
         bool alreadyCalledInitialized;
@@ -25,11 +26,10 @@ namespace IPTech.UnityServices {
 
         public event Action<ShowAdResult> AdShown;
 
-        public AdsManager(IIPTechPlatform platform, string adsApiKey)
+        public AdsManager(IUnityServicesManager unityServicesManager, Config config)
         {
-            this.platform = platform;
-
-            this.appKey = adsApiKey ?? throw new ArgumentNullException(nameof(adsApiKey), "adsApiKey cannot be null, please provide a valid API key for Unity Ads");
+            this.unityServicesManager = unityServicesManager;
+            this.config = config;
             Initialize();
         }
 
@@ -91,14 +91,14 @@ namespace IPTech.UnityServices {
 
             // SDK init
 
-
             // to enable testsuite must call before init
-            // LevelPlay.SetMetaData("is_test_suite", "enable");
-
+            if (config.EnableTestSuite || Application.isEditor)
+                LevelPlay.SetMetaData("is_test_suite", "enable");
+      
             Debug.Log("unity-script: LevelPlay.Init");
             LevelPlay.OnInitSuccess += HandleLevelPlayInitSuccess;
             LevelPlay.OnInitFailed += HandleLevelPlayInitFailed;
-            LevelPlay.Init(appKey);
+            LevelPlay.Init(config.AppKey);
 
             void HandleLevelPlayInitFailed(LevelPlayInitError error)
             {
@@ -123,13 +123,13 @@ namespace IPTech.UnityServices {
             }
         }
 
-        public async Task<FillAdResult> FillAd(AdType adType, string adUnitId)
+        private async Task<FillAdResult> FillAd(AdType adType, string adUnitId)
         {
             DebugLog($"FillAd - {adType}");
             try
             {
                 await WaitForInitialization();
-                
+
                 switch (adType)
                 {
                     case AdType.Interstitial:
@@ -140,7 +140,7 @@ namespace IPTech.UnityServices {
                         }
                         return await ad.Load();
                     case AdType.Reward:
-                        if(!rewardAds.TryGetValue(adUnitId, out var rewardAd))
+                        if (!rewardAds.TryGetValue(adUnitId, out var rewardAd))
                         {
                             rewardAd = new Internal.RewardAd(adUnitId);
                             rewardAds[adUnitId] = rewardAd;
@@ -157,7 +157,7 @@ namespace IPTech.UnityServices {
             }
         }
 
-        public bool IsAdFilled(AdType adType, string adUnitId)
+        private bool IsAdFilled(AdType adType, string adUnitId)
         {
             switch (adType)
             {
@@ -168,26 +168,27 @@ namespace IPTech.UnityServices {
                 default:
                     throw new NotSupportedException($"Unsupported ad type: {adType}");
             }
-        }   
+        }
 
-        public async Task<ShowAdResult> ShowAd(AdType adType, string adUnitId, string placementName = null)
+        public async Task<ShowAdResult> ShowAd(AdType adType, string placementName)
         {
             if (!isShowingAd)
             {
                 isShowingAd = true;
                 DebugLog($"ShowAd - {adType}");
+                var adUnitId = config.AdUnitIds[adType];
                 try
                 {
                     await WaitForInitialization();
-                    
+
                     ShowAdResult res = default;
                     if (!Application.isEditor)
                     {
                         var fillRes = await FillAd(adType, adUnitId);
-                        if(fillRes == FillAdResult.FailedToLoad) 
+                        if (fillRes == FillAdResult.FailedToLoad)
                         {
                             DebugLog($"ShowAd - {adType} - Failed to fill ad");
-                            return new ShowAdResult { AdResult = AdResult.FailedToLoad, AdUnitId = adUnitId, PlacementID = placementName };
+                            return new ShowAdResult { AdResult = AdResult.FailedToLoad, AdUnitId = adUnitId, PlacementName = placementName };
                         }
 
                         switch (adType)
@@ -204,7 +205,7 @@ namespace IPTech.UnityServices {
                     }
                     else
                     {
-                        res = new ShowAdResult { AdResult = AdResult.FailedToLoad, AdUnitId = adUnitId, PlacementID = placementName };
+                        res = new ShowAdResult { AdResult = AdResult.FailedToLoad, AdUnitId = adUnitId, PlacementName = placementName };
                     }
                     DebugLog($"ShowAd - {adType} - {res}");
                     OnAdShown(res);
@@ -265,8 +266,26 @@ namespace IPTech.UnityServices {
 
         public void ShowDebugger()
         {
+            if (!Application.isEditor && !config.EnableTestSuite)
+            {
+                Debug.LogError("you must configure the ads manager with EnableTestSuite = true to use this function");
+                return;
+            }
             LevelPlay.LaunchTestSuite();
         }
-    }
 
+
+        public class Config
+        {
+            public string AppKey;
+            public Dictionary<AdType, string> AdUnitIds;
+            public bool EnableTestSuite;
+
+            public Config(string appKey, Dictionary<AdType, string> adUnitIds)
+            {
+                AppKey = appKey ?? throw new ArgumentNullException(nameof(appKey), "AppKey cannot be null");
+                AdUnitIds = adUnitIds ?? throw new ArgumentNullException(nameof(adUnitIds), "AdUnitIds cannot be null");
+            }
+        }
+    }
 }

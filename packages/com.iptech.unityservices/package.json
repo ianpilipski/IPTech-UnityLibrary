@@ -13,6 +13,6 @@
   },
   "dependencies": {
     "com.iptech.platform.api": "0.0.1",
-    "com.unity.services.authentication": "3.4.0"
+    "com.unity.services.authentication": "3.4.1"
   }
 }

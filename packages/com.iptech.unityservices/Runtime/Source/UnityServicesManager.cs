@@ -24,36 +24,21 @@ namespace IPTech.UnityServices {
 
         public event Action<EOnlineState> OnlineStateChanged;
 
+        public IIPTechPlatform Platform => platform;
         public INetworkDetector Network => platform.Network;
-        public IAuthentication Authentication => authenticationManager;        
-        public IAnalyticsManager AnalyticsManager { get; }
-        public IAdsManager AdsManager { get; }
-        public IRemoteConfigManager RemoteConfigManager { get; }
+        public IAuthentication Authentication => authenticationManager;
+        public IAnalyticsManager AnalyticsManager => platform.Analytics;
+        public IAdsManager AdsManager => platform.Ads;
+        public IRemoteConfigManager RemoteConfigManager => platform.RemoteConfig;
 
         public ILeaderboardsManager LeaderboardsManager { get;}
 
-        public UnityServicesManager(IIPTechPlatform platform, string adsApiKey) {
+        public UnityServicesManager(IIPTechPlatform platform, UnityServicesConfig unityServicesConfig = null) {
             State = EServiceState.Initializing;
             onlineState = EOnlineState.Offline;
 
             this.platform = platform;
             this.authenticationManager = new AuthenticationManager(this);
-
-#if IPTECH_UNITYANALYTICS_INSTALLED
-            this.AnalyticsManager = new AnalyticsManager(this);
-#endif
-
-#if IPTECH_UNITYADVERTISING_INSTALLED
-            this.AdsManager = new AdsManager(platform, adsApiKey);
-#endif
-
-#if IPTECH_UNITYLEADERBOARDS_INSTALLED
-            this.LeaderboardsManager = new IPTech.UnityServices.Leaderboards.LeaderboardsManager(this);
-#endif
-
-#if IPTECH_UNITYREMOTECONFIG_INSTALLED
-            this.RemoteConfigManager = new IPTech.UnityServices.RemoteConfig.RemoteConfigManager(this);
-#endif
 
             Initialize();
         }

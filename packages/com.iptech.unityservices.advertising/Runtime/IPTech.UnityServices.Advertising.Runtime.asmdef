@@ -2,9 +2,10 @@
     "name": "IPTech.UnityServices.Advertising.Runtime",
     "rootNamespace": "",
     "references": [
-        "GUID:9911134dc03434a9da84b1212413e243",
         "GUID:92c66b79875e04ed39664e294fb3e0ae",
-        "GUID:760a4c7888534400e882b82c5b3fba06"
+        "GUID:760a4c7888534400e882b82c5b3fba06",
+        "GUID:51e47338b6f344668aa0d45bd53ce312",
+        "GUID:02a0c112b490542a884c421c5c524f3f"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

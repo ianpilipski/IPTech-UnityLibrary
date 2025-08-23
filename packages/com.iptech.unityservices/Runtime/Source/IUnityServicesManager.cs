@@ -4,6 +4,8 @@ namespace IPTech.UnityServices {
     using Platform;
 
     public interface IUnityServicesManager : IIPTechPlatformService {
+        IIPTechPlatform Platform { get; }
+        
         INetworkDetector Network { get; }
         IAuthentication Authentication { get; }
         IAnalyticsManager AnalyticsManager { get; }

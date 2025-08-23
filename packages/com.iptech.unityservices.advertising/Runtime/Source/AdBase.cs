@@ -58,9 +58,9 @@ namespace IPTech.UnityServices.Internal {
             {
                 if (!string.IsNullOrWhiteSpace(placementName))
                 {
-                    result.PlacementID = placementName;
+                    result.PlacementName = placementName;
                 }
-                showTask = ShowAd(result.PlacementID);
+                showTask = ShowAd(result.PlacementName);
                 result.AdResult = await showTask;
             }
             catch (Exception ex)

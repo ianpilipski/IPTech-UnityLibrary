@@ -1,1 +1,16 @@
-{"name":"IPTech.UnityAnalytics.Editor","references":["IPTech.UnityAnalytics.Runtime"],"optionalUnityReferences":[],"includePlatforms":["Editor"],"excludePlatforms":[],"allowUnsafeCode":false,"overrideReferences":false,"precompiledReferences":[],"autoReferenced":true,"defineConstraints":[],"versionDefines":[],"noEngineReferences":false}
+{
+    "name": "IPTech.UnityAnalytics.Editor",
+    "rootNamespace": "",
+    "references": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

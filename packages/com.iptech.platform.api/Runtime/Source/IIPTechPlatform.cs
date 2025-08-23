@@ -5,6 +5,7 @@ namespace IPTech.Platform {
 
     public interface IIPTechPlatform {
         IServiceLocator Services { get; }
+
         INetworkDetector Network { get; }
         void RunOnUnityThread(Action action);
         event Action Initialized;
@@ -13,7 +14,9 @@ namespace IPTech.Platform {
         event Action<ConsentInfo> ConsentValueChanged;
         event Action<bool> ApplicationPaused;
 
+        // Installable Services
         IAuthentication Authentication { get; }
+        IAdsManager Ads { get; }
         IAnalyticsManager Analytics { get; }
         ILeaderboardsManager Leaderboards { get; }
         IRemoteConfigManager RemoteConfig { get; }
