@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace IPTech.Utils {
@@ -28,14 +29,16 @@ namespace IPTech.Utils {
         public void Send<T>(T signal) where T : ISignal {
             if(signal.Sticky) stickySignals[typeof(T)] = signal;
 
-            if(listeners.TryGetValue(typeof(T), out var delegates)) {
-                var copy = new List<Delegate>(delegates);
-                foreach(var del in copy) {
-                    try {
-                        del.DynamicInvoke(signal);
-                    } catch(Exception e) {
-                        Debug.LogException(e);
-                    }
+            var dels = listeners.Where(kv => kv.Key == typeof(T) || typeof(T).IsSubclassOf(kv.Key)).SelectMany(kv => kv.Value).ToList();
+            foreach(var del in dels) 
+            {
+                try
+                {
+                    del.DynamicInvoke(signal);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
                 }
             }
         }
