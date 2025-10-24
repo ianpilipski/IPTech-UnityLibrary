@@ -205,8 +205,12 @@ namespace IPTech.BuildTool
 
             bool UpdateScriptableObjectReference() {
                 if(soTarget == null || soTarget.targetObject != prop.objectReferenceValue) {
-                    soTarget = new SerializedObject(prop.objectReferenceValue);
-                    return true;
+                    if (prop.objectReferenceValue != null)
+                    {
+                        soTarget = new SerializedObject(prop.objectReferenceValue);
+                        return true;
+                    }
+                    return false;
                 }
                 soTarget.UpdateIfRequiredOrScript();
                 return true;
