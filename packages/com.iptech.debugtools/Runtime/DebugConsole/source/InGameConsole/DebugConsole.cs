@@ -210,7 +210,9 @@ namespace IPTechShared {
 		static DebugConsole Instance {
 			get {
 				if (_instance == null) {
-					#if UNITY_6000_0_OR_NEWER
+					#if UNITY_6000_4_OR_NEWER
+					_instance = Object.FindAnyObjectByType<DebugConsole>();
+					#elif UNITY_6000_0_OR_NEWER
 					_instance = Object.FindFirstObjectByType<DebugConsole>();
 					#else
 					_instance = FindObjectOfType(typeof(DebugConsole)) as DebugConsole;

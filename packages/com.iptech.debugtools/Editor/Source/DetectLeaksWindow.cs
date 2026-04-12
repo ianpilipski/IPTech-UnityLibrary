@@ -60,7 +60,13 @@ namespace IPTech.DebugTools {
         /// Scan for every game object inside the scene AND the project folder
         /// </summary>
         private void Scan() {
-            _sceneList = (FindObjectsOfType(typeof(GameObject)) as GameObject[]).ToList();
+            #if UNITY_6000_4_OR_NEWER
+            _sceneList = (FindObjectsByType(typeof(GameObject)) as GameObject[]).ToList();
+            #elif UNITY_6000_0_OR_NEWER
+            _sceneList = (FindObjectsByType(typeof(GameObject), FindObjectsSortMode.None) as GameObject[]).ToList();
+            #else
+            _sceneList = FindObjectsOfType(typeof(GameObject)).Cast<GameObject>().ToList();
+            #endif
             _sceneHasMissingScripts = false;
             foreach (GameObject go in _sceneList) {
                 if (CheckForMissingScripts(go)) {

@@ -57,7 +57,9 @@ namespace IPTech.DebugConsoleService
                     }
                 }         
             } else {
-                #if UNITY_6000_0_OR_NEWER
+                #if UNITY_6000_4_OR_NEWER
+                objList = UnityEngine.Object.FindObjectsByType<T>().ToList();
+                #elif UNITY_6000_0_OR_NEWER
                 objList = UnityEngine.Object.FindObjectsByType<T>(FindObjectsSortMode.None).ToList();
                 #else
                 objList = UnityEngine.Object.FindObjectsOfType<T>().ToList();

@@ -13,7 +13,9 @@ namespace IPTech.DebugTools {
         public static DebugDraw Instance {
             get {
                 if (_instance == null) {
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_6000_4_OR_NEWER
+                    DebugDraw[] ddArray = UnityEngine.Object.FindObjectsByType<DebugDraw>();
+#elif UNITY_6000_0_OR_NEWER
                     DebugDraw[] ddArray = UnityEngine.Object.FindObjectsByType<DebugDraw>(FindObjectsSortMode.None);
 #else
                     DebugDraw[] ddArray = UnityEngine.Object.FindObjectsOfType<DebugDraw>();
