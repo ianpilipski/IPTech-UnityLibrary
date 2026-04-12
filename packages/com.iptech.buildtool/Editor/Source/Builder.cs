@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine;
 
 namespace IPTech.BuildTool
 {
@@ -8,7 +9,10 @@ namespace IPTech.BuildTool
         
 
         public static void Build() {
-            BuildWithArguments(Environment.GetCommandLineArgs());
+            using (new LogErrorsToStdErr())
+            {
+                BuildWithArguments(Environment.GetCommandLineArgs());
+            }
         }
 
         public static void BuildWithArguments(string[] commandlineArguments) {
@@ -82,6 +86,23 @@ namespace IPTech.BuildTool
                 }
             }
             return retVal;
+        }
+
+        private class LogErrorsToStdErr : IDisposable {
+            public LogErrorsToStdErr() {
+                Application.logMessageReceived += OnLogMessageReceived;
+            }
+
+            private void OnLogMessageReceived(string condition, string stackTrace, LogType type) {
+                if(type == LogType.Error || type == LogType.Exception) {
+                    Console.Error.WriteLine(condition);
+                    Console.Error.WriteLine(stackTrace);
+                }
+            }
+
+            public void Dispose() {
+                Application.logMessageReceived -= OnLogMessageReceived;
+            }
         }
     }
 }
