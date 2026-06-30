@@ -10,7 +10,11 @@ using UnityEngine.UIElements;
 
 namespace IPTech.DebugConsoleService.InGameConsole {
     public class TemplateUIDoc : MonoBehaviour {
+        #if UNITY_6000_5_OR_NEWER
+        [System.NonSerialized]
+        #endif
         public VisualElement visualElement;
+
         private UIDocument uiDoc;
         private RectTransform rt;
 

@@ -1,4 +1,5 @@
 using UnityEditor;
+using UnityEditor.Build;
 
 namespace IPTech.BuildTool.Processors {
     public class SetApplicationIdentifier : BuildProcessor {
@@ -8,17 +9,20 @@ namespace IPTech.BuildTool.Processors {
 
         void OnEnable() {
             if(string.IsNullOrEmpty(ApplicationIdentifier)) {
-                ApplicationIdentifier = PlayerSettings.GetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup);
+                var namedBuildTarget = NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+                ApplicationIdentifier = PlayerSettings.GetApplicationIdentifier(namedBuildTarget);
             }
         }
 
         public override void ModifyProject(BuildTarget buildTarget) {
-            origValue = PlayerSettings.GetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup);
-            PlayerSettings.SetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup, ApplicationIdentifier);
+            var namedBuildTarget = NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+            origValue = PlayerSettings.GetApplicationIdentifier(namedBuildTarget);
+            PlayerSettings.SetApplicationIdentifier(namedBuildTarget, ApplicationIdentifier);
         }
 
         public override void RestoreProject(BuildTarget buildTarget) {
-            PlayerSettings.SetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup, origValue);
+            var namedBuildTarget = NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+            PlayerSettings.SetApplicationIdentifier(namedBuildTarget, origValue);
         }
     }
 }

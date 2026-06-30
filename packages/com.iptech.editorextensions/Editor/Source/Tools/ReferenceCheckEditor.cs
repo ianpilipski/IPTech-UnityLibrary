@@ -74,7 +74,11 @@ namespace IPTech.EditorTools {
 			PopulateScenesArray();
 			foreach(string scenePath in Scenes) {
 				EditorSceneManager.OpenScene(scenePath);
+				#if UNITY_6000_5_OR_NEWER
+				GameObject[] gameObjects = FindObjectsByType<GameObject>();
+				#else
 				GameObject[] gameObjects = FindObjectsOfType<GameObject>();
+				#endif
 				foreach(GameObject go in gameObjects) {
 					Component[] c = go.GetComponents<Component>();
 					if(c == null) {

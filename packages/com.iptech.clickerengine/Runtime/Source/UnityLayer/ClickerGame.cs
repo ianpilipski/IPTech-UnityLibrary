@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections;
+using System.Linq;
 
 namespace IPTech.ClickerLibrary {
 	public class ClickerGame : MonoBehaviour {
@@ -92,7 +93,11 @@ namespace IPTech.ClickerLibrary {
 				currentparent = currentparent.parent;
 			}
 			
+			#if UNITY_6000_5_OR_NEWER
+			return (ComponentClass)FindAnyObjectByType<ComponentClass>();
+			#else
 			return (ComponentClass)FindObjectOfType(typeof(ComponentClass));
+			#endif
 		}	
 	}
 }

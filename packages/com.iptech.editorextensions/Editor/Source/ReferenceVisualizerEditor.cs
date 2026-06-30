@@ -123,7 +123,11 @@ namespace IPTech.EditorExtensions {
 		}
 
 		IEnumerator<Transform> GetReferencedTransfromsToThis(Transform toTransform) {
+			#if UNITY_6000_5_OR_NEWER
+			Transform[] transforms = FindObjectsByType<Transform>();
+			#else
 			Transform[] transforms = FindObjectsOfType<Transform>();
+			#endif
 			foreach(var t in transforms) {
 				Transform yieldTransform = null;
 				if(t!=null && t!=toTransform) {

@@ -25,7 +25,7 @@ namespace IPTech.BuildTool
         IReadOnlyList<Type> importOptionsType = new List<Type>();
         string[] importOptions;
         
-        [SerializeField] List<int> stateList;
+        [SerializeField] List<EntityId> stateList;
         [SerializeField] bool isDirty;
         [SerializeField] int activeTab;
         [SerializeField] string password;
@@ -46,7 +46,7 @@ namespace IPTech.BuildTool
 
         private void OnEnable() {
             buildToolSettingsSerializedObject = new SerializedObject(BuildToolsSettings.instance);
-            if(stateList == null) stateList = new List<int>();
+            if(stateList == null) stateList = new List<EntityId>();
             
             ReloadConfigs();
             GenerateBuildConfigTypeDropDown();
@@ -196,16 +196,16 @@ namespace IPTech.BuildTool
                             needsRefresh = true;
                             continue;
                         }
-                        bool isExpanded = stateList.Contains(bc.GetInstanceID());
+                        bool isExpanded = stateList.Contains(bc.GetEntityId());
 
                         bool newExpanded = isExpanded;
                         using(new EditorGUILayout.HorizontalScope()) {
                             newExpanded = EditorGUILayout.Foldout(isExpanded, bc.name);
                             if(newExpanded != isExpanded) {
                                 if(isExpanded) {
-                                    stateList.Remove(bc.GetInstanceID());
+                                    stateList.Remove(bc.GetEntityId());
                                 } else {
-                                    stateList.Add(bc.GetInstanceID());
+                                    stateList.Add(bc.GetEntityId());
                                 }
                                 isExpanded = newExpanded;
                             }
@@ -221,13 +221,13 @@ namespace IPTech.BuildTool
                                 var offset = (EditorGUI.indentLevel * 15F);
                                 rect.x = rect.x + offset;
                                 rect.width = rect.width - offset;
-                                if(GUI.Button(rect, AssetDatabase.GetAssetPath(bc.GetInstanceID()))) {
-                                    EditorGUIUtility.PingObject(bc.GetInstanceID());
+                                if(GUI.Button(rect, AssetDatabase.GetAssetPath(bc.GetEntityId()))) {
+                                    EditorGUIUtility.PingObject(bc.GetEntityId());
                                 }
                                 var ed = GetEditor(bc);                               
                                 ed.OnInspectorGUI();
                                 
-                                isDirty = isDirty || EditorUtility.IsDirty(bc.GetInstanceID());
+                                isDirty = isDirty || EditorUtility.IsDirty(bc.GetEntityId());
                                 using(new EditorGUILayout.HorizontalScope()) {
                                     GUILayout.FlexibleSpace();
                                     DrawBuildButton(bc);
@@ -260,7 +260,7 @@ namespace IPTech.BuildTool
                     using(new EditorGUI.DisabledScope(!isDirty)) {
                         if(GUILayout.Button("Save")) {
                             foreach(var bc in buildConfigs) {
-                                if(AssetDatabase.TryGetGUIDAndLocalFileIdentifier(bc.GetInstanceID(), out string guid, out long _)) {
+                                if(AssetDatabase.TryGetGUIDAndLocalFileIdentifier(bc.GetEntityId(), out string guid, out long _)) {
                                     AssetDatabase.SaveAssetIfDirty(new GUID(guid));
                                 }
                             }

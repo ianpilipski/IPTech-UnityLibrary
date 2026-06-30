@@ -20,7 +20,6 @@ namespace IPTech.PackageCreator.Editor {
         public List<string> keywords;
         public string category;
         public string description;
-        public Dictionary<string, Dependency> dependencies;
         public List<Sample> samples;
         public Author author;
     }
