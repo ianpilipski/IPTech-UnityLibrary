@@ -2,7 +2,8 @@
     "name": "IPTech.ConsentScreen.Runtime",
     "rootNamespace": "",
     "references": [
-        "GUID:00c479e63b1c74419820a39073267645"
+        "GUID:00c479e63b1c74419820a39073267645",
+        "GUID:0243a9bc5328148d8abe672d386ce1a6"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -31,7 +31,8 @@
       "depth": 0,
       "source": "local",
       "dependencies": {
-        "com.unity.ads.ios-support": "1.0.0"
+        "com.unity.ads.ios-support": "1.0.0",
+        "com.iptech.ageverification": "0.0.1"
       }
     },
     "com.iptech.coroutines": {

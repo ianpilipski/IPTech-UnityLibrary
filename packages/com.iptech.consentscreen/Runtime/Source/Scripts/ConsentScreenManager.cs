@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 using System;
+using IPTech.AgeVerification;
+using System.Threading;
+using System.Threading.Tasks;
 #if UNITY_IOS
 using Unity.Advertisement.IosSupport;
 #endif
@@ -12,6 +15,8 @@ namespace IPTech.ConsentScreen {
     /// </summary>
     public class ConsentScreenManager : MonoBehaviour
     {
+        const int requiredMinAgeForAdult = 18;
+        
         /// <summary>
         /// The prefab that will be instantiated by this component.
         /// The prefab has to have an ContextScreenView component on its root GameObject.
@@ -22,7 +27,7 @@ namespace IPTech.ConsentScreen {
         [SerializeField] private string TOSUrl =  "https://www.threepstreet.com/terms-of-service";
         [SerializeField] private ConsentScreenHandler handler;
         [SerializeField] private string NextSceneName;
-
+        
         void Start() {
             if(handler == null) {
                 Debug.LogError("You must assign a consent handler to the consent screen manager.");
@@ -40,14 +45,20 @@ namespace IPTech.ConsentScreen {
                 if(consentInfo.Consent != EConsentValue.Accepted) {
                     var optInScreen = Instantiate(simpleConsentPrefab).GetComponent<SimpleConsentView>();
 
-                    optInScreen.simpleConsentAccepted += () => {
-                        Destroy(optInScreen.gameObject);
-                        //TODO: add age gate to consent popup
-                        //TODO: Ironsource says to show their dialog here??? https://developers.is.com/ironsource-mobile/flutter/permission-popup-ios/#step-1
-                        CheckATT(new ConsentInfo {
-                            Consent = EConsentValue.Accepted,
-                            AgeInfo = EConsentAge.Child
-                        });
+                    optInScreen.simpleConsentAccepted += async () => {
+                        try 
+                        {
+                            Destroy(optInScreen.gameObject);
+                            var consentAge = await CheckAgeGate();
+                            //TODO: Ironsource says to show their dialog here??? https://developers.is.com/ironsource-mobile/flutter/permission-popup-ios/#step-1
+                            CheckATT(new ConsentInfo {
+                                Consent = EConsentValue.Accepted,
+                                AgeInfo = consentAge
+                            });
+                        }
+                        catch(Exception e) {
+                            Debug.LogException(e);
+                        }
                     };
                 } else {
                     CheckATT(consentInfo);
@@ -55,6 +66,27 @@ namespace IPTech.ConsentScreen {
             } catch(Exception e) {
                 Debug.LogException(e);
             }
+        }
+
+        async Task<EConsentAge> CheckAgeGate()
+        {
+            Debug.Log("Checking age gate...");
+            var mgr = new AgeVerificationManager();
+            var res = await mgr.VerifyAge(requiredMinAgeForAdult, CancellationToken.None);
+            Debug.Log($"Age gate check finished: {res.Status}");
+            if(res.Status == AgeVerificationStatus.AgeRangeNotRequired) {
+                return EConsentAge.Adult;
+            } 
+            else if(res.Status == AgeVerificationStatus.HasAgeRange)
+            {
+                if(res.LowerBound >= requiredMinAgeForAdult) {
+                    return EConsentAge.Adult;
+                } else {
+                    return EConsentAge.Child;
+                }
+            } 
+            Debug.Log($"Age gate check: {res.Status}");
+            return EConsentAge.Child;
         }
 
         void CheckATT(ConsentInfo info)
