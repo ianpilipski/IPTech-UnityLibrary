@@ -1,0 +1,22 @@
+{
+  "name": "com.iptech.ageverification",
+  "displayName": "IPTech.AgeVerification",
+  "version": "0.0.1",
+  "unity": "2006.5",
+  "dependencies": {
+    "com.iptech.platform.api": "0.0.1"
+  },
+  "keywords": [
+    "Age",
+    "AgeSignals",
+    "DeclaredAgeRange",
+    "ios",
+    "android"
+  ],
+  "category": "Utility",
+  "description": "Provides access to native age range sdks for ios and android platforms",
+  "samples": [],
+  "author": {
+    "name": "Ian Pilipski"
+  }
+}

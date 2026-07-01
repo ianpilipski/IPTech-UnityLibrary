@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../.."
+		}
+	],
+	"settings": {
+		"omnisharp.useModernNet": false,
+		"dotnet.codeLens.enableReferencesCodeLens": false,
+		"dotnet.defaultSolution": "iptech-unitylibrary.slnx",
+		"files.exclude": {
+			"packages/**/*.meta": true
+		}
+	}
+}

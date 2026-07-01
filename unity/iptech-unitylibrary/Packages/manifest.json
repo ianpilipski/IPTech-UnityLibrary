@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.iptech.ageverification": "file:../../../packages/com.iptech.ageverification",
     "com.iptech.audio": "file:../../../packages/com.iptech.audio",
     "com.iptech.buildtool": "file:../../../packages/com.iptech.buildtool",
     "com.iptech.clickerengine": "file:../../../packages/com.iptech.clickerengine",
@@ -68,5 +69,8 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  }
+  },
+  "testables": [
+    "com.iptech.ageverification"
+  ]
 }

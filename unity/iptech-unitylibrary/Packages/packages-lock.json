@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "com.iptech.ageverification": {
+      "version": "file:../../../packages/com.iptech.ageverification",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.iptech.platform.api": "0.0.1"
+      }
+    },
     "com.iptech.audio": {
       "version": "file:../../../packages/com.iptech.audio",
       "depth": 0,

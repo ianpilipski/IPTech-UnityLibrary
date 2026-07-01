@@ -1,0 +1,56 @@
+/* Override default Unity label colors for dark theme compatibility */
+Label {
+    color: white;
+}
+
+/* Override input field labels and text for better dark theme visibility */
+TextField > Label {
+    color: white;
+}
+
+IntegerField > Label {
+    color: white;
+}
+
+EnumField > Label {
+    color: white;
+}
+
+/* Style EnumField for dark theme */
+.unity-base-dropdown__label {
+    color: black;
+}
+
+Toggle > Label {
+    color: white;
+}
+
+/* keeps toggle color label from changing */
+.unity-base-field:focus:enabled > .unity-base-field__label {
+    color: white;
+}
+
+/* Ensure input field text is visible on dark backgrounds */
+
+/* Style buttons for dark theme - using OK button colors from MockResultPopUp */
+/* Using .unity-button class selector for higher specificity than the default Unity styles */
+.unity-button {
+    color: white;
+    background-color: rgba(77, 77, 77, 1); /* new Color(0.3f, 0.3f, 0.3f, 1f) */
+    border-color: rgba(153, 153, 153, 1); /* new Color(0.6f, 0.6f, 0.6f, 1f) */
+    border-width: 1px;
+    border-radius: 5px;
+    padding: 8px 20px;
+    min-width: 80px;
+}
+
+.unity-button:hover {
+    background-color: rgba(97, 97, 97, 1); /* Slightly lighter for hover */
+}
+
+.unity-button:active {
+    background-color: rgba(57, 57, 57, 1); /* Slightly darker for active */
+}
+
+/* Ensure all text elements are visible */
+VisualElement {}

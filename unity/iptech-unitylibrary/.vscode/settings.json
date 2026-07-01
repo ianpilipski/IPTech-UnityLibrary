@@ -46,7 +46,9 @@
         "obj/": true,
         "Obj/": true,
         "temp/": true,
-        "Temp/": true
+        "Temp/": true,
+        "iptech-unitylibrary.slnx": true,
+        "Assets/**/*.meta": true
     },
     "omnisharp.useModernNet": false,
     "dotnet.codeLens.enableReferencesCodeLens": false,
