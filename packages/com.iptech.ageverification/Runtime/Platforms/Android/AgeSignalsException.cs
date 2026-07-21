@@ -17,11 +17,11 @@ namespace IPTech.AgeVerification.Android.AgeSignals
         {
             if(TryGetKnownErrorCode(errorCode, out var knownError))
             {
-                return $"{nameof(Internal.IPTechAgeSignalsUnityPlugin)}: {knownError} ({errorCode}): {message}";
+                return $"IPTechAgeSignalsUnityPlugin: {knownError} ({errorCode}): {message}";
             }
             else
             {
-                return $"{nameof(Internal.IPTechAgeSignalsUnityPlugin)}: Unknown Error ({errorCode}): {message}";
+                return $"IPTechAgeSignalsUnityPlugin: Unknown Error ({errorCode}): {message}";
             }
         }
 
