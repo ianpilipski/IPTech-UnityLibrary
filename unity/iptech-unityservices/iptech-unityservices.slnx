@@ -1,0 +1,23 @@
+﻿<Solution>
+  <Project Path="IPTech.Platform.Api.Runtime.csproj" />
+  <Project Path="IPTech.BuildTool.Editor.csproj" />
+  <Project Path="IPTech.UnityAnalytics.Editor.csproj" />
+  <Project Path="IPTech.UnityServices.RemoteConfig.Editor.csproj" />
+  <Project Path="IPTech.UnityServices.Advertising.Runtime.csproj" />
+  <Project Path="IPTech.Utils.Runtime.csproj" />
+  <Project Path="IPTech.Platform.Editor.csproj" />
+  <Project Path="IPTech.UnityServices.Analytics.Runtime.csproj" />
+  <Project Path="IPTech.UnityServices.Leaderboards.csproj" />
+  <Project Path="IPTech.UnityServices.Runtime.csproj" />
+  <Project Path="IPTech.UnityServices.Advertising.Editor.csproj" />
+  <Project Path="IPTech.Utils.Editor.csproj" />
+  <Project Path="IPTech.UnityServices.RemoteConfig.Runtime.csproj" />
+  <Project Path="IPTech.UnityServices.Editor.csproj" />
+  <Project Path="IPTech.Platform.Runtime.csproj" />
+  <Project Path="IPTech.Platform.Api.Editor.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="MobileDependencyResolverLP.Installer.Editor.csproj" />
+  <Project Path="IPTech.UnityServices.Leaderboards.Editor.csproj" />
+  <Project Path="IPTech.BuildTool.Runtime.csproj" />
+  <Project Path="IPTech.PackageCreator.Editor.csproj" />
+</Solution>

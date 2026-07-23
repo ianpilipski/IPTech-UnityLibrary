@@ -92,8 +92,7 @@ namespace IPTech.UnityServices.Internal {
 
         }
 
-#pragma warning disable 618
-        private void HandleAdDisplayFailed(LevelPlayAdDisplayInfoError errorInfo)
+        private void HandleAdDisplayFailed(LevelPlayAdInfo adInfo, LevelPlayAdError errorInfo)
         {
             if (_showAdCompletionSource == null)
             {
@@ -102,7 +101,6 @@ namespace IPTech.UnityServices.Internal {
             }
             _showAdCompletionSource.SetResult(AdResult.FailedToShow);
         }
-#pragma warning restore 618
 
         private void HandleAdInfoChanged(LevelPlayAdInfo adInfo)
         {

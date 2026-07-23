@@ -57,6 +57,8 @@ namespace IPTech.AgeVerification.Android.AgeSignals
                     throw;
                 }
             }
+#else
+            await Task.CompletedTask; // avoid compiler error
 #endif
             throw new PlatformNotSupportedException("Age Signals API is not supported on this platform.");
         }

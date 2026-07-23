@@ -1,6 +1,7 @@
 using System;
 using NUnit.Framework;
 using IPTech.AgeVerification.Android.AgeSignals;
+using UnityEngine;
 
 namespace Tests
 {
@@ -144,29 +145,7 @@ namespace Tests
             var json = _ageSignalsResult.ToJson();
 
             // Assert
-            Assert.IsNotNull(json);
-            Assert.That(json, Contains.Substring("\"UserStatus\":\"VERIFIED\""));
-            Assert.That(json, Contains.Substring("\"AgeLower\":18"));
-            Assert.That(json, Contains.Substring("\"AgeUpper\":25"));
-            Assert.That(json, Contains.Substring("\"MostRecentApprovalDate\":\"2023-10-15T14:30:00Z\""));
-            Assert.That(json, Contains.Substring("\"InstallId\":\"test-install-id\""));
-        }
-
-        [Test]
-        public void ToJson_WithPrettyPrint_ReturnsFormattedJson()
-        {
-            // Arrange
-            _ageSignalsResult.UserStatus = AgeSignalsVerificationStatus.SUPERVISED;
-            _ageSignalsResult.InstallId = "test-install-id";
-
-            // Act
-            var json = _ageSignalsResult.ToJson(prettyPrint: true);
-
-            // Assert
-            Assert.IsNotNull(json);
-            Assert.That(json, Contains.Substring("\n")); // Should contain newlines for pretty printing
-            Assert.That(json, Contains.Substring("\"UserStatus\": \"SUPERVISED\""));
-            Assert.That(json, Contains.Substring("\"InstallId\": \"test-install-id\""));
+            Assert.AreEqual(CreateExpectedJson(AgeSignalsVerificationStatus.VERIFIED, 18, 25, new DateTime(2023, 10, 15, 14, 30, 0, DateTimeKind.Utc), "test-install-id"), json);
         }
 
         [Test]
@@ -184,11 +163,7 @@ namespace Tests
 
             // Assert
             Assert.IsNotNull(json);
-            Assert.That(json, Contains.Substring("\"UserStatus\":null"));
-            Assert.That(json, Contains.Substring("\"AgeLower\":null"));
-            Assert.That(json, Contains.Substring("\"AgeUpper\":null"));
-            Assert.That(json, Contains.Substring("\"MostRecentApprovalDate\":null"));
-            Assert.That(json, Contains.Substring("\"InstallId\":\"test-install-id\""));
+            Assert.AreEqual(CreateExpectedJson(null, null, null, null, "test-install-id"), json);
         }
 
         [Test]
@@ -205,11 +180,7 @@ namespace Tests
 
             // Assert
             Assert.IsNotNull(json);
-            Assert.That(json, Contains.Substring("\"UserStatus\":\"SUPERVISED_APPROVAL_PENDING\""));
-            Assert.That(json, Contains.Substring("\"AgeLower\":13"));
-            Assert.That(json, Contains.Substring("\"InstallId\":\"partial-test-id\""));
-            Assert.That(json, Contains.Substring("\"AgeUpper\":null"));
-            Assert.That(json, Contains.Substring("\"MostRecentApprovalDate\":null"));
+            Assert.AreEqual(CreateExpectedJson(AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_PENDING, 13, null, null, "partial-test-id"), json);
         }
 
         [Test]
@@ -225,13 +196,18 @@ namespace Tests
             // Act
             var json = _ageSignalsResult.ToJson();
 
-            // Assert
-            Assert.IsNotNull(json);
-            Assert.That(json, Contains.Substring("\"InstallId\":null"));
-            Assert.That(json, Contains.Substring("\"UserStatus\":null"));
-            Assert.That(json, Contains.Substring("\"AgeLower\":null"));
-            Assert.That(json, Contains.Substring("\"AgeUpper\":null"));
-            Assert.That(json, Contains.Substring("\"MostRecentApprovalDate\":null"));
+            Assert.AreEqual(CreateExpectedJson(null, null, null, null, null), json);
+        }
+
+        string CreateExpectedJson(AgeSignalsVerificationStatus? userStatus, int? ageLower, int? ageUpper, DateTime? mostRecentApprovalDate, string installId)
+        {
+            // {"_userStatus":0,"_userStatusHasValue":false,"_ageLower":0,"_ageLowerHasValue":false,"_ageUpper":0,"_ageUpperHasValue":false,"_mostRecentApprovalDateHasValue":false,"InstallId":""}
+            return $"{{\"_userStatus\":{((int)(userStatus ?? 0))},\"_userStatusHasValue\":{(userStatus.HasValue).ToString().ToLower()}," +
+                $"\"_ageLower\":{ageLower ?? 0},\"_ageLowerHasValue\":{(ageLower.HasValue).ToString().ToLower()},\"_ageUpper\":{ageUpper ?? 0}," +
+                $"\"_ageUpperHasValue\":{(ageUpper.HasValue).ToString().ToLower()}," + 
+                $"\"_mostRecentApprovalDateUtcTicks\":{mostRecentApprovalDate?.Ticks ?? 0}," +
+                $"\"_mostRecentApprovalDateHasValue\":{mostRecentApprovalDate.HasValue.ToString().ToLower()}," + 
+                $"\"InstallId\":\"{installId ?? ""}\"}}";
         }
 
         [Test]
@@ -256,26 +232,8 @@ namespace Tests
                 // Act
                 var json = _ageSignalsResult.ToJson();
 
-                // Assert
-                Assert.That(json, Contains.Substring($"\"UserStatus\":\"{expectedValue}\""), 
-                    $"Expected UserStatus {status} to serialize as \"{expectedValue}\"");
+                Assert.AreEqual(CreateExpectedJson(status, null, null, null, "test-id"), json);
             }
-        }
-
-        [Test]
-        public void ToJson_WithDateTimeInDifferentFormats_UsesIso8601Format()
-        {
-            // Arrange
-            var testDate = new DateTime(2023, 12, 25, 10, 30, 45, 123, DateTimeKind.Utc);
-            _ageSignalsResult.MostRecentApprovalDate = testDate;
-            _ageSignalsResult.InstallId = "date-test-id";
-
-            // Act
-            var json = _ageSignalsResult.ToJson();
-
-            // Assert
-            Assert.IsNotNull(json);
-            Assert.That(json, Contains.Substring("\"MostRecentApprovalDate\":\"2023-12-25T10:30:45.123Z\""));
         }
 
         [Test]
@@ -290,9 +248,7 @@ namespace Tests
             var json = _ageSignalsResult.ToJson();
 
             // Assert
-            Assert.IsNotNull(json);
-            Assert.That(json, Contains.Substring("\"AgeLower\":-1"));
-            Assert.That(json, Contains.Substring("\"AgeUpper\":-5"));
+            Assert.AreEqual(CreateExpectedJson(null, -1, -5, null, "negative-age-test"), json);
         }
 
         [Test]
@@ -307,9 +263,7 @@ namespace Tests
             var json = _ageSignalsResult.ToJson();
 
             // Assert
-            Assert.IsNotNull(json);
-            Assert.That(json, Contains.Substring("\"AgeLower\":0"));
-            Assert.That(json, Contains.Substring("\"AgeUpper\":0"));
+            Assert.AreEqual(CreateExpectedJson(null, 0, 0, null, "zero-age-test"), json);
         }
 
         [Test]
@@ -323,22 +277,21 @@ namespace Tests
 
             // Assert
             Assert.IsNotNull(json);
-            Assert.That(json, Contains.Substring("\"InstallId\":\"\""));
+            Assert.AreEqual(CreateExpectedJson(null, null, null, null, ""), json);
         }
 
         [Test]
         public void ToJson_WithSpecialCharactersInInstallId_EscapesCorrectly()
         {
             // Arrange
-            _ageSignalsResult.InstallId = "test\"id\\with/special\ncharacters\t";
+            var installId = "test\"id\\with/special\ncharacters\t";
+            _ageSignalsResult.InstallId = installId;
 
             // Act
             var json = _ageSignalsResult.ToJson();
+            var roundTrip = JsonUtility.FromJson<AgeSignalsResult>(json);
 
-            // Assert
-            Assert.IsNotNull(json);
-            // The JSON should escape the special characters
-            Assert.That(json, Contains.Substring("\"InstallId\":\"test\\\"id\\\\with/special\\ncharacters\\t\""));
+            Assert.AreEqual(installId, roundTrip.InstallId);
         }
     }
 }

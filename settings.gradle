@@ -1,0 +1,27 @@
+pluginManagement {
+    [
+        //'../IPTech-GradleEncryptPlugin/encrypt-plugin',
+        //'../IPTech-GradleXcodePlugin/xcode-plugin',
+        //'../IPTech-GradleUnityPlugin/unity-plugin'
+    ] .each {
+        if(file(it).exists()) { includeBuild(it) }
+    }
+
+    repositories {
+      gradlePluginPortal()
+      if(true) {
+        ['GradleUnityPlugin', 'GradleEncryptPlugin', 'GradleXcodePlugin'].each { String repoName ->
+          maven {
+            name = "GitHubPackages-${repoName}"
+            url = uri("https://maven.pkg.github.com/ianpilipski/IPTech-${repoName}")
+            credentials {
+              username = settings.ext.properties['gpr.user']
+              password = settings.ext.properties['gpr.key']
+            }
+          }
+        }
+      }
+    }
+}
+
+rootProject.name = 'IPTech-UnityLibrary'

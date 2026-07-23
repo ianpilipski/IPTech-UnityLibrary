@@ -46,7 +46,7 @@ namespace IPTech.BuildTool
                     if(!BuildToolsSettings.instance.EncryptedStorage.IsUnlocked) {
                         relock = true;
                         var pwd = Environment.GetEnvironmentVariable("IPTECH_BUILDTOOL_PASSWORD");
-                        if(!string.IsNullOrEmpty(pwd)) {
+                        if(!string.IsNullOrEmpty(pwd) && BuildToolsSettings.instance.EncryptedStorage.HasPassword) {
                             BuildToolsSettings.instance.EncryptedStorage.Unlock(pwd);  
                         }
                     }

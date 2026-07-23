@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.google.external-dependency-manager": {
+      "version": "1.2.188",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
     "com.iptech.ageverification": {
       "version": "file:../../../packages/com.iptech.ageverification",
       "depth": 0,
@@ -57,12 +64,6 @@
     },
     "com.iptech.editorextensions": {
       "version": "file:../../../packages/com.iptech.editorextensions",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {}
-    },
-    "com.iptech.externaldependencymanager": {
-      "version": "file:../../../packages/com.iptech.externaldependencymanager",
       "depth": 0,
       "source": "local",
       "dependencies": {}

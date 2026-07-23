@@ -111,6 +111,15 @@ installSigningCert \
             return sb.ToString();
 
             string GenerateTheBuildSnippet(IOSBuildConfig b, string outputPath) {
+                var additionalArgs = (b.ExportArchives.Count == 0) 
+                    ? "clean build"
+                    : @"CODESIGNING_ALLOWED=NO \
+    CODESIGNING_REQUIRED=NO \
+    DEVELOPMENT_TEAM= \
+    PROVISIONING_PROFILE_SPECIFIER= \
+    CODE_SIGN_IDENTITY= \
+    clean archive";
+    
                 return $@"
 ARCHIVE_PATH=""{outputPath}/Unity-iPhone.xcarchive""
 
@@ -123,12 +132,7 @@ xcodebuild \
     -sdk iphoneos \
     -derivedDataPath DerivedData \
     -archivePath ""$ARCHIVE_PATH"" \
-    CODESIGNING_ALLOWED=NO \
-    CODESIGNING_REQUIRED=NO \
-    DEVELOPMENT_TEAM= \
-    PROVISIONING_PROFILE_SPECIFIER= \
-    CODE_SIGN_IDENTITY= \
-    clean archive 
+    {additionalArgs}
 
 # export the archives
 ";

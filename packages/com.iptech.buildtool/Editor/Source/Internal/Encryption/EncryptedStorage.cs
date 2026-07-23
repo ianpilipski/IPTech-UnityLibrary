@@ -42,6 +42,19 @@ namespace IPTech.BuildTool.Internal {
             HasPassword = true;
         }
 
+        public void CreatePassword(string password, bool lockOnCreate) {
+            if(!HasPassword) {
+                VerifyPassword(password, createIfNeeded: true);
+                this.password = password;
+                HasPassword = true;
+                if(lockOnCreate) {
+                    Lock();
+                }
+                return;
+            }
+            throw new InvalidOperationException("Password already exists");
+        }
+
         public void Lock() {
             this.password = null;
         }
@@ -203,7 +216,7 @@ namespace IPTech.BuildTool.Internal {
             return encryption.OpenSSLEncrypt(bytes, password);
         }
 
-        void VerifyPassword(string password) {
+        void VerifyPassword(string password, bool createIfNeeded = false) {
             EnsureDirectoryCreated();
 
             var pwHash = Hash128.Compute(password).ToString();
@@ -211,12 +224,11 @@ namespace IPTech.BuildTool.Internal {
 
             if(File.Exists(verificationFile)) {
                 string hash = File.ReadAllText(verificationFile);
-                if(pwHash != hash) {
-                    throw new Exception("password is invalid");
-                }
-            } else {
+                if(pwHash == hash) return;
+            } else if(createIfNeeded) {
                 File.WriteAllText(verificationFile, pwHash);
             }
+            throw new Exception("password is invalid");
         }
 
         bool DoesVerificationFileExists() {

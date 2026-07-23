@@ -1,0 +1,49 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+plugins {
+	id 'com.iptech.gradle.unity-plugin' version '0.1.5-SNAPSHOT'
+}
+
+
+unity {
+	projectPath = layout.projectDirectory.dir('unity/iptech-unitylibrary')
+	unityCmdPath = file(Os.isFamily(Os.FAMILY_WINDOWS) 
+		? "C:\\Program Files\\Unity\\Hub\\Editor\\${project.UNITY_EDITOR_VERSION}\\Editor\\Unity.exe"  
+		: "/Applications/Unity/HUB/Editor/${project.UNITY_EDITOR_VERSION}/Unity.app/Contents/MacOS/Unity")
+	buildNumber = project.BUILD_NUMBER
+	exemptEncryption = true
+	installCSharpFiles = false
+
+	buildTypes {
+		DebugAndroid {
+			platform = 'Android'
+			steps {
+				importProject()
+				runEditModeTests()
+				execUnity {
+					executeMethod = "IPTech.BuildTool.Builder.Build"
+					arguments.addAll(['-buildConfig', 'DebugAndroid', '-batchmode', '-quit', '-nographics'])
+					environment('IPTECH_BUILDTOOL_PASSWORD', project.properties['threepstreet.buildkey'])
+				}
+			}
+		}
+		DebugiOS {
+			platform = 'iOS'
+			steps {
+				importProject()
+				runEditModeTests()
+				def t = execUnity {
+					executeMethod = "IPTech.BuildTool.Builder.Build"
+					arguments.addAll(['-buildConfig', 'DebugiOS', '-batchmode', '-quit', '-nographics'])
+				}
+				task('BuildXcode', Exec) {
+					commandLine "./iptechbuild.sh"
+					workingDir t.outputDir.dir('xcode-project').get()
+					environment('IPTECH_BUILDTOOL_PASSWORD', project.properties['cobrasoft.buildkey'])
+					environment('OUTPUT_PATH', outputDir)
+					environment('CP_HOME_DIR', "${project.projectDir}/build-cache/cocoapods-debugios")
+				}
+			}
+		}
+	}
+}

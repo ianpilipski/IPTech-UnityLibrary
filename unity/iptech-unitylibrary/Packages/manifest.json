@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.google.external-dependency-manager": "1.2.188",
     "com.iptech.ageverification": "file:../../../packages/com.iptech.ageverification",
     "com.iptech.audio": "file:../../../packages/com.iptech.audio",
     "com.iptech.buildtool": "file:../../../packages/com.iptech.buildtool",
@@ -9,7 +10,6 @@
     "com.iptech.debugtools": "file:../../../packages/com.iptech.debugtools",
     "com.iptech.dialogmanager": "file:../../../packages/com.iptech.dialogmanager",
     "com.iptech.editorextensions": "file:../../../packages/com.iptech.editorextensions",
-    "com.iptech.externaldependencymanager": "file:../../../packages/com.iptech.externaldependencymanager",
     "com.iptech.fonts": "file:../../../packages/com.iptech.fonts",
     "com.iptech.hexmap": "file:../../../packages/com.iptech.hexmap",
     "com.iptech.mathutils": "file:../../../packages/com.iptech.mathutils",
@@ -72,5 +72,14 @@
   },
   "testables": [
     "com.iptech.ageverification"
+  ],
+  "scopedRegistries": [
+    {
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.google.external-dependency-manager"
+      ]
+    }
   ]
 }

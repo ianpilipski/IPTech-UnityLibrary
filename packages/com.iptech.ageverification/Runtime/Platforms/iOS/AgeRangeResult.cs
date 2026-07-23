@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace IPTech.AgeVerification.iOS
 {
-    // These values match what is defined in the IPAgeRangeUnityPlugin.swift file
+    // These values match what is defined in the IPTechAgeRangeUnityPlugin.swift file
     public enum AgeRangeResultStatus
 	{
 		Error,
@@ -14,7 +14,7 @@ namespace IPTech.AgeVerification.iOS
         UnsupportedPlatformVersion
     }
 
-    // These values match what is defined in the IPAgeRangeUnityPlugin.swift file
+    // These values match what is defined in the IPTechAgeRangeUnityPlugin.swift file
     public enum AgeDeclaration
     {
         Unknown = 0,

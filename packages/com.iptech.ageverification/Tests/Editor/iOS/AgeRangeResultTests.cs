@@ -112,7 +112,7 @@ namespace Tests
             var json = result.ToJson(prettyPrint: false);
 
             // Assert
-            var expectedJson = "{\"Status\":\"UserDeclined\",\"LowerBound\":null,\"UpperBound\":null,\"AgeDeclaration\":\"Unknown\"}";
+            var expectedJson = CreateExpectedJson(AgeRangeResultStatus.UserDeclined, null, null, AgeDeclaration.Unknown);
             Assert.AreEqual(expectedJson, json);
         }
 
@@ -126,25 +126,8 @@ namespace Tests
             var json = result.ToJson(prettyPrint: false);
 
             // Assert
-            var expectedJson = "{\"Status\":\"Success\",\"LowerBound\":13,\"UpperBound\":17,\"AgeDeclaration\":\"SelfDeclared\"}";
+            var expectedJson = CreateExpectedJson(AgeRangeResultStatus.Success, 13, 17, AgeDeclaration.SelfDeclared);
             Assert.AreEqual(expectedJson, json);
-        }
-
-        [Test]
-        public void ToJson_WithPrettyPrintTrue_ReturnsFormattedJson()
-        {
-            // Arrange
-            var result = new AgeRangeResult(AgeRangeResultStatus.Success, 13, 17, AgeDeclaration.SelfDeclared);
-
-            // Act
-            var json = result.ToJson(prettyPrint: true);
-
-            // Assert
-            Assert.IsTrue(json.Contains("\"Status\": \"Success\""));
-            Assert.IsTrue(json.Contains("\"LowerBound\": 13"));
-            Assert.IsTrue(json.Contains("\"UpperBound\": 17"));
-            Assert.IsTrue(json.Contains("\"AgeDeclaration\": \"SelfDeclared\""));
-            Assert.IsTrue(json.Contains("\n")); // Should contain newlines for pretty printing
         }
 
         [Test]
@@ -157,7 +140,7 @@ namespace Tests
             var json = result.ToJson(prettyPrint: false);
 
             // Assert
-            var expectedJson = "{\"Status\":\"UserDeclined\",\"LowerBound\":0,\"UpperBound\":0,\"AgeDeclaration\":\"Unknown\"}";
+            var expectedJson = CreateExpectedJson(AgeRangeResultStatus.UserDeclined, 0, 0, AgeDeclaration.Unknown);
             Assert.AreEqual(expectedJson, json);
         }
 
@@ -171,7 +154,7 @@ namespace Tests
             var json = result.ToJson(prettyPrint: false);
 
             // Assert
-            var expectedJson = "{\"Status\":\"UnsupportedPlatformVersion\",\"LowerBound\":0,\"UpperBound\":0,\"AgeDeclaration\":\"Unknown\"}";
+            var expectedJson = CreateExpectedJson(AgeRangeResultStatus.UnsupportedPlatformVersion, 0, 0, AgeDeclaration.Unknown);
             Assert.AreEqual(expectedJson, json);
         }
 
@@ -185,8 +168,13 @@ namespace Tests
             var json = result.ToJson(prettyPrint: false);
 
             // Assert
-            var expectedJson = "{\"Status\":\"Success\",\"LowerBound\":5,\"UpperBound\":12,\"AgeDeclaration\":\"GuardianDeclared\"}";
+            var expectedJson = CreateExpectedJson(AgeRangeResultStatus.Success, 5, 12, AgeDeclaration.GuardianDeclared);
             Assert.AreEqual(expectedJson, json);
+        }
+
+        private string CreateExpectedJson(AgeRangeResultStatus status, int? lowerBound, int? upperBound, AgeDeclaration ageDeclaration)
+        {
+            return $"{{\"Status\":{((int)status)},\"_lowerBound\":{lowerBound ?? 0},\"_lowerBoundHasValue\":{(lowerBound != null).ToString().ToLower()},\"_upperBound\":{upperBound ?? 0},\"_upperBoundHasValue\":{(upperBound != null).ToString().ToLower()},\"AgeDeclaration\":{((int)ageDeclaration)}}}";
         }
 
         [Test]

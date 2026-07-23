@@ -65,7 +65,7 @@ namespace IPTech.UnityServices {
             var didConsentString = consentValue.OkToSell ? "true" : "false";
             var isUnder13String = consentValue.AgeInfo == EConsentAge.Adult ? "false" : "true";
 
-            LevelPlay.SetConsent(didConsent);
+            LevelPlayPrivacySettings.SetGDPRConsent(didConsent);
             LevelPlay.SetMetaData("do_not_sell", didConsentString); // true/false
             LevelPlay.SetMetaData("is_child_directed", isUnder13String); // true/false            
             // for childen or users of unkown age ...

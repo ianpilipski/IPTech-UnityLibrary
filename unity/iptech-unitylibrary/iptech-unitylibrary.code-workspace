@@ -12,7 +12,12 @@
 		"dotnet.codeLens.enableReferencesCodeLens": false,
 		"dotnet.defaultSolution": "iptech-unitylibrary.slnx",
 		"files.exclude": {
-			"packages/**/*.meta": true
-		}
+			"packages/**/*.meta": true,
+			"node_modules/**": true,
+			".gradle/**": true,
+			".idea": true,
+			"package-lock.json": true
+		},
+		"java.configuration.updateBuildConfiguration": "interactive"
 	}
 }

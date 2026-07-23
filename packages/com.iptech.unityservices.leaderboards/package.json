@@ -5,13 +5,12 @@
   "unity": "2021.3",
   "dependencies": {
     "com.iptech.unityservices": "0.0.0",
-    "com.unity.services.leaderboards": "2.2.1"
+    "com.unity.services.leaderboards": "2.3.4"
   },
   "keywords": [],
   "category": "",
   "samples": [],
   "author": {
-    "name": "Ian Pilipski",
-    "url": ""
+    "name": "Ian Pilipski"
   }
 }

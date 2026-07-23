@@ -21,10 +21,6 @@ namespace IPTech.AgeVerification.iOS.Debugging
             get
             {
                 if (!Debug.isDebugBuild) return false;
-                if (Application.isEditor)
-                {
-                    return true;
-                }
                 return PlayerPrefs.GetInt(ENABLE_MOCK_MODE_KEY, 0) == 1;
             }
 

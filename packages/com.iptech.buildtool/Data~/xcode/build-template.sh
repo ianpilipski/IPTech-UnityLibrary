@@ -28,7 +28,9 @@ TRAPEXIT() {
     fi
 }
 
-decryptDir "iptechbuild/data"
+if [[ -d "iptechbuild/data" ]]; then
+    decryptDir "iptechbuild/data"
+fi
 
 # create the buildengine keychain AND install certs
 createKeychain -p $IPTECH_BUILDTOOL_PASSWORD $KEYCHAIN_NAME

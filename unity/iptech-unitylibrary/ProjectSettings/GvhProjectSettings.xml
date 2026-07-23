@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <projectSettings>
-  <projectSetting name="com.google.external-dependency-managerAnalyticsCookie" value="0ea78d565aa04de981920f0792f17ac8" />
-  <projectSetting name="com.google.external-dependency-managerAnalyticsEnabled" value="True" />
+  <projectSetting name="com.google.external-dependency-managerAnalyticsEnabled" value="False" />
   <projectSetting name="Google.IOSResolver.AutoPodToolInstallInEditor" value="False" />
   <projectSetting name="Google.IOSResolver.CocoapodsIntegrationMethod" value="2" />
   <projectSetting name="Google.IOSResolver.PodfileAddUseFrameworks" value="True" />
@@ -31,5 +30,6 @@
   <projectSetting name="GooglePlayServices.UseFullCustomMavenRepoPathWhenNotExport" value="False" />
   <projectSetting name="GooglePlayServices.UseGradleDaemon" value="False" />
   <projectSetting name="GooglePlayServices.UseJetifier" value="True" />
+  <projectSetting name="GooglePlayServices.UserRejectedGradleUpgrade" value="False" />
   <projectSetting name="GooglePlayServices.VerboseLogging" value="False" />
 </projectSettings>

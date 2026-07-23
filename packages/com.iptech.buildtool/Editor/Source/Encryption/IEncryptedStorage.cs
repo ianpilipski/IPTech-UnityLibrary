@@ -14,6 +14,7 @@ namespace IPTech.BuildTool.Encryption
         bool HasPassword { get; }
         void Lock();
         void Unlock(string password);
+        void CreatePassword(string password, bool lockOnCreate);
         bool IsUnlocked { get; }
         int Count { get; }
         void Add(string key, T value);

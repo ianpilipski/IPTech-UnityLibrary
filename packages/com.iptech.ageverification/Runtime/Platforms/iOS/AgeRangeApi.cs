@@ -31,7 +31,7 @@ namespace IPTech.AgeVerification.iOS
 
             if (!Application.isEditor)
             {
-                return await DebugRecordResult(Internal.IPAgeRangeUnityPlugin.IsEligibleForAgeFeatures(ct));
+                return await DebugRecordResult(Internal.IPTechAgeRangeUnityPlugin.IsEligibleForAgeFeatures(ct));
             }
 
             async Task<bool> DebugRecordResult(Task<bool> result)
@@ -49,6 +49,8 @@ namespace IPTech.AgeVerification.iOS
                     throw;
                 }
             }
+#else
+            await Task.CompletedTask; // avoid compiler warnings
 #endif
             throw new PlatformNotSupportedException("Age Range API is only supported on iOS devices.");
         }
@@ -64,7 +66,7 @@ namespace IPTech.AgeVerification.iOS
 
             if (!Application.isEditor)
             {
-                return await DebugRecordResult(Internal.IPAgeRangeUnityPlugin.RequestAgeRange(requiredMinAge, ct, additionalMinAge1, additionalMinAge2));
+                return await DebugRecordResult(Internal.IPTechAgeRangeUnityPlugin.RequestAgeRange(requiredMinAge, ct, additionalMinAge1, additionalMinAge2));
             }
 
             async Task<AgeRangeResult> DebugRecordResult(Task<AgeRangeResult> result)
@@ -84,6 +86,8 @@ namespace IPTech.AgeVerification.iOS
                     throw;
                 }
             }
+#else
+            await Task.CompletedTask; // avoid compiler warnings
 #endif
             throw new PlatformNotSupportedException("Age Range API is only supported on iOS devices.");
         }

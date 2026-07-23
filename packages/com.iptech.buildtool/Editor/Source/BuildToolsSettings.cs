@@ -109,7 +109,7 @@ namespace IPTech.BuildTool {
             
             public ConditionallyUnlockStorage(bool assertOnFailure) {
                 var es = BuildToolsSettings.instance.EncryptedStorage;
-                if(!es.IsUnlocked) {
+                if(!es.IsUnlocked && es.HasPassword) {
                     if(!Application.isBatchMode) {
                         var pw = PasswordInputDialog.Display();
                         if(!string.IsNullOrEmpty(pw)) {

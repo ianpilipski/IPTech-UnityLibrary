@@ -294,7 +294,11 @@ namespace IPTech.BuildTool
                 if(!es.IsUnlocked) {
                     password = EditorGUILayout.PasswordField("password", password);
                     if(GUILayout.Button(es.HasPassword ? "unlock" : "create", GUILayout.Width(100))) {
-                        es.Unlock(password);
+                        if(es.HasPassword) {
+                            es.Unlock(password);
+                        } else {
+                            es.CreatePassword(password, lockOnCreate: false);
+                        }
                     }
                 } else {
                     if(GUILayout.Button("lock")) {
@@ -384,7 +388,12 @@ namespace IPTech.BuildTool
         }
 
         void CreateNewBuildType(Type type) {
-            string name = EditorUtility.SaveFilePanel("Config Name", GetBuildConfigFolderPath(), "NewBuildConfig", ".asset");
+            var defaultConfigPath = GetBuildConfigFolderPath();
+            if(!Directory.Exists(defaultConfigPath)) {
+                Directory.CreateDirectory(defaultConfigPath);
+            }
+
+            string name = EditorUtility.SaveFilePanel("Config Name", defaultConfigPath, "NewBuildConfig", ".asset");
             if(!string.IsNullOrEmpty(name)) {
                 if(TryGetAssetRelativeBuildConfigPath(name, out string destFolder)) {
                     destFolder = Path.Combine("Assets", destFolder);
@@ -431,7 +440,7 @@ namespace IPTech.BuildTool
         }
 
         string GetBuildConfigFolderPath() {
-            return Path.Combine("Assets", BuildToolsSettings.instance.DefaultConfigPath);
+            return Path.Combine(Application.dataPath, BuildToolsSettings.instance.DefaultConfigPath);
         }
 
         string GetSanitizedFileName(string newFilePath) {

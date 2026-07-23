@@ -44,16 +44,16 @@ namespace IPTech.AgeVerification.Android.AgeSignals
             }
         }
 
-        [SerializeField] private DateTime _mostRecentApprovalDate;
+        [SerializeField] private long _mostRecentApprovalDateUtcTicks;
         [SerializeField] private bool _mostRecentApprovalDateHasValue;
 
         public DateTime? MostRecentApprovalDate
         {
-            get => _mostRecentApprovalDateHasValue ? _mostRecentApprovalDate : null;
+            get => _mostRecentApprovalDateHasValue ? new DateTime(_mostRecentApprovalDateUtcTicks, DateTimeKind.Utc) : null;
             set
             {
                 _mostRecentApprovalDateHasValue = value.HasValue;
-                _mostRecentApprovalDate = value ?? _mostRecentApprovalDate;
+                _mostRecentApprovalDateUtcTicks = value?.Ticks ?? 0;
             }
         }
 
