@@ -23,7 +23,7 @@ unity {
 				execUnity {
 					executeMethod = "IPTech.BuildTool.Builder.Build"
 					arguments.addAll(['-buildConfig', 'DebugAndroid', '-batchmode', '-quit', '-nographics'])
-					environment('IPTECH_BUILDTOOL_PASSWORD', project.properties['threepstreet.buildkey'])
+					environment('IPTECH_BUILDTOOL_PASSWORD', project.properties['cobrasoft.buildkey'])
 				}
 			}
 		}
@@ -35,6 +35,7 @@ unity {
 				def t = execUnity {
 					executeMethod = "IPTech.BuildTool.Builder.Build"
 					arguments.addAll(['-buildConfig', 'DebugiOS', '-batchmode', '-quit', '-nographics'])
+					environment('CP_HOME_DIR', "${project.projectDir}/build-cache/cocoapods-debugios")
 				}
 				task('BuildXcode', Exec) {
 					commandLine "./iptechbuild.sh"

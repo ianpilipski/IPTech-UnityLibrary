@@ -36,6 +36,7 @@ unity {
 				def t = execUnity {
 					executeMethod = "IPTech.BuildTool.Builder.Build"
 					arguments.addAll(['-buildConfig', 'DebugiOS', '-batchmode', '-quit', '-nographics'])
+					environment('CP_HOME_DIR', "${project.projectDir}/build-cache/cocoapods-debugios")
 				}
 				task('BuildXcode', Exec) {
 					commandLine "./iptechbuild.sh"

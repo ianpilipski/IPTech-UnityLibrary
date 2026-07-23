@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 789043d1e9b564e41ac8c0228bafba3f, type: 3}
   m_Name: DebugiOS
   m_EditorClassIdentifier: IPTech.BuildTool.Editor::IPTech.BuildTool.PlayerBuildConfig
-  OutputPath: builds/DebugiOS
+  OutputPath: build/DebugiOS/xcode-project
   BuildTarget: 9
   BuildOptions: 1
   BuildProcessors:
