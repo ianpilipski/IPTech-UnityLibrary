@@ -1,0 +1,40 @@
+.mockui-section {
+    margin-bottom: 15px;
+}
+
+.mockui-property-field {
+    padding-left: 15px;
+}
+
+.mockui-section > Label {
+    -unity-font-style: bold;
+}
+
+.mockui-dialog-box {
+    flex-direction: column;
+    flex-shrink: 1;
+    flex-grow: 0;
+    background-color: rgba(1, 1, 1, 0.15);
+    max-width: 95%;
+    max-height: 95%;
+    padding: 15px;
+    margin: 15px;
+    border-radius: 10px;
+    border-width: 2px;
+    border-color: var(--unity-colors-box-border);
+    background-color: var(--unity-colors-box-background);
+}
+
+.mockui-full-screen-overlay {
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    display: flex;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+}

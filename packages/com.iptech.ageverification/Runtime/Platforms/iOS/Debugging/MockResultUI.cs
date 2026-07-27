@@ -1,3 +1,4 @@
+using IPTech.AgeVerification.Debugging;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -25,21 +26,30 @@ namespace IPTech.AgeVerification.iOS.Debugging
         public MockResultUI(MockResult mockResult)
         {
             _mockResult = mockResult;
+            if(_mockResult == null)
+            {
+                return;
+            }
 
-            _root = new VisualElement();
+            var b = new MockPopupBuilder();
+            
+            b.BeginSection("Result Status");
+            _statusField = b.AddEnumProperty("Status", _mockResult.Status);
+            b.EndSection();
 
-            // Add some styling
-            _root.style.paddingTop = 10;
-            _root.style.paddingBottom = 10;
-            _root.style.paddingLeft = 5;
-            _root.style.paddingRight = 5;
+            b.BeginSection("Age Bounds");
+            _hasLowerBoundToggle = b.AddToggleProperty("Has Lower Bound", _mockResult.HasLowerBound);
+            _lowerBoundField = b.AddIntegerProperty("Lower Bound", _mockResult.LowerBound);
+            _hasUpperBoundToggle = b.AddToggleProperty("Has Upper Bound", _mockResult.HasUpperBound);
+            _upperBoundField = b.AddIntegerProperty("Upper Bound", _mockResult.UpperBound);
+            b.EndSection();
 
-            CreateHeader();
-            CreateStatusSection();
-            CreateAgeBoundsSection();
-            CreateAgeDeclarationSection();
-            CreatePresetsSection();
-            CreatePreviewSection();
+            b.BeginSection("Age Declaration");
+            _ageDeclarationField = b.AddEnumProperty("Age Declaration", _mockResult.AgeDeclaration);
+            b.EndSection();
+
+            CreatePresets(b);
+            CreatePreviewSection(b);
 
             // Initialize values from MockResult
             InitializeValues();
@@ -47,6 +57,8 @@ namespace IPTech.AgeVerification.iOS.Debugging
             // Update preview initially and register callbacks
             UpdatePreview();
             RegisterCallbacks();
+
+            _root = b.Root;
         }
 
         public VisualElement GetRootElement()
@@ -59,214 +71,51 @@ namespace IPTech.AgeVerification.iOS.Debugging
             return _previewContainer;
         }
 
-        private void CreateHeader()
+        private void CreatePreviewSection(MockPopupBuilder b)
         {
-            var header = new Label("Mock Age Range Result Configuration");
-            header.style.fontSize = 16;
-            header.style.unityFontStyleAndWeight = FontStyle.Bold;
-            header.style.marginBottom = 10;
-            _root.Add(header);
+            _previewContainer = b.BeginGroup("Preview");
+            b.BeginSection("Preview");
+            _previewStatusLabel = b.AddLabelProperty("Status");
+            _previewLowerBoundLabel = b.AddLabelProperty("Lower Bound");
+            _previewUpperBoundLabel = b.AddLabelProperty("Upper Bound");
+            _previewAgeDeclarationLabel = b.AddLabelProperty("Age Declaration");
+            b.EndSection();
+            b.BeginSection("JSON Output");
+            _jsonPreviewField = b.AddTextFieldProperty("JSON Preview", "");
+            b.EndSection();
+            b.EndGroup();
         }
 
-        private void CreateStatusSection()
+        private void CreatePresets(MockPopupBuilder b)
         {
-            var statusContainer = new VisualElement();
-            statusContainer.style.marginBottom = 15;
-
-            var statusLabel = new Label("Result Status");
-            statusLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            statusLabel.style.marginBottom = 5;
-            statusContainer.Add(statusLabel);
-
-            _statusField = new EnumField("Status", AgeRangeResultStatus.Success);
-            _statusField.style.marginLeft = 15;
-            statusContainer.Add(_statusField);
-
-            _root.Add(statusContainer);
-        }
-
-        private void CreateAgeBoundsSection()
-        {
-            var boundsContainer = new VisualElement();
-            boundsContainer.style.marginBottom = 15;
-
-            var boundsLabel = new Label("Age Bounds");
-            boundsLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            boundsLabel.style.marginBottom = 5;
-            boundsContainer.Add(boundsLabel);
-
-            // Lower bound container
-            var lowerBoundContainer = new VisualElement();
-            lowerBoundContainer.style.flexDirection = FlexDirection.Row;
-            lowerBoundContainer.style.alignItems = Align.Center;
-            lowerBoundContainer.style.marginLeft = 15;
-            lowerBoundContainer.style.marginBottom = 5;
-
-            _hasLowerBoundToggle = new Toggle("Has Lower Bound");
-            lowerBoundContainer.Add(_hasLowerBoundToggle);
-
-            _lowerBoundField = new IntegerField();
-            _lowerBoundField.style.flexGrow = 1;
-            _lowerBoundField.style.flexShrink = 1;
-            _lowerBoundField.style.marginLeft = 10;
-            lowerBoundContainer.Add(_lowerBoundField);
-
-            boundsContainer.Add(lowerBoundContainer);
-
-            // Upper bound container
-            var upperBoundContainer = new VisualElement();
-            upperBoundContainer.style.flexDirection = FlexDirection.Row;
-            upperBoundContainer.style.alignItems = Align.Center;
-            upperBoundContainer.style.marginLeft = 15;
-
-            _hasUpperBoundToggle = new Toggle("Has Upper Bound");
-            upperBoundContainer.Add(_hasUpperBoundToggle);
-
-            _upperBoundField = new IntegerField();
-            _upperBoundField.style.flexGrow = 1;
-            _upperBoundField.style.flexShrink = 1;
-            _upperBoundField.style.marginLeft = 10;
-            upperBoundContainer.Add(_upperBoundField);
-
-            boundsContainer.Add(upperBoundContainer);
-
-            _root.Add(boundsContainer);
-        }
-
-        private void CreateAgeDeclarationSection()
-        {
-            var declarationContainer = new VisualElement();
-            declarationContainer.style.marginBottom = 15;
-
-            var declarationLabel = new Label("Age Declaration");
-            declarationLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            declarationLabel.style.marginBottom = 5;
-            declarationContainer.Add(declarationLabel);
-
-            _ageDeclarationField = new EnumField("Declaration Type", AgeDeclaration.Unknown);
-            _ageDeclarationField.style.marginLeft = 15;
-            declarationContainer.Add(_ageDeclarationField);
-
-            _root.Add(declarationContainer);
-        }
-
-        private void CreatePreviewSection()
-        {
-            _previewContainer = new VisualElement();
-            _previewContainer.style.backgroundColor = new Color(0.2f, 0.2f, 0.2f, 0.1f);
-            _previewContainer.style.borderTopWidth = 1;
-            _previewContainer.style.borderBottomWidth = 1;
-            _previewContainer.style.borderLeftWidth = 1;
-            _previewContainer.style.borderRightWidth = 1;
-            _previewContainer.style.borderTopColor = Color.gray;
-            _previewContainer.style.borderBottomColor = Color.gray;
-            _previewContainer.style.borderLeftColor = Color.gray;
-            _previewContainer.style.borderRightColor = Color.gray;
-            _previewContainer.style.paddingTop = 10;
-            _previewContainer.style.paddingBottom = 10;
-            _previewContainer.style.paddingLeft = 10;
-            _previewContainer.style.paddingRight = 10;
-
-            var resultContainer = new VisualElement();
-
-            var resultLabel = new Label("Generated Result:");
-            resultLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            resultLabel.style.marginBottom = 5;
-            resultContainer.Add(resultLabel);
-
-            _previewStatusLabel = new Label();
-            _previewStatusLabel.style.marginLeft = 15;
-            resultContainer.Add(_previewStatusLabel);
-
-            _previewLowerBoundLabel = new Label();
-            _previewLowerBoundLabel.style.marginLeft = 15;
-            resultContainer.Add(_previewLowerBoundLabel);
-
-            _previewUpperBoundLabel = new Label();
-            _previewUpperBoundLabel.style.marginLeft = 15;
-            resultContainer.Add(_previewUpperBoundLabel);
-
-            _previewAgeDeclarationLabel = new Label();
-            _previewAgeDeclarationLabel.style.marginLeft = 15;
-            _previewAgeDeclarationLabel.style.marginBottom = 10;
-            resultContainer.Add(_previewAgeDeclarationLabel);
-
-            _previewContainer.Add(resultContainer);
-
-            var jsonLabel = new Label("JSON Output:");
-            jsonLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            jsonLabel.style.marginBottom = 5;
-            _previewContainer.Add(jsonLabel);
-
-            _jsonPreviewField = new TextField();
-            _jsonPreviewField.multiline = true;
-            _jsonPreviewField.style.height = 160;
-            _jsonPreviewField.style.whiteSpace = WhiteSpace.Normal;
-            _jsonPreviewField.SetEnabled(false);
-            _previewContainer.Add(_jsonPreviewField);
-        }
-
-        private void CreatePresetsSection()
-        {
-            var presetsContainer = new VisualElement();
-
-            var presetsLabel = new Label("Quick Presets");
-            presetsLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            presetsLabel.style.marginBottom = 10;
-            presetsContainer.Add(presetsLabel);
-
-            // First row of buttons
-            var buttonRow1 = new VisualElement();
-            buttonRow1.style.flexDirection = FlexDirection.Row;
-            buttonRow1.style.marginBottom = 5;
-
-            var successButton1 = new Button(() => SetPreset(AgeRangeResultStatus.Success, true, 13, true, 17, AgeDeclaration.SelfDeclared))
+            b.BeginSection("Presets");
+            b.BeginColumns("Presets");
+            for(int i = 0; i <= 4; i++)
             {
-                text = "Success (13-17)"
-            };
-            successButton1.style.flexGrow = 1;
-            successButton1.style.marginRight = 5;
-            buttonRow1.Add(successButton1);
-
-            var successButton2 = new Button(() => SetPreset(AgeRangeResultStatus.Success, true, 5, true, 12, AgeDeclaration.GuardianDeclared))
-            {
-                text = "Success (5-12)"
-            };
-            successButton2.style.flexGrow = 1;
-            buttonRow1.Add(successButton2);
-
-            presetsContainer.Add(buttonRow1);
-
-            // Second row of buttons
-            var buttonRow2 = new VisualElement();
-            buttonRow2.style.flexDirection = FlexDirection.Row;
-
-            var successButton3 = new Button(() => SetPreset(AgeRangeResultStatus.Success, true, 18, false, 0, AgeDeclaration.SelfDeclared))
-            {
-                text = "Success (18+)"
-            };
-            successButton3.style.flexGrow = 1;
-            successButton3.style.marginRight = 5;
-            buttonRow2.Add(successButton3);
-
-            var declinedButton = new Button(() => SetPreset(AgeRangeResultStatus.UserDeclined, false, 0, false, 0, AgeDeclaration.Unknown))
-            {
-                text = "User Declined"
-            };
-            declinedButton.style.flexGrow = 1;
-            declinedButton.style.marginRight = 5;
-            buttonRow2.Add(declinedButton);
-
-            var unsupportedButton = new Button(() => SetPreset(AgeRangeResultStatus.UnsupportedPlatformVersion, false, 0, false, 0, AgeDeclaration.Unknown))
-            {
-                text = "Unsupported Platform"
-            };
-            unsupportedButton.style.flexGrow = 1;
-            buttonRow2.Add(unsupportedButton);
-
-            presetsContainer.Add(buttonRow2);
-
-            _root.Add(presetsContainer);
+                switch(i)
+                {
+                    case 0:
+                        b.AddButton("Success (13-17)", () => SetPreset(AgeRangeResultStatus.Success, true, 13, true, 17, AgeDeclaration.SelfDeclared));
+                        break;
+                    case 1:
+                        b.AddButton("Success (5-12)", () => SetPreset(AgeRangeResultStatus.Success, true, 5, true, 12, AgeDeclaration.GuardianDeclared));
+                        break;
+                    case 2:
+                        b.AddButton("Success (18+)", () => SetPreset(AgeRangeResultStatus.Success, true, 18, false, 0, AgeDeclaration.SelfDeclared));
+                        break;
+                    case 3:
+                        b.AddButton("User Declined", () => SetPreset(AgeRangeResultStatus.UserDeclined, false, 0, false, 0, AgeDeclaration.Unknown));
+                        break;
+                    case 4:
+                        b.AddButton("Unsupported Platform", () => SetPreset(AgeRangeResultStatus.UnsupportedPlatformVersion, false, 0, false, 0, AgeDeclaration.Unknown));
+                        break;
+                    default:
+                        // Add more cases as needed
+                        break;
+                }
+            }
+            b.EndColumns();
+            b.EndSection();
         }
 
         private void InitializeValues()

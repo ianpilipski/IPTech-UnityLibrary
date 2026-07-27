@@ -1,4 +1,5 @@
 
+using IPTech.AgeVerification.Debugging;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -23,57 +24,30 @@ namespace IPTech.AgeVerification.iOS.Debugging
         private void ComposeUI()
         {
             this.Clear();
+            var b = new MockPopupBuilder();
 
             if(_isEditing) {
-                var errorTypeField = new EnumField("Error Type", _mockError.Type);
-                errorTypeField.RegisterValueChangedCallback(evt =>
+                var errorType = b.AddEnumProperty("Error Type", _mockError.Type);
+                errorType.RegisterValueChangedCallback(evt =>
                 {
                     _mockError.Type = (CachedError.ErrorType)evt.newValue;
                 });
-                this.Add(errorTypeField);
-
-                var errorMessageField = new TextField("Error Message");
-                errorMessageField.value = _mockError.Message;
-                errorMessageField.RegisterValueChangedCallback(evt =>
+                
+                var errorMessage = b.AddTextFieldProperty("Error Message", _mockError.Message);
+                errorMessage.RegisterValueChangedCallback(evt =>
                 {
                     _mockError.Message = evt.newValue;
                 });
-                this.Add(errorMessageField);
             } 
             else
             {
-                var previewContainer = new VisualElement();
-                previewContainer.style.backgroundColor = new Color(0.2f, 0.2f, 0.2f, 0.1f);
-                previewContainer.style.borderTopWidth = 1;
-                previewContainer.style.borderBottomWidth = 1;
-                previewContainer.style.borderLeftWidth = 1;
-                previewContainer.style.borderRightWidth = 1;
-                previewContainer.style.borderTopColor = Color.gray;
-                previewContainer.style.borderBottomColor = Color.gray;
-                previewContainer.style.borderLeftColor = Color.gray;
-                previewContainer.style.borderRightColor = Color.gray;
-                previewContainer.style.paddingTop = 10;
-                previewContainer.style.paddingBottom = 10;
-                previewContainer.style.paddingLeft = 10;
-                previewContainer.style.paddingRight = 10;
-                this.Add(previewContainer);
-
-                var resultContainer = new VisualElement();
-                previewContainer.Add(resultContainer);
-
-                var resultLabel = new Label("Generated Result:");
-                resultLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-                resultLabel.style.marginBottom = 5;
-                resultContainer.Add(resultLabel);
-
-                var errorTypeLabel = new Label($"Exception Type: {_mockError.Type}");
-                errorTypeLabel.style.marginLeft = 15;
-                resultContainer.Add(errorTypeLabel);
-
-                var errorMessageLabel = new Label($"Exception Message: {_mockError.Message}");
-                errorMessageLabel.style.marginLeft = 15;
-                resultContainer.Add(errorMessageLabel);
+                b.BeginSection("Generated Result:");
+                b.AddLabelProperty($"Exception: {_mockError.Type}");
+                b.AddLabelProperty($"Error Message: {_mockError.Message}");
+                b.EndSection();
             }
+
+            this.Add(b.Root);
         }
     }
 }

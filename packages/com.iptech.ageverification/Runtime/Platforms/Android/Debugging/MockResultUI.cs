@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using System;
+using IPTech.AgeVerification.Debugging;
 
 namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
 {
@@ -31,27 +32,19 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
         {
             _mockResult = mockResult;
 
-            _root = new VisualElement();
+            var b = new MockPopupBuilder();
+            _root = b.Root;
 
-            // Add some styling
-            _root.style.paddingTop = 10;
-            _root.style.paddingBottom = 10;
-            _root.style.paddingLeft = 5;
-            _root.style.paddingRight = 5;
-
-            CreateHeader();
-            CreateUserStatusSection();
-            CreateAgeBoundsSection();
-            CreateApprovalDateSection();
-            CreateInstallIdSection();
-            CreatePresetsSection();
-            CreatePreviewSection();
+            CreateUserStatusSection(b);
+            CreateAgeBoundsSection(b);
+            CreateApprovalDateSection(b);
+            CreateInstallIdSection(b);
+            CreatePresetsSection(b);
+            CreatePreviewSection(b);
 
             // Initialize values from MockResult
-            InitializeValues();
+            UpdateValues();
 
-            // Update preview initially and register callbacks
-            UpdatePreview();
             RegisterCallbacks();
         }
 
@@ -65,292 +58,146 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
             return _previewContainer;
         }
 
-        private void CreateHeader()
+        private void CreateUserStatusSection(MockPopupBuilder b)
         {
-            var header = new Label("Mock Age Signals Result Configuration");
-            header.style.fontSize = 16;
-            header.style.unityFontStyleAndWeight = FontStyle.Bold;
-            header.style.marginBottom = 10;
-            _root.Add(header);
+            b.BeginSection("User Status");
+            _hasUserStatusToggle = b.AddToggleProperty("Has User Status", true);
+            _userStatusField = b.AddEnumProperty("User Status", AgeSignalsVerificationStatus.VERIFIED);
+            b.EndSection();
         }
 
-        private void CreateUserStatusSection()
+        private void CreateAgeBoundsSection(MockPopupBuilder b)
         {
-            var statusContainer = new VisualElement();
-            statusContainer.style.marginBottom = 15;
+            b.BeginSection("Age Bounds");
+            
+            _hasAgeLowerToggle = b.AddToggleProperty("Has Age Lower", true);
+            _ageLowerField = b.AddIntegerProperty("Age Lower", 0);
 
-            var statusLabel = new Label("User Status");
-            statusLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            statusLabel.style.marginBottom = 5;
-            statusContainer.Add(statusLabel);
-
-            var userStatusContainer = new VisualElement();
-            userStatusContainer.style.flexDirection = FlexDirection.Row;
-            userStatusContainer.style.alignItems = Align.Center;
-            userStatusContainer.style.marginLeft = 15;
-
-            _hasUserStatusToggle = new Toggle("Has User Status");
-            userStatusContainer.Add(_hasUserStatusToggle);
-
-            _userStatusField = new EnumField(AgeSignalsVerificationStatus.VERIFIED);
-            _userStatusField.style.flexGrow = 1;
-            _userStatusField.style.flexShrink = 1;
-            _userStatusField.style.marginLeft = 10;
-            userStatusContainer.Add(_userStatusField);
-
-            statusContainer.Add(userStatusContainer);
-            _root.Add(statusContainer);
+            _hasAgeUpperToggle = b.AddToggleProperty("Has Age Upper", true);
+            _ageUpperField = b.AddIntegerProperty("Age Upper", 0);
+            b.EndSection();
         }
 
-        private void CreateAgeBoundsSection()
+        private void CreateApprovalDateSection(MockPopupBuilder b)
         {
-            var boundsContainer = new VisualElement();
-            boundsContainer.style.marginBottom = 15;
-
-            var boundsLabel = new Label("Age Bounds");
-            boundsLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            boundsLabel.style.marginBottom = 5;
-            boundsContainer.Add(boundsLabel);
-
-            // Age Lower container
-            var ageLowerContainer = new VisualElement();
-            ageLowerContainer.style.flexDirection = FlexDirection.Row;
-            ageLowerContainer.style.alignItems = Align.Center;
-            ageLowerContainer.style.marginLeft = 15;
-            ageLowerContainer.style.marginBottom = 5;
-
-            _hasAgeLowerToggle = new Toggle("Has Age Lower");
-            ageLowerContainer.Add(_hasAgeLowerToggle);
-
-            _ageLowerField = new IntegerField();
-            _ageLowerField.style.flexGrow = 1;
-            _ageLowerField.style.flexShrink = 1;
-            _ageLowerField.style.marginLeft = 10;
-            ageLowerContainer.Add(_ageLowerField);
-
-            boundsContainer.Add(ageLowerContainer);
-
-            // Age Upper container
-            var ageUpperContainer = new VisualElement();
-            ageUpperContainer.style.flexDirection = FlexDirection.Row;
-            ageUpperContainer.style.alignItems = Align.Center;
-            ageUpperContainer.style.marginLeft = 15;
-
-            _hasAgeUpperToggle = new Toggle("Has Age Upper");
-            ageUpperContainer.Add(_hasAgeUpperToggle);
-
-            _ageUpperField = new IntegerField();
-            _ageUpperField.style.flexGrow = 1;
-            _ageUpperField.style.flexShrink = 1;
-            _ageUpperField.style.marginLeft = 10;
-            ageUpperContainer.Add(_ageUpperField);
-
-            boundsContainer.Add(ageUpperContainer);
-
-            _root.Add(boundsContainer);
+            b.BeginSection("Most Recent Approval Date");
+            
+            _hasMostRecentApprovalDateToggle = b.AddToggleProperty("Has Approval Date", true);
+            _mostRecentApprovalDateField = b.AddTextFieldProperty("Most Recent Approval Date", "");
+            b.EndSection();
         }
 
-        private void CreateApprovalDateSection()
+        private void CreateInstallIdSection(MockPopupBuilder b)
         {
-            var approvalContainer = new VisualElement();
-            approvalContainer.style.marginBottom = 15;
+            b.BeginSection("Install ID");
+            _installIdField = b.AddTextFieldProperty("Install ID", "");
+            b.EndSection();
+        }
+            
 
-            var approvalLabel = new Label("Most Recent Approval Date");
-            approvalLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            approvalLabel.style.marginBottom = 5;
-            approvalContainer.Add(approvalLabel);
+        private void CreatePreviewSection(MockPopupBuilder b)
+        {
+            _previewContainer = b.BeginSection("Preview");
 
-            var dateContainer = new VisualElement();
-            dateContainer.style.flexDirection = FlexDirection.Row;
-            dateContainer.style.alignItems = Align.Center;
-            dateContainer.style.marginLeft = 15;
+            b.BeginGroup("Generated Result");
+            _previewUserStatusLabel = b.AddLabelProperty("userStatus");
+            _previewAgeLowerLabel = b.AddLabelProperty("ageLower");
+            _previewAgeUpperLabel = b.AddLabelProperty("ageUpper");
+            _previewMostRecentApprovalDateLabel = b.AddLabelProperty("mostRecentApprovalDate");
+            _previewInstallIdLabel = b.AddLabelProperty("installId");
+            b.EndGroup();
 
-            _hasMostRecentApprovalDateToggle = new Toggle("Has Approval Date");
-            dateContainer.Add(_hasMostRecentApprovalDateToggle);
+            var jsonLabel = b.BeginGroup("JSON Output:");
+            _jsonPreviewField = b.AddTextFieldProperty("", "");
+            b.EndGroup();
 
-            _mostRecentApprovalDateField = new TextField();
-            _mostRecentApprovalDateField.style.flexGrow = 1;
-            _mostRecentApprovalDateField.style.flexShrink = 1;
-            _mostRecentApprovalDateField.style.marginLeft = 10;
-            approvalContainer.Add(dateContainer);
-            approvalContainer.Add(_mostRecentApprovalDateField);
-
-            _root.Add(approvalContainer);
+            b.EndSection();
         }
 
-        private void CreateInstallIdSection()
+        private void CreatePresetsSection(MockPopupBuilder b)
         {
-            var installIdContainer = new VisualElement();
-            installIdContainer.style.marginBottom = 15;
-
-            var installIdLabel = new Label("Install ID");
-            installIdLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            installIdLabel.style.marginBottom = 5;
-            installIdContainer.Add(installIdLabel);
-
-            _installIdField = new TextField();
-            _installIdField.style.marginLeft = 15;
-            installIdContainer.Add(_installIdField);
-
-            _root.Add(installIdContainer);
-        }
-
-        private void CreatePreviewSection()
-        {
-            _previewContainer = new VisualElement();
-            _previewContainer.style.backgroundColor = new Color(0.2f, 0.2f, 0.2f, 0.1f);
-            _previewContainer.style.borderTopWidth = 1;
-            _previewContainer.style.borderBottomWidth = 1;
-            _previewContainer.style.borderLeftWidth = 1;
-            _previewContainer.style.borderRightWidth = 1;
-            _previewContainer.style.borderTopColor = Color.gray;
-            _previewContainer.style.borderBottomColor = Color.gray;
-            _previewContainer.style.borderLeftColor = Color.gray;
-            _previewContainer.style.borderRightColor = Color.gray;
-            _previewContainer.style.paddingTop = 10;
-            _previewContainer.style.paddingBottom = 10;
-            _previewContainer.style.paddingLeft = 10;
-            _previewContainer.style.paddingRight = 10;
-
-            var resultContainer = new VisualElement();
-
-            var resultLabel = new Label("Generated Result:");
-            resultLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            resultLabel.style.marginBottom = 5;
-            resultContainer.Add(resultLabel);
-
-            _previewUserStatusLabel = new Label();
-            _previewUserStatusLabel.style.marginLeft = 15;
-            resultContainer.Add(_previewUserStatusLabel);
-
-            _previewAgeLowerLabel = new Label();
-            _previewAgeLowerLabel.style.marginLeft = 15;
-            resultContainer.Add(_previewAgeLowerLabel);
-
-            _previewAgeUpperLabel = new Label();
-            _previewAgeUpperLabel.style.marginLeft = 15;
-            resultContainer.Add(_previewAgeUpperLabel);
-
-            _previewMostRecentApprovalDateLabel = new Label();
-            _previewMostRecentApprovalDateLabel.style.marginLeft = 15;
-            resultContainer.Add(_previewMostRecentApprovalDateLabel);
-
-            _previewInstallIdLabel = new Label();
-            _previewInstallIdLabel.style.marginLeft = 15;
-            _previewInstallIdLabel.style.marginBottom = 10;
-            resultContainer.Add(_previewInstallIdLabel);
-
-            _previewContainer.Add(resultContainer);
-
-            var jsonLabel = new Label("JSON Output:");
-            jsonLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            jsonLabel.style.marginBottom = 5;
-            _previewContainer.Add(jsonLabel);
-
-            _jsonPreviewField = new TextField();
-            _jsonPreviewField.multiline = true;
-            _jsonPreviewField.style.height = 160;
-            _jsonPreviewField.style.whiteSpace = WhiteSpace.Normal;
-            _jsonPreviewField.SetEnabled(false);
-            _previewContainer.Add(_jsonPreviewField);
-        }
-
-        private void CreatePresetsSection()
-        {
-            var presetsContainer = new VisualElement();
-            presetsContainer.style.marginBottom = 15;
-
-            var presetsLabel = new Label("Quick Presets");
-            presetsLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            presetsLabel.style.marginBottom = 10;
-            presetsContainer.Add(presetsLabel);
-
-            // First row of buttons
-            var buttonRow1 = new VisualElement();
-            buttonRow1.style.flexDirection = FlexDirection.Row;
-            buttonRow1.style.marginBottom = 5;
-
-            var verifiedButton = new Button(() => SetPreset(true, AgeSignalsVerificationStatus.VERIFIED, true, 13, true, 17, false, "", "test-install-123"))
+            var presetsContainer = b.BeginSection("Quick Presets");
+            
+            
+            for(int i=0; i<=5; i++)
             {
-                text = "Verified (13-17)"
-            };
-            verifiedButton.style.flexGrow = 1;
-            verifiedButton.style.marginRight = 5;
-            buttonRow1.Add(verifiedButton);
-
-            var supervisedButton = new Button(() => SetPreset(true, AgeSignalsVerificationStatus.SUPERVISED, true, 5, true, 12, true, DateTime.Now.ToString("o"), "test-install-456"))
-            {
-                text = "Supervised (5-12)"
-            };
-            supervisedButton.style.flexGrow = 1;
-            buttonRow1.Add(supervisedButton);
-
-            presetsContainer.Add(buttonRow1);
-
-            // Second row of buttons
-            var buttonRow2 = new VisualElement();
-            buttonRow2.style.flexDirection = FlexDirection.Row;
-            buttonRow2.style.marginBottom = 5;
-
-            var pendingButton = new Button(() => SetPreset(true, AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_PENDING, false, 0, false, 0, false, "", "test-install-789"))
-            {
-                text = "Approval Pending"
-            };
-            pendingButton.style.flexGrow = 1;
-            pendingButton.style.marginRight = 5;
-            buttonRow2.Add(pendingButton);
-
-            var deniedButton = new Button(() => SetPreset(true, AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_DENIED, false, 0, false, 0, false, "", "test-install-000"))
-            {
-                text = "Approval Denied"
-            };
-            deniedButton.style.flexGrow = 1;
-            buttonRow2.Add(deniedButton);
-
-            presetsContainer.Add(buttonRow2);
-
-            // Third row
-            var buttonRow3 = new VisualElement();
-            buttonRow3.style.flexDirection = FlexDirection.Row;
-
-            var verified18PlusButton = new Button(() => SetPreset(true, AgeSignalsVerificationStatus.VERIFIED, true, 18, false, 0, false, "", "test-install-adult"))
-            {
-                text = "Verified (18+)"
-            };
-            verified18PlusButton.style.flexGrow = 1;
-            verified18PlusButton.style.marginRight = 5;
-            buttonRow3.Add(verified18PlusButton);
-
-            var unknownButton = new Button(() => SetPreset(false, AgeSignalsVerificationStatus.UNKNOWN, false, 0, false, 0, false, "", "unknown-install"))
-            {
-                text = "Unknown Status"
-            };
-            unknownButton.style.flexGrow = 1;
-            buttonRow3.Add(unknownButton);
-
-            presetsContainer.Add(buttonRow3);
-
-            _root.Add(presetsContainer);
+                switch(i)
+                {
+                    case 0:
+                        b.AddButton("Verified (13-17)", () => SetPreset(true, AgeSignalsVerificationStatus.VERIFIED, true, 13, true, 17, false, "", "test-installid-123"));
+                        break;
+                    case 1:
+                        b.AddButton("Supervised (5-12)", () => SetPreset(true, AgeSignalsVerificationStatus.SUPERVISED, true, 5, true, 12, true, DateTime.Now.ToString("o"), "test-installid-456"));
+                        break;
+                    case 2:
+                        b.AddButton("Approval Pending", () => SetPreset(true, AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_PENDING, false, 0, false, 0, false, "", "test-installid-789"));
+                        break;
+                    case 3:
+                        b.AddButton("Approval Denied", () => SetPreset(true, AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_DENIED, false, 0, false, 0, false, "", "test-installid-000"));
+                        break;
+                    case 4:
+                        b.AddButton("Verified (18+)", () => SetPreset(true, AgeSignalsVerificationStatus.VERIFIED, true, 18, false, 0, false, "", "test-installid-adult"));
+                        break;
+                    case 5:
+                        b.AddButton("Unknown Status", () => SetPreset(false, AgeSignalsVerificationStatus.UNKNOWN, false, 0, false, 0, false, "", "unknown-installid"));
+                        break;
+                    // Add more cases as needed
+                }
+            }
+            b.EndSection();
         }
 
-        private void InitializeValues()
+        private void UpdateValues()
         {
             if (_mockResult == null) return;
 
-            _hasUserStatusToggle.value = _mockResult.HasUserStatus;
-            _userStatusField.value = _mockResult.UserStatus;
-            _hasAgeLowerToggle.value = _mockResult.HasAgeLower;
-            _ageLowerField.value = _mockResult.AgeLower;
-            _hasAgeUpperToggle.value = _mockResult.HasAgeUpper;
-            _ageUpperField.value = _mockResult.AgeUpper;
-            _hasMostRecentApprovalDateToggle.value = _mockResult.HasMostRecentApprovalDate;
-            _mostRecentApprovalDateField.value = _mockResult.MostRecentApprovalDateString;
-            _installIdField.value = _mockResult.InstallId;
+            if(_hasUserStatusToggle.value != _mockResult.HasUserStatus)
+            {
+                _hasUserStatusToggle.value = _mockResult.HasUserStatus;
+            }
+            if(_userStatusField.value != (Enum)_mockResult.UserStatus)
+            {
+                _userStatusField.value = _mockResult.UserStatus;
+            }
 
-            UpdateUserStatusFieldState();
-            UpdateAgeLowerFieldState();
-            UpdateAgeUpperFieldState();
-            UpdateApprovalDateFieldState();
+            if(_hasAgeLowerToggle.value != _mockResult.HasAgeLower)
+            {
+                _hasAgeLowerToggle.value = _mockResult.HasAgeLower;
+            }
+            if(_ageLowerField.value != _mockResult.AgeLower)
+            {
+                _ageLowerField.value = _mockResult.AgeLower;
+            }
+            if(_hasAgeUpperToggle.value != _mockResult.HasAgeUpper)
+            {
+                _hasAgeUpperToggle.value = _mockResult.HasAgeUpper;
+            }
+            if(_ageUpperField.value != _mockResult.AgeUpper)
+            {
+                _ageUpperField.value = _mockResult.AgeUpper;
+            }
+            if(_hasMostRecentApprovalDateToggle.value != _mockResult.HasMostRecentApprovalDate)
+            {
+                _hasMostRecentApprovalDateToggle.value = _mockResult.HasMostRecentApprovalDate;
+            }
+            if(_mostRecentApprovalDateField.value != _mockResult.MostRecentApprovalDateString)
+            {
+                _mostRecentApprovalDateField.value = _mockResult.MostRecentApprovalDateString;
+            }
+            if(_installIdField.value != _mockResult.InstallId)
+            {
+                _installIdField.value = _mockResult.InstallId;
+            }
+
+            _userStatusField.SetEnabled(_hasUserStatusToggle.value);
+            _userStatusField.style.opacity = _hasUserStatusToggle.value ? 1.0f : 0.5f;
+            _ageLowerField.SetEnabled(_hasAgeLowerToggle.value);
+            _ageLowerField.style.opacity = _hasAgeLowerToggle.value ? 1.0f : 0.5f;
+            _ageUpperField.SetEnabled(_hasAgeUpperToggle.value);
+            _ageUpperField.style.opacity = _hasAgeUpperToggle.value ? 1.0f : 0.5f;
+            _mostRecentApprovalDateField.SetEnabled(_hasMostRecentApprovalDateToggle.value);
+            _mostRecentApprovalDateField.style.opacity = _hasMostRecentApprovalDateToggle.value ? 1.0f : 0.5f;
+            UpdatePreview();
         }
 
         private void RegisterCallbacks()
@@ -358,101 +205,68 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
             _hasUserStatusToggle.RegisterValueChangedCallback(evt => 
             {
                 if (_mockResult != null) _mockResult.HasUserStatus = evt.newValue;
-                UpdateUserStatusFieldState();
-                UpdatePreview();
+                UpdateValues();
                 OnValuesChanged?.Invoke();
             });
 
             _userStatusField.RegisterValueChangedCallback(evt => 
             {
                 if (_mockResult != null) _mockResult.UserStatus = (AgeSignalsVerificationStatus)evt.newValue;
-                UpdatePreview();
+                UpdateValues();
                 OnValuesChanged?.Invoke();
             });
             
             _hasAgeLowerToggle.RegisterValueChangedCallback(evt => 
             {
                 if (_mockResult != null) _mockResult.HasAgeLower = evt.newValue;
-                UpdateAgeLowerFieldState();
-                UpdatePreview();
+                UpdateValues();
                 OnValuesChanged?.Invoke();
             });
             
             _ageLowerField.RegisterValueChangedCallback(evt => 
             {
                 if (_mockResult != null) _mockResult.AgeLower = evt.newValue;
-                UpdatePreview();
+                UpdateValues();
                 OnValuesChanged?.Invoke();
             });
             
             _hasAgeUpperToggle.RegisterValueChangedCallback(evt => 
             {
                 if (_mockResult != null) _mockResult.HasAgeUpper = evt.newValue;
-                UpdateAgeUpperFieldState();
-                UpdatePreview();
+                UpdateValues();
                 OnValuesChanged?.Invoke();
             });
             
             _ageUpperField.RegisterValueChangedCallback(evt => 
             {
                 if (_mockResult != null) _mockResult.AgeUpper = evt.newValue;
-                UpdatePreview();
+                UpdateValues();
                 OnValuesChanged?.Invoke();
             });
 
             _hasMostRecentApprovalDateToggle.RegisterValueChangedCallback(evt => 
             {
                 if (_mockResult != null) _mockResult.HasMostRecentApprovalDate = evt.newValue;
-                UpdateApprovalDateFieldState();
-                UpdatePreview();
+                UpdateValues();
                 OnValuesChanged?.Invoke();
             });
 
             _mostRecentApprovalDateField.RegisterValueChangedCallback(evt => 
             {
                 if (_mockResult != null) _mockResult.MostRecentApprovalDateString = evt.newValue;
-                UpdatePreview();
+                UpdateValues();
                 OnValuesChanged?.Invoke();
             });
 
             _installIdField.RegisterValueChangedCallback(evt => 
             {
                 if (_mockResult != null) _mockResult.InstallId = evt.newValue;
-                UpdatePreview();
+                UpdateValues();
                 OnValuesChanged?.Invoke();
             });
-
-            // Initial state
-            UpdateUserStatusFieldState();
-            UpdateAgeLowerFieldState();
-            UpdateAgeUpperFieldState();
-            UpdateApprovalDateFieldState();
         }
 
-        private void UpdateUserStatusFieldState()
-        {
-            _userStatusField.SetEnabled(_hasUserStatusToggle.value);
-            _userStatusField.style.opacity = _hasUserStatusToggle.value ? 1.0f : 0.5f;
-        }
-
-        private void UpdateAgeLowerFieldState()
-        {
-            _ageLowerField.SetEnabled(_hasAgeLowerToggle.value);
-            _ageLowerField.style.opacity = _hasAgeLowerToggle.value ? 1.0f : 0.5f;
-        }
-
-        private void UpdateAgeUpperFieldState()
-        {
-            _ageUpperField.SetEnabled(_hasAgeUpperToggle.value);
-            _ageUpperField.style.opacity = _hasAgeUpperToggle.value ? 1.0f : 0.5f;
-        }
-
-        private void UpdateApprovalDateFieldState()
-        {
-            _mostRecentApprovalDateField.SetEnabled(_hasMostRecentApprovalDateToggle.value);
-            _mostRecentApprovalDateField.style.opacity = _hasMostRecentApprovalDateToggle.value ? 1.0f : 0.5f;
-        }
-
+        
         private void UpdatePreview()
         {
             if (_mockResult == null) return;
@@ -495,20 +309,8 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
             _mostRecentApprovalDateField.value = approvalDateString;
             _installIdField.value = installId;
 
-            UpdateUserStatusFieldState();
-            UpdateAgeLowerFieldState();
-            UpdateAgeUpperFieldState();
-            UpdateApprovalDateFieldState();
-            UpdatePreview();
+            UpdateValues();
             OnValuesChanged?.Invoke();
-        }
-
-        public void RefreshFromMockResult()
-        {
-            if (_mockResult == null) return;
-            
-            InitializeValues();
-            UpdatePreview();
         }
 
         public AgeSignalsResult GetCurrentResult()

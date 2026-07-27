@@ -16,11 +16,14 @@ namespace IPTech.AgeVerification.iOS.Debugging
         public static CachedResult LastResult { get; set; }
         public static CachedIsEligibleResult LastIsEligibleForAgeFeaturesResult { get; set; }
 
+        public static event Action ValuesChanged;
+
         public static bool EnableMockMode
         {
             get
             {
                 if (!Debug.isDebugBuild) return false;
+                if (Application.isEditor) return true;
                 return PlayerPrefs.GetInt(ENABLE_MOCK_MODE_KEY, 0) == 1;
             }
 
@@ -28,6 +31,7 @@ namespace IPTech.AgeVerification.iOS.Debugging
             {
                 PlayerPrefs.SetInt(ENABLE_MOCK_MODE_KEY, value ? 1 : 0);
                 PlayerPrefs.Save();
+                OnValuesChanged();
             }
         }
 
@@ -46,6 +50,7 @@ namespace IPTech.AgeVerification.iOS.Debugging
                         catch(Exception)
                         {
                             // If deserialization fails, clear the invalid cached value
+                            Debug.LogError("Failed to deserialize cached is eligible result.");
                             PlayerPrefs.DeleteKey(CACHED_IS_ELIGIBLE_RESULT_KEY);
                             _cachedIsEligibleResultInstance = null;
                         }
@@ -67,6 +72,7 @@ namespace IPTech.AgeVerification.iOS.Debugging
                     PlayerPrefs.SetString(CACHED_IS_ELIGIBLE_RESULT_KEY, JsonUtility.ToJson(value));
                 }
                 PlayerPrefs.Save();
+                OnValuesChanged();
             }
         }
         
@@ -112,7 +118,13 @@ namespace IPTech.AgeVerification.iOS.Debugging
                     PlayerPrefs.SetString(CACHED_RESULT_KEY, json);
                 }
                 PlayerPrefs.Save();
+                OnValuesChanged();
             }
+        }
+
+        private static void OnValuesChanged()
+        {
+            ValuesChanged?.Invoke();
         }
     }
 }

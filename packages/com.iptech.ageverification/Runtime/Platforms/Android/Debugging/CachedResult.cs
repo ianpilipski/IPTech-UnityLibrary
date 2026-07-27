@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
 {
@@ -11,8 +12,8 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
             Exception
         }
 
-        public AgeSignalsResult Result;
-        public CachedError Error;
+        [SerializeReference] public AgeSignalsResult Result;
+        [SerializeReference] public CachedError Error;
 
         [Obsolete("used for json serialization only", true)]
         public CachedResult()

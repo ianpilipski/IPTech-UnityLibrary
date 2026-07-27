@@ -125,15 +125,15 @@ function decryptDir() {
     fi
 
     #if there are no files to decrypt, then exit 
-    if [[ ! -f $DIRECTORY_TO_DECRYPT/*.encrypted ]]; then
+    local files=( $DIRECTORY_TO_DECRYPT/*.encrypted(N) )
+    if (( $#files )); then
+        # loop over all files that end with .encrypted in the directory to decrypt and call decrypt.sh for that file
+        for file in "${files[@]}"; do
+            decryptFile $PREVARGS "$file"
+        done
+    else
         echo "No files to decrypt in directory: $DIRECTORY_TO_DECRYPT"
-        return 0 
     fi
-
-    # loop over all files that end with .encrypted in the directory to decrypt and call decrypt.sh for that file
-    for file in $DIRECTORY_TO_DECRYPT/*.encrypted; do
-        decryptFile $PREVARGS "$file"
-    done
 }
 
 function encryptDir() {

@@ -15,6 +15,15 @@ namespace IPTech.AgeVerification
             if (IsIOS())
             {
                 var api = new AgeRangeApi();
+                var isEligible = await api.IsEligibleForAgeFeatures(ct);
+                if(!isEligible)
+                {
+                    return new AgeVerificationResult
+                    {
+                        Status = AgeVerificationStatus.AgeRangeNotRequired
+                    };
+                }
+                
                 var res = await api.RequestAgeRange(requiredMinAge, ct, additionalMinAge1, additionalMinAge2);
 
                 if (res.Status == AgeRangeResultStatus.Success)

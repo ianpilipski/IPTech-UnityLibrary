@@ -1,5 +1,6 @@
 
 using System;
+using UnityEngine;
 
 namespace IPTech.AgeVerification.iOS.Debugging
 {
@@ -12,8 +13,8 @@ namespace IPTech.AgeVerification.iOS.Debugging
             Exception
         }
 
-        public AgeRangeResult Result;
-        public CachedError Error;
+        [SerializeReference] public AgeRangeResult Result;
+        [SerializeReference] public CachedError Error;
 
         [Obsolete("used only for unity json deserialization", true)]
         public CachedResult()

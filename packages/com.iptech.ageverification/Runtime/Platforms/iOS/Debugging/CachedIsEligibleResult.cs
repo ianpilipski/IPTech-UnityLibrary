@@ -1,5 +1,6 @@
 
 using System;
+using UnityEngine;
 
 namespace IPTech.AgeVerification.iOS.Debugging
 {
@@ -13,7 +14,7 @@ namespace IPTech.AgeVerification.iOS.Debugging
         }
 
         public bool Result;
-        public CachedIsEligibleError Error;
+        [SerializeReference] public CachedIsEligibleError Error;
 
         public CachedIsEligibleResult() 
         {

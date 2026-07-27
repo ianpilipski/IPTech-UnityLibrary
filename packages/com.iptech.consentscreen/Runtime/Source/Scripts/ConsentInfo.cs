@@ -15,9 +15,9 @@ namespace IPTech.ConsentScreen {
     }
 
     public enum EIOSAppTrackingStatus {
+        NotDetermined,
         Authorized,
         Denied,
-        NotDetermined,
         Restricted
     }
 

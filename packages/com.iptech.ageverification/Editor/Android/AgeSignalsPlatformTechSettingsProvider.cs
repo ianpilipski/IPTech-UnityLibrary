@@ -9,6 +9,7 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Editor
     public class AgeSignalsSettingsProvider : SettingsProvider
     {
         private VisualElement _cachedResultPreviewContainer;
+        private VisualElement _cachedResultPreviewButtons;
         
         public AgeSignalsSettingsProvider() : base("Project/IPTech/AgeVerification/Android Age Signals", SettingsScope.Project, GetSearchKeywords())
         {
@@ -31,24 +32,26 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Editor
             rootElement.style.paddingLeft = 20;
             rootElement.style.paddingRight = 20;
 
-            
-            // Header
             var header = new Label("Android Age Signals Settings");
             header.style.fontSize = 18;
             header.style.unityFontStyleAndWeight = FontStyle.Bold;
             header.style.marginBottom = 20;
             rootElement.Add(header);
 
-            // Create scroll view for all content sections
             var scrollView = new ScrollView(ScrollViewMode.Vertical);
             scrollView.style.flexGrow = 1;
             rootElement.Add(scrollView);
 
-            // Cached Result Section
             CreateCachedResultSection(scrollView);
-
-            // Actions Section
             CreateActionsSection(scrollView);
+
+            RefreshCachedResultContent();
+            AgeSignalsDebugSettings.ValuesChanged += RefreshCachedResultContent;
+        }
+
+        public override void OnDeactivate()
+        {
+            AgeSignalsDebugSettings.ValuesChanged -= RefreshCachedResultContent;
         }
 
         private void CreateCachedResultSection(VisualElement root)
@@ -61,9 +64,9 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Editor
             section.Add(_cachedResultPreviewContainer);
 
             // Button container for actions
-            var buttonContainer = new VisualElement();
-            buttonContainer.style.flexDirection = FlexDirection.Row;
-            buttonContainer.style.marginTop = 10;
+            _cachedResultPreviewButtons = new VisualElement();
+            _cachedResultPreviewButtons.style.flexDirection = FlexDirection.Row;
+            _cachedResultPreviewButtons.style.marginTop = 10;
 
             var clearCachedResultButton = new Button(() => ClearCachedResult())
             {
@@ -71,20 +74,10 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Editor
             };
             clearCachedResultButton.style.flexGrow = 1;
             clearCachedResultButton.style.marginRight = 10;
-            buttonContainer.Add(clearCachedResultButton);
+            _cachedResultPreviewButtons.Add(clearCachedResultButton);
 
-            var refreshCachedResultButton = new Button(() => RefreshCachedResultDisplay())
-            {
-                text = "Refresh Cached Result"
-            };
-            refreshCachedResultButton.style.flexGrow = 1;
-            buttonContainer.Add(refreshCachedResultButton);
-
-            section.Add(buttonContainer);
+            section.Add(_cachedResultPreviewButtons);
             root.Add(section);
-
-            // Initialize the cached result display
-            RefreshCachedResultDisplay();
         }
 
         private void CreateActionsSection(VisualElement root)
@@ -162,11 +155,9 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Editor
         private void ClearCachedResult()
         {
             AgeSignalsDebugSettings.CachedResult = null;
-            RefreshCachedResultDisplay();
-            Debug.Log("[AgeSignals] Cached result has been cleared.");
         }
 
-        private void RefreshCachedResultDisplay()
+        private void RefreshCachedResultContent()
         {
             if (_cachedResultPreviewContainer == null) return;
 
@@ -177,16 +168,15 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Editor
 
             if (cachedResult == null)
             {
-                // No cached result - show message
                 var noCacheLabel = new Label("No cached result available");
                 noCacheLabel.style.unityFontStyleAndWeight = FontStyle.Italic;
                 noCacheLabel.style.color = new Color(0.7f, 0.7f, 0.7f);
                 noCacheLabel.style.marginBottom = 10;
                 _cachedResultPreviewContainer.Add(noCacheLabel);
+                _cachedResultPreviewButtons.style.display = DisplayStyle.None;
             }
             else
             {
-                // Create and display the preview
                 if (cachedResult.ResultKind == CachedResult.ResultType.AgeSignalsResult)
                 {
                     var mockResult = new MockResult();
@@ -200,14 +190,14 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Editor
                     var mockErrorUI = new MockErrorUI(cachedResult.Error);
                     _cachedResultPreviewContainer.Add(mockErrorUI);
                 }
+                _cachedResultPreviewButtons.style.display = DisplayStyle.Flex;
             }
         }
 
         private void ResetToDefaults()
         {
             AgeSignalsDebugSettings.EnableMockMode = false;
-            
-            Debug.Log("[AgeSignals] Settings have been reset to default values.");
+            AgeSignalsDebugSettings.CachedResult = null;
         }
 
         private static IEnumerable<string> GetSearchKeywords()

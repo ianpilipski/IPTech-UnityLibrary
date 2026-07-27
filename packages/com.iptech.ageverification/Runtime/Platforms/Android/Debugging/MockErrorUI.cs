@@ -1,3 +1,4 @@
+using IPTech.AgeVerification.Debugging;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -23,17 +24,18 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
         {
             this.Clear();
 
+            var b = new MockPopupBuilder();
+
             if(_isEditing) {
-                var errorCodeField = new EnumField("Error Code", AgeSignalsException.KnownErrorCodes.NO_ERROR);
+                var errorCodeField = b.AddEnumProperty("Error Code", AgeSignalsException.KnownErrorCodes.NO_ERROR);
                 
-                var errorTypeField = new EnumField("Error Type", _mockError.Type);
+                var errorTypeField = b.AddEnumProperty("Error Type", _mockError.Type);
                 errorTypeField.RegisterValueChangedCallback(evt =>
                 {
                     _mockError.Type = (CachedError.ErrorType)evt.newValue;
                     ToggleErrorCodeFieldVisibility(errorCodeField);
                 });
-                this.Add(errorTypeField);
-
+                
                 errorCodeField.value = AgeSignalsException.KnownErrorCodes.NO_ERROR;
                 if(AgeSignalsException.TryGetKnownErrorCode(_mockError.ErrorCode, out var knownError))
                 {
@@ -43,48 +45,18 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
                 {
                     _mockError.ErrorCode = (int)(AgeSignalsException.KnownErrorCodes)evt.newValue;
                 });
-                this.Add(errorCodeField);
-
-                var errorMessageField = new TextField("Error Message");
-                errorMessageField.value = _mockError.Message;
+                var errorMessageField = b.AddTextFieldProperty("Error Message", _mockError.Message);
                 errorMessageField.RegisterValueChangedCallback(evt =>
                 {
                     _mockError.Message = evt.newValue;
                 });
-                this.Add(errorMessageField);
-
+                
                 ToggleErrorCodeFieldVisibility(errorCodeField);
             } 
             else
             {
-                var previewContainer = new VisualElement();
-                previewContainer.style.backgroundColor = new Color(0.2f, 0.2f, 0.2f, 0.1f);
-                previewContainer.style.borderTopWidth = 1;
-                previewContainer.style.borderBottomWidth = 1;
-                previewContainer.style.borderLeftWidth = 1;
-                previewContainer.style.borderRightWidth = 1;
-                previewContainer.style.borderTopColor = Color.gray;
-                previewContainer.style.borderBottomColor = Color.gray;
-                previewContainer.style.borderLeftColor = Color.gray;
-                previewContainer.style.borderRightColor = Color.gray;
-                previewContainer.style.paddingTop = 10;
-                previewContainer.style.paddingBottom = 10;
-                previewContainer.style.paddingLeft = 10;
-                previewContainer.style.paddingRight = 10;
-                this.Add(previewContainer);
-
-                var resultContainer = new VisualElement();
-                previewContainer.Add(resultContainer);
-
-                var resultLabel = new Label("Generated Result:");
-                resultLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-                resultLabel.style.marginBottom = 5;
-                resultContainer.Add(resultLabel);
-
-                var errorTypeLabel = new Label($"Exception Type: {_mockError.Type}");
-                errorTypeLabel.style.marginLeft = 15;
-                resultContainer.Add(errorTypeLabel);
-
+                b.BeginSection("Generated Result:");
+                b.AddLabelProperty($"Exception: {_mockError.Type}");
                 if(_mockError.Type == CachedError.ErrorType.AgeSignalsException)
                 {
                     var knownErrorStr = "Unknown";
@@ -92,14 +64,10 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
                     {
                        knownErrorStr = knownError.ToString();
                     }
-                    var errorCodeLabel = new Label($"Error Code: {knownErrorStr} ({_mockError.ErrorCode})");
-                    errorCodeLabel.style.marginLeft = 15;
-                    resultContainer.Add(errorCodeLabel);
+                    b.AddLabelProperty($"Error Code: {knownErrorStr} ({_mockError.ErrorCode})");
                 }
-
-                var errorMessageLabel = new Label($"Exception Message: {_mockError.Message}");
-                errorMessageLabel.style.marginLeft = 15;
-                resultContainer.Add(errorMessageLabel);
+                b.AddLabelProperty($"Exception Message: {_mockError.Message}");
+                b.EndSection();
             }
         }
 

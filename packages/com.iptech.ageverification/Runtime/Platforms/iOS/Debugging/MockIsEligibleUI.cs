@@ -1,3 +1,4 @@
+using IPTech.AgeVerification.Debugging;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -18,20 +19,16 @@ namespace IPTech.AgeVerification.iOS.Debugging
             _mockIsEligible = mockIsEligible;
             _isEditMode = isEditMode;
 
-            // Add some styling
-            style.paddingTop = 10;
-            style.paddingBottom = 10;
-            style.paddingLeft = 5;
-            style.paddingRight = 5;
+            var b = new MockPopupBuilder();
 
             if (_isEditMode)
             {
-                CreateHeader();
-                CreateEditSection();
+                CreateHeader(b);
+                CreateEditSection(b);
             }
             else
             {
-                CreatePreviewSection();
+                CreatePreviewSection(b);
             }
 
             // Initialize values from MockEligible
@@ -48,61 +45,28 @@ namespace IPTech.AgeVerification.iOS.Debugging
             {
                 UpdatePreview();
             }
+
+            this.Add(b.Root);
         }
 
-        private void CreateHeader()
+        private void CreateHeader(MockPopupBuilder b)
         {
-            var header = new Label($"Mock Is Eligible Configuration {(_isEditMode ? "(Edit Mode)" : "(Preview Mode)")}");
-            header.style.fontSize = 16;
-            header.style.unityFontStyleAndWeight = FontStyle.Bold;
-            header.style.marginBottom = 10;
-            Add(header);
+            b.BeginSection($"Mock Is Eligible Configuration {(_isEditMode ? "(Edit Mode)" : "(Preview Mode)")}");
+            b.EndSection();
         }
 
-        private void CreateEditSection()
+        private void CreateEditSection(MockPopupBuilder b)
         {
-            var editContainer = new VisualElement();
-            editContainer.style.marginBottom = 15;
-
-            var editLabel = new Label("Eligibility Settings");
-            editLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            editLabel.style.marginBottom = 5;
-            editContainer.Add(editLabel);
-
-            _isEligibleToggle = new Toggle("Is Eligible for Age Features");
-            _isEligibleToggle.style.marginLeft = 15;
-            editContainer.Add(_isEligibleToggle);
-
-            Add(editContainer);
+            b.BeginSection("Eligibility Settings");
+            _isEligibleToggle = b.AddToggleProperty("Is Eligible for Age Features", false);
+            b.EndSection();
         }
 
-        private void CreatePreviewSection()
+        private void CreatePreviewSection(MockPopupBuilder b)
         {
-            _previewContainer = new VisualElement();
-            _previewContainer.style.backgroundColor = new Color(0.2f, 0.2f, 0.2f, 0.1f);
-            _previewContainer.style.borderTopWidth = 1;
-            _previewContainer.style.borderBottomWidth = 1;
-            _previewContainer.style.borderLeftWidth = 1;
-            _previewContainer.style.borderRightWidth = 1;
-            _previewContainer.style.borderTopColor = Color.gray;
-            _previewContainer.style.borderBottomColor = Color.gray;
-            _previewContainer.style.borderLeftColor = Color.gray;
-            _previewContainer.style.borderRightColor = Color.gray;
-            _previewContainer.style.paddingTop = 10;
-            _previewContainer.style.paddingBottom = 10;
-            _previewContainer.style.paddingLeft = 10;
-            _previewContainer.style.paddingRight = 10;
-
-            var previewHeaderLabel = new Label("Generated Result:");
-            previewHeaderLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            previewHeaderLabel.style.marginBottom = 5;
-            _previewContainer.Add(previewHeaderLabel);
-
-            _previewLabel = new Label();
-            _previewLabel.style.marginLeft = 15;
-            _previewContainer.Add(_previewLabel);
-
-            Add(_previewContainer);
+            _previewContainer = b.BeginSection("Generated Result");
+            _previewLabel = b.AddLabelProperty("<json>"); 
+            b.EndSection();
         }
 
         private void InitializeValues()

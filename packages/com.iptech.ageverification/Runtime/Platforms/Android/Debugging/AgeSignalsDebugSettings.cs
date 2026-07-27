@@ -11,15 +11,14 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
         
         public static CachedResult LastResult { get; set; }
 
+        public static event Action ValuesChanged;
+
         public static bool EnableMockMode
         {
             get
             {
                 if (!Debug.isDebugBuild) return false;
-                if (Application.isEditor)
-                {
-                    return true;
-                }
+                if (Application.isEditor) return true;
                 return PlayerPrefs.GetInt(ENABLE_MOCK_MODE_KEY, 0) == 1;
             }
 
@@ -27,6 +26,7 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
             {
                 PlayerPrefs.SetInt(ENABLE_MOCK_MODE_KEY, value ? 1 : 0);
                 PlayerPrefs.Save();
+                ValuesChanged?.Invoke();
             }
         }
 
@@ -71,6 +71,7 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
                     PlayerPrefs.SetString(CACHED_RESULT_KEY, json);
                 }
                 PlayerPrefs.Save();
+                ValuesChanged?.Invoke();
             }
         }
     }

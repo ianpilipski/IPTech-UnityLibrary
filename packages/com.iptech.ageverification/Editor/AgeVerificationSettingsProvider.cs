@@ -11,8 +11,10 @@ namespace IPTech.AgeVerification.iOS.Editor
         private Toggle _postProcessToggle;
         private CachedResult _mockCachedResult;
         private VisualElement _cachedResultPreviewContainer;
+        private VisualElement _cachedResultButtons;
         private CachedResult _lastCachedResult;
         private VisualElement _cachedIsEligiblePreviewContainer;
+        private VisualElement _cacheIsEligibleButtons;
         
         public AgeVerificationSettingsProvider() : base("Project/IPTech/AgeVerification/iOS Age Range", SettingsScope.Project, GetSearchKeywords())
         {
@@ -65,6 +67,14 @@ namespace IPTech.AgeVerification.iOS.Editor
 
             // Actions Section
             CreateActionsSection(scrollView);
+
+            AgeRangeDebugSettings.ValuesChanged += RefreshAgeRangeDebugSettings;
+        }
+
+        private void RefreshAgeRangeDebugSettings()
+        {
+            RefreshCachedResultDisplay();
+            RefreshCachedIsEligibleDisplay();
         }
 
         private void CreateCachedResultSection(VisualElement root)
@@ -77,9 +87,9 @@ namespace IPTech.AgeVerification.iOS.Editor
             section.Add(_cachedResultPreviewContainer);
 
             // Button container for actions
-            var buttonContainer = new VisualElement();
-            buttonContainer.style.flexDirection = FlexDirection.Row;
-            buttonContainer.style.marginTop = 10;
+            _cachedResultButtons = new VisualElement();
+            _cachedResultButtons.style.flexDirection = FlexDirection.Row;
+            _cachedResultButtons.style.marginTop = 10;
 
             var clearCachedResultButton = new Button(() => ClearCachedResult())
             {
@@ -87,16 +97,9 @@ namespace IPTech.AgeVerification.iOS.Editor
             };
             clearCachedResultButton.style.flexGrow = 1;
             clearCachedResultButton.style.marginRight = 10;
-            buttonContainer.Add(clearCachedResultButton);
+            _cachedResultButtons.Add(clearCachedResultButton);
 
-            var refreshCachedResultButton = new Button(() => RefreshCachedResultDisplay())
-            {
-                text = "Refresh Cached Result"
-            };
-            refreshCachedResultButton.style.flexGrow = 1;
-            buttonContainer.Add(refreshCachedResultButton);
-
-            section.Add(buttonContainer);
+            section.Add(_cachedResultButtons);
             root.Add(section);
 
             RefreshCachedResultDisplay();
@@ -111,26 +114,18 @@ namespace IPTech.AgeVerification.iOS.Editor
             _cachedIsEligiblePreviewContainer.style.marginBottom = 15;
             section.Add(_cachedIsEligiblePreviewContainer);
 
-            var buttonContainer = new VisualElement();
-            buttonContainer.style.flexDirection = FlexDirection.Row;
-            buttonContainer.style.marginTop = 10;
-
+            _cacheIsEligibleButtons = new VisualElement();
+            _cacheIsEligibleButtons.style.flexDirection = FlexDirection.Row;
+            
             var clearCachedIsEligibleButton = new Button(() => ClearCachedIsEligibleResult())
             {
                 text = "Clear Cached Eligibility"
             };
             clearCachedIsEligibleButton.style.flexGrow = 1;
             clearCachedIsEligibleButton.style.marginRight = 10;
-            buttonContainer.Add(clearCachedIsEligibleButton);
+            _cacheIsEligibleButtons.Add(clearCachedIsEligibleButton);
 
-            var refreshCachedIsEligibleButton = new Button(() => RefreshCachedIsEligibleDisplay())
-            {
-                text = "Refresh Cached Eligibility"
-            };
-            refreshCachedIsEligibleButton.style.flexGrow = 1;
-            buttonContainer.Add(refreshCachedIsEligibleButton);
-
-            section.Add(buttonContainer);
+            section.Add(_cacheIsEligibleButtons);
             root.Add(section);
 
             RefreshCachedIsEligibleDisplay();
@@ -243,6 +238,7 @@ namespace IPTech.AgeVerification.iOS.Editor
 
         public override void OnDeactivate()
         {
+            AgeRangeDebugSettings.ValuesChanged -= RefreshAgeRangeDebugSettings;
             if (_mockCachedResult != null)
             {
                 _mockCachedResult = null;
@@ -280,6 +276,7 @@ namespace IPTech.AgeVerification.iOS.Editor
                 noCacheLabel.style.color = new Color(0.7f, 0.7f, 0.7f);
                 noCacheLabel.style.marginBottom = 10;
                 _cachedResultPreviewContainer.Add(noCacheLabel);
+                _cachedResultButtons.style.display = DisplayStyle.None;
             }
             else
             {
@@ -303,6 +300,7 @@ namespace IPTech.AgeVerification.iOS.Editor
                         var mockErrorUI = new MockErrorUI(_lastCachedResult.Error);
                         _cachedResultPreviewContainer.Add(mockErrorUI);
                     }
+                    _cachedResultButtons.style.display = DisplayStyle.Flex;
                 }
             }
         }
@@ -322,6 +320,7 @@ namespace IPTech.AgeVerification.iOS.Editor
                 noCacheLabel.style.color = new Color(0.7f, 0.7f, 0.7f);
                 noCacheLabel.style.marginBottom = 10;
                 _cachedIsEligiblePreviewContainer.Add(noCacheLabel);
+                _cacheIsEligibleButtons.style.display = DisplayStyle.None;
             }
             else
             {
@@ -338,6 +337,7 @@ namespace IPTech.AgeVerification.iOS.Editor
                     var mockErrorUI = new MockIsEligibleErrorUI(cachedIsEligible.Error);
                     _cachedIsEligiblePreviewContainer.Add(mockErrorUI);
                 }
+                _cacheIsEligibleButtons.style.display = DisplayStyle.Flex;
             }
         }
 

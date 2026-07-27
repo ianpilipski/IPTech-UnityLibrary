@@ -70,23 +70,28 @@ namespace IPTech.ConsentScreen {
 
         async Task<EConsentAge> CheckAgeGate()
         {
-            Debug.Log("Checking age gate...");
-            var mgr = new AgeVerificationManager();
-            var res = await mgr.VerifyAge(requiredMinAgeForAdult, CancellationToken.None);
-            Debug.Log($"Age gate check finished: {res.Status}");
-            if(res.Status == AgeVerificationStatus.AgeRangeNotRequired) {
-                return EConsentAge.Adult;
-            } 
-            else if(res.Status == AgeVerificationStatus.HasAgeRange)
-            {
-                if(res.LowerBound >= requiredMinAgeForAdult) {
+            try {
+                Debug.Log("Checking age gate...");
+                var mgr = new AgeVerificationManager();
+                var res = await mgr.VerifyAge(requiredMinAgeForAdult, CancellationToken.None);
+                Debug.Log($"Age gate check finished: {res.Status}");
+                if(res.Status == AgeVerificationStatus.AgeRangeNotRequired) {
                     return EConsentAge.Adult;
-                } else {
-                    return EConsentAge.Child;
-                }
-            } 
-            Debug.Log($"Age gate check: {res.Status}");
-            return EConsentAge.Child;
+                } 
+                else if(res.Status == AgeVerificationStatus.HasAgeRange)
+                {
+                    if(res.LowerBound >= requiredMinAgeForAdult) {
+                        return EConsentAge.Adult;
+                    } else {
+                        return EConsentAge.Child;
+                    }
+                } 
+                Debug.Log($"Age gate check: {res.Status}");
+                return EConsentAge.Child;
+            } catch(Exception e) {
+                Debug.LogException(e);
+                return EConsentAge.Child;
+            }
         }
 
         void CheckATT(ConsentInfo info)

@@ -1,23 +1,21 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using IPTech.AgeVerification.Debugging;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
 {
-    [RequireComponent(typeof(UIDocument))]
+    [RequireComponent(typeof(PanelRenderer))]
     public class MockResultPopUp : MonoBehaviour
     {
-        private const string PANEL_SETTINGS_RESOURCE_NAME = "com.iptech.ageverification.android.agesignals.mockpanelsettings";
-        [SerializeField]
-        private string _title = "Mock Result";
+        private const string MOCK_RESULT_POPUP_RESOURCE_NAME = "com.iptech.ageverification.android.mockresultpopup";
         
-        private UIDocument _uiDocument;
+        private PanelRenderer _panelRenderer;
         private VisualElement _dialogOverlay;
         private VisualElement _dialogContainer;
         private VisualElement _contentArea;
-        private Label _dialogTitle;
         private Button _okButton;
         private Action _onClosed;
         private Toggle _rememberChoiceToggle;
@@ -35,48 +33,68 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
                 return GetResult(AgeSignalsDebugSettings.CachedResult);
             }
             
-            var panelSettings = Resources.Load<PanelSettings>(PANEL_SETTINGS_RESOURCE_NAME);
-            if(panelSettings == null) {
-                throw new Exception($"PanelSettings resource '{PANEL_SETTINGS_RESOURCE_NAME}' not found in Resources folder.");
+            var popUpPrefab = Resources.Load<MockResultPopUp>(MOCK_RESULT_POPUP_RESOURCE_NAME);
+            if(popUpPrefab == null) {
+                throw new Exception($"Popup prefab resource '{MOCK_RESULT_POPUP_RESOURCE_NAME}' not found in Resources folder.");
             }
 
-            var popupGO = new GameObject("MockResultPopUp");
+            var popupInst = Instantiate(popUpPrefab);
+            DontDestroyOnLoad(popupInst.gameObject);
             try 
             {
-                var uiDocument = popupGO.AddComponent<UIDocument>();
-                uiDocument.panelSettings = panelSettings;
-                
-                // Add and configure the popup component
-                var popup = popupGO.AddComponent<MockResultPopUp>();
-                popup._title = "Mock Age Signals Result";
-                popup._mockResult = new MockResult();
-                popup._mockError = new MockError();
-                
-                bool isOkClicked = false;
-                popup._onClosed = () => { isOkClicked = true; };
-
-                // Don't destroy the popup when loading new scenes
-                DontDestroyOnLoad(popupGO);
-
-                while (!isOkClicked)
-                {
-                    await Task.Yield();
-                    if (ct.IsCancellationRequested)
-                    {
-                        ct.ThrowIfCancellationRequested();
-                    }
-                }
-
-                var cachedResult = popup.CreateCachedResult();
-                popup.ConditionallyRememberChoice(cachedResult);
-                return GetResult(cachedResult);
+                return await popupInst.Show(ct);
             } 
             finally 
             {
-                if(popupGO != null) {
-                    UnityEngine.Object.Destroy(popupGO);
+                if(popupInst != null) {
+                    UnityEngine.Object.Destroy(popupInst.gameObject);
                 }
             }
+        }
+
+        private async Task<AgeSignalsResult> Show(CancellationToken ct)
+        {
+            _mockResult = new MockResult();
+            _mockError = new MockError();
+
+            ComposeContent();
+                
+            bool isOkClicked = false;
+            _onClosed = () => { isOkClicked = true; };
+
+            while (!isOkClicked)
+            {
+                await Task.Yield();
+                if (ct.IsCancellationRequested)
+                {
+                    ct.ThrowIfCancellationRequested();
+                }
+            }
+
+            var cachedResult = CreateCachedResult();
+            ConditionallyRememberChoice(cachedResult);
+            return GetResult(cachedResult);
+        }
+
+        private void Awake()
+        {
+            _panelRenderer = GetComponent<PanelRenderer>();
+            CreateDialog();
+        }
+
+        void OnEnable()
+        {
+            _panelRenderer.RegisterUIReloadCallback(UpdateUI);
+        }
+
+        void OnDisable()
+        {
+            _panelRenderer.UnregisterUIReloadCallback(UpdateUI);
+        }
+
+        private void UpdateUI(PanelRenderer panelRenderer, VisualElement rootElement)
+        {
+            rootElement.Add(_dialogOverlay);
         }
 
         private CachedResult CreateCachedResult()
@@ -116,168 +134,41 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
             throw new Exception("Invalid cached result type.");
         }
 
-        private void Awake()
-        {
-            _uiDocument = GetComponent<UIDocument>();
-        }
-
-        private void Start()
-        {
-            // Ensure the root element fills the screen
-            var root = _uiDocument.rootVisualElement;
-            root.style.position = Position.Absolute;
-            root.style.top = 0;
-            root.style.left = 0;
-            root.style.right = 0;
-            root.style.bottom = 0;
-            root.style.width = Length.Percent(100);
-            root.style.height = Length.Percent(100);
-            
-            CreateDialog();
-            ShowDialog();
-        }
-
+        
         private void CreateDialog()
         {
-            // Create the root overlay that covers the entire screen
-            _dialogOverlay = new VisualElement();
-            _dialogOverlay.style.position = Position.Absolute;
-            _dialogOverlay.style.top = 0;
-            _dialogOverlay.style.left = 0;
-            _dialogOverlay.style.right = 0;
-            _dialogOverlay.style.bottom = 0;
-            _dialogOverlay.style.width = Length.Percent(100);
-            _dialogOverlay.style.height = Length.Percent(100);
-            _dialogOverlay.style.backgroundColor = new Color(0, 0, 0, 0.8f);
-            _dialogOverlay.style.display = DisplayStyle.Flex;
-            _dialogOverlay.style.flexDirection = FlexDirection.Column;
-            _dialogOverlay.style.justifyContent = Justify.Center;
-            _dialogOverlay.style.alignItems = Align.Center;
+            var b = new MockPopupBuilder();
+            _dialogOverlay = b.BeginFullScreenOverlay();
+            _dialogContainer = b.BeginDialogBox("Mock Age Signals Result");
             
-            // Create the dialog container (the actual dialog box)
-            _dialogContainer = new VisualElement();
-            _dialogContainer.style.backgroundColor = new Color(0.2f, 0.2f, 0.2f, 1f);
-            _dialogContainer.style.borderTopWidth = 2;
-            _dialogContainer.style.borderBottomWidth = 2;
-            _dialogContainer.style.borderLeftWidth = 2;
-            _dialogContainer.style.borderRightWidth = 2;
-            _dialogContainer.style.borderTopColor = new Color(0.5f, 0.5f, 0.5f, 1f);
-            _dialogContainer.style.borderBottomColor = new Color(0.5f, 0.5f, 0.5f, 1f);
-            _dialogContainer.style.borderLeftColor = new Color(0.5f, 0.5f, 0.5f, 1f);
-            _dialogContainer.style.borderRightColor = new Color(0.5f, 0.5f, 0.5f, 1f);
-            _dialogContainer.style.borderTopLeftRadius = 8;
-            _dialogContainer.style.borderTopRightRadius = 8;
-            _dialogContainer.style.borderBottomLeftRadius = 8;
-            _dialogContainer.style.borderBottomRightRadius = 8;
-            _dialogContainer.style.paddingTop = 20;
-            _dialogContainer.style.paddingBottom = 20;
-            _dialogContainer.style.paddingLeft = 20;
-            _dialogContainer.style.paddingRight = 20;
-            _dialogContainer.style.width = Length.Percent(90);
-            _dialogContainer.style.height = Length.Percent(80);
-            _dialogContainer.style.alignSelf = Align.Center;
-            _dialogContainer.style.flexShrink = 0;
+            var resultType = b.AddEnumProperty("Result Type", _mockResultType);
             
-            _dialogOverlay.Add(_dialogContainer);
+            b.BeginScrollView();
+            _contentArea = b.BeginGroup("content");
+            b.EndGroup();
+            b.EndScrollView();
 
-            // Create title label
-            _dialogTitle = new Label(_title);
-            _dialogTitle.style.fontSize = 18;
-            _dialogTitle.style.color = Color.white;
-            _dialogTitle.style.unityFontStyleAndWeight = FontStyle.Bold;
-            _dialogTitle.style.marginBottom = 15;
-            _dialogTitle.style.marginTop = 0;
-            _dialogTitle.style.unityTextAlign = TextAnchor.MiddleCenter;
-            _dialogContainer.Add(_dialogTitle);
+            var buttons = b.BeginGroup("buttons");
+            buttons.style.flexDirection = FlexDirection.Row;
+            b.AddButton("Ok", OnOkClicked);
+            _rememberChoiceToggle = b.AddToggleProperty("Remember this choice", true);
+            b.EndGroup();
+            
+            b.EndDialogBox();
+            b.EndFullScreenOverlay();
 
-            // create the result type selector
-            var resultTypeField = new EnumField("Result Type", _mockResultType);;
-            resultTypeField.RegisterValueChangedCallback(evt =>
+            resultType.RegisterValueChangedCallback(evt =>
             {
                 _mockResultType = (CachedResult.ResultType)evt.newValue;
                 // Rebuild the content area based on selected type
                 _contentArea.Clear();
                 ComposeContent();
             });
-            _dialogContainer.Add(resultTypeField);
-
-            // create a scrollable container for content
-            var scrollView = new ScrollView();
-            scrollView.style.flexGrow = 1;
-            scrollView.style.marginBottom = 10;
-            _dialogContainer.Add(scrollView);
-
-            // create a content area inside the scroll view
-            _contentArea = new VisualElement();
-            scrollView.Add(_contentArea);            
-
-            ComposeContent();
-
-            // Create button container for better layout
-            var buttonContainer = new VisualElement();
-            buttonContainer.style.flexDirection = FlexDirection.Row;
-            buttonContainer.style.justifyContent = Justify.Center;
-            buttonContainer.style.alignItems = Align.Center;
-            buttonContainer.style.marginTop = 10;
-            _dialogContainer.Add(buttonContainer);
-
-            // Create OK button
-            _okButton = new Button(OnOkClicked);
-            _okButton.text = "Confirm";
-            _okButton.style.fontSize = 14;
-            _okButton.style.minWidth = 80;
-            buttonContainer.Add(_okButton);
-
-            // Create "remember this choice" toggle
-            _rememberChoiceToggle = new Toggle("Remember this choice");
-            _rememberChoiceToggle.style.marginLeft = 15;
-            _rememberChoiceToggle.style.alignSelf = Align.Center;
-            buttonContainer.Add(_rememberChoiceToggle);
-
-            // Add the dialog overlay to the UIDocument's root
-            _uiDocument.rootVisualElement.Add(_dialogOverlay);
-
-            // Close dialog when clicking on overlay background (but not on the dialog itself)
-            _dialogOverlay.RegisterCallback<ClickEvent>(OnOverlayClicked);
-            _dialogContainer.RegisterCallback<ClickEvent>(OnDialogClicked);
         }
 
         private void OnOkClicked()
         {
-            CloseDialog();
-        }
-
-        private void OnOverlayClicked(ClickEvent evt)
-        {
-            // Close dialog when clicking on overlay background
-            CloseDialog();
-        }
-
-        private void OnDialogClicked(ClickEvent evt)
-        {
-            // Stop propagation to prevent overlay click
-            evt.StopImmediatePropagation();
-        }
-
-        private void ShowDialog()
-        {
-            if (_dialogOverlay != null)
-            {
-                _dialogOverlay.style.display = DisplayStyle.Flex;
-            }
-        }
-
-        private void CloseDialog()
-        {
-            if (_dialogOverlay != null)
-            {
-                _dialogOverlay.style.display = DisplayStyle.None;
-            }
-            
             _onClosed?.Invoke();
-            
-            // Destroy the GameObject after a short delay to allow callbacks to complete
-            Destroy(gameObject, 0.1f);
         }
 
         private void ComposeContent()
