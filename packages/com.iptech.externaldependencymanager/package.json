@@ -1,7 +1,7 @@
 {
   "name": "com.iptech.externaldependencymanager",
   "displayName": "IPTech.ExternalDependencyManager",
-  "version": "1.2.813-iptech.0",
+  "version": "2.0.0",
   "unity": "2021.3",
   "unityRelease": "31f1",
   "keywords": [],
@@ -10,5 +10,9 @@
   "author": {
     "name": "Ian Pilipski",
     "url": "https://github.com/ianpilipski/IPTech-UnityLibrary.git"
+  },
+  "description": "This package will scan for the EDM4U package manager and prompt to help install it if it is not found.\nYou can then safely depend on this package without having a direct dependency on an EDM4U package.",
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
   }
 }

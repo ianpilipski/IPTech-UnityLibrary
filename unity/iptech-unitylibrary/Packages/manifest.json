@@ -10,6 +10,7 @@
     "com.iptech.debugtools": "file:../../../packages/com.iptech.debugtools",
     "com.iptech.dialogmanager": "file:../../../packages/com.iptech.dialogmanager",
     "com.iptech.editorextensions": "file:../../../packages/com.iptech.editorextensions",
+    "com.iptech.externaldependencymanager": "file:../../../packages/com.iptech.externaldependencymanager",
     "com.iptech.fonts": "file:../../../packages/com.iptech.fonts",
     "com.iptech.hexmap": "file:../../../packages/com.iptech.hexmap",
     "com.iptech.mathutils": "file:../../../packages/com.iptech.mathutils",
@@ -30,6 +31,7 @@
     "com.unity.ide.visualstudio": "2.0.27",
     "com.unity.inputsystem": "1.19.0",
     "com.unity.multiplayer.center": "1.0.1",
+    "com.unity.nuget.newtonsoft-json": "3.2.2",
     "com.unity.render-pipelines.universal": "17.5.0",
     "com.unity.test-framework": "1.7.0",
     "com.unity.timeline": "1.8.12",
@@ -75,7 +77,7 @@
   ],
   "scopedRegistries": [
     {
-      "name": "package.openupm.com",
+      "name": "OpenUPM",
       "url": "https://package.openupm.com",
       "scopes": [
         "com.google.external-dependency-manager"
