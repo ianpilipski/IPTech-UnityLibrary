@@ -1,9 +1,9 @@
 {
   "name": "com.iptech.slotengine",
   "displayName": "IPTech.SlotEngine",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "dependencies": {
-    "com.iptech.utils": "0.0.1"
+    "com.iptech.utils": "1.0.0"
   },
   "keywords": [],
   "category": "",
