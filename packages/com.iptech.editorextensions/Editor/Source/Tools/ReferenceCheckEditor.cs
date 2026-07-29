@@ -1,9 +1,9 @@
 using UnityEngine;
-using System.Collections;
 using UnityEditor;
 using System;
 using UnityEditor.SceneManagement;
 using System.Collections.Generic;
+using UnityEditor.PackageManager;
 
 namespace IPTech.EditorTools {
 	public class ReferenceCheckEditor : EditorWindow {
@@ -93,10 +93,33 @@ namespace IPTech.EditorTools {
 
 			List<string> paths = new List<string>();
 			foreach(string guid in sceneObjectGuids) {
-				paths.Add(AssetDatabase.GUIDToAssetPath(guid));
+				var assetPath = AssetDatabase.GUIDToAssetPath(guid);
+				if(IsSceneReadOnly(assetPath)) continue;
+				paths.Add(assetPath);
 			}
 			this.Scenes = paths.ToArray();
 		}
 
+		public static bool IsSceneReadOnly(string sceneAssetPath)
+		{
+			// 1. Assets folder is always writable
+			if (sceneAssetPath.StartsWith("Assets/"))
+			{
+				return false;
+			}
+
+			// 2. Fetch package info from the asset path
+			var packageInfo = UnityEditor.PackageManager.PackageInfo.FindForAssetPath(sceneAssetPath);
+
+			// 3. If null, it is not part of any package 
+			if (packageInfo == null)
+			{
+				return false;
+			}
+
+			// 4. Local and Embedded packages are writable; all others are read-only
+			return packageInfo.source != PackageSource.Local && 
+				packageInfo.source != PackageSource.Embedded;
+		}
 	}
 }

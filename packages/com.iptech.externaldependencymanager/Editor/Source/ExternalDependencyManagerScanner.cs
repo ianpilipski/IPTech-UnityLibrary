@@ -10,6 +10,8 @@ namespace IPTech.ExternalDependencyManager
 {
     public static class ExternalDependencyManagerScanner
     {
+        private const string STATE_INSTALLING = "InstallPackage";
+        private const string STATE_ALREADYLOGGED = "AlreadyLogged";
         private const string StateKey = "ExternalDependencyManagerScanner_State";
         private static Task<bool> _scanTask;
 
@@ -17,23 +19,29 @@ namespace IPTech.ExternalDependencyManager
         private static void InitializeOnLoad()
         {
             string currentStep = SessionState.GetString(StateKey, "None");
-            SessionState.EraseString(StateKey);
             
-            if(Application.isBatchMode) return;
-            if(currentStep != "None")
+            if(Application.isBatchMode)
             {
+                SessionState.EraseString(StateKey);
+                return;
+            }
+
+            if(currentStep == STATE_INSTALLING)
+            {
+                SessionState.EraseString(StateKey);
                 PerformInstall();
             }
             else 
             {
                 if(ExternalDependencyManagerSettings.instance.ScanOnStartup)
                 {
-                    ScanForEDM4U();
+                    ScanForEDM4U(currentStep != STATE_ALREADYLOGGED);
+                    SessionState.SetString(StateKey, STATE_ALREADYLOGGED);
                 }
             }
         }
 
-        public static async void ScanForEDM4U()
+        public static async void ScanForEDM4U(bool logOnHasEDM4U = true)
         {
             if(_scanTask != null && !_scanTask.IsCompleted)
             {
@@ -47,6 +55,7 @@ namespace IPTech.ExternalDependencyManager
                 var res = await _scanTask;
                 if(res)
                 {
+                    if(!logOnHasEDM4U) return;
                     Debug.Log("[IPTech][ExternalDependencyManager] ScanOnStartup: EDM4U is installed: " + res);
                     return;
                 }
@@ -68,7 +77,7 @@ namespace IPTech.ExternalDependencyManager
             var res = EditorUtility.DisplayDialog("EDM4U Installation", "EDM4U is not installed. Would you like to install it?", "Yes", "No");
             if(res)
             {
-                SessionState.SetString(StateKey, "InstallPackage");
+                SessionState.SetString(StateKey, STATE_INSTALLING);
                 PerformInstall();
             }
         }

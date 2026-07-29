@@ -1,21 +1,19 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
-using UnityEditor.IMGUI.Controls;
 using System.Linq;
 
 namespace IPTech.EditorTools
 {
 	public class ProjectCleanerEditor : EditorWindow
 	{
-		List<string> _rootObjectGuids;
-		MultiColumnHeader _rootObjectMultiColumnHeader;
-		float _rootObjectColumnWidth = 400F;
-		Vector2 _rootObjectsScrollPos;
-		Vector2 _rootObjectsInnerScrollPos;
-		Rect _rootObjectInnerContentRect;
+		private List<ProjectCleanerItem> _scanResults;
+		private Vector2 _leftScrollPosition;
+		private Vector2 _rightScrollPosition;
+		private string _selectedGroupPath;
+		private readonly Dictionary<string, List<ProjectCleanerItem>> _groupedItems = new Dictionary<string, List<ProjectCleanerItem>>();
+		private readonly Dictionary<string, bool> _foldoutStates = new Dictionary<string, bool>();
 
 		[MenuItem("IPTech/Project/Cleaner ...")]
 		[MenuItem("Window/IPTech/Project/Cleaner")]
@@ -26,146 +24,221 @@ namespace IPTech.EditorTools
 		}
 
 		private void OnEnable() {
-			//if(_rootObjectGuids==null) {
-				_rootObjectGuids = new List<string>();
-
-				PopulateRootObjectsFromSceneList();
-				BuildMultiColumnHeader();
-			//}
-
-			void PopulateRootObjectsFromSceneList() {
-				foreach(EditorBuildSettingsScene scene in EditorBuildSettings.scenes) {
-					string guid = AssetDatabase.AssetPathToGUID(scene.path);
-					if(string.IsNullOrEmpty(guid)) {
-						Debug.LogError("asset not found for scene: " + scene.path);
-					}
-					_rootObjectGuids.Add(guid);
-				}
-			}
-
-			void BuildMultiColumnHeader() {
-				var columnA = new MultiColumnHeaderState.Column() { 
-	 				headerContent = new GUIContent("Name", "Name of the object"), 
-	 				headerTextAlignment = TextAlignment.Left, 
-	 				autoResize = false, 
-	 				minWidth = 100, 
-	 				width = _rootObjectColumnWidth,
-					allowToggleVisibility = false
-				};
-				var columnB = new MultiColumnHeaderState.Column() { 
-	 				headerContent = new GUIContent("Path", "Path to the asset"), 
-	 				headerTextAlignment = TextAlignment.Left, 
-	 				autoResize = true, 
-	 				minWidth = 100,
-					allowToggleVisibility = false
-				};
-				var columns = new MultiColumnHeaderState.Column[] { columnA, columnB };
-				
-				var state = new MultiColumnHeaderState(columns);
-				_rootObjectMultiColumnHeader = new MultiColumnHeader(state);
-				_rootObjectMultiColumnHeader.ResizeToFit();
-			}
+			RefreshResults();
 		}
 
 		private void OnGUI() {
-			//GUISkin skin = EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector);
-			DrawRootObjects();
+			using(new EditorGUILayout.VerticalScope(EditorStyles.helpBox)) {
+				DrawToolbar();
+				DrawResults();
+			}
+		}
 
-			void DrawRootObjects() {
-				using(new EditorGUILayout.VerticalScope(EditorStyles.helpBox)) {
-					DrawRootObjectsToolbar();
-					using(var scrollView = new EditorGUILayout.ScrollViewScope(_rootObjectsScrollPos, GUIStyle.none, GUIStyle.none)) {
-						DrawRootObjectsMultiColumnHeader();
-					}
-					using(var innerScroll = new EditorGUILayout.ScrollViewScope(_rootObjectsScrollPos)) {
-						DrawRootObjectsMultiColumnList();
-						if(Event.current.type == EventType.Repaint) {
-							_rootObjectInnerContentRect = GUILayoutUtility.GetLastRect();
+		private void DrawToolbar() {
+			using(new EditorGUILayout.HorizontalScope(EditorStyles.toolbar)) {
+				if(GUILayout.Button("Refresh", EditorStyles.toolbarButton)) {
+					RefreshResults();
+				}
+				if(GUILayout.Button("Delete Safe", EditorStyles.toolbarButton)) {
+					DeleteSafeItems();
+				}
+				if(GUILayout.Button("Delete Empty Dirs", EditorStyles.toolbarButton)) {
+					DeleteEmptyDirectories();
+				}
+			}
+		}
+
+		private void DrawResults() {
+			EditorGUILayout.Space();
+			EditorGUILayout.LabelField("Project Cleaner Results", EditorStyles.boldLabel);
+			EditorGUILayout.HelpBox("This first pass reports empty folders, unused C# scripts, and MonoBehaviours that are not referenced by the project dependency graph. Items are grouped by their Assets folder and by package identity.", MessageType.Info);
+
+			if(_scanResults == null || _scanResults.Count == 0) {
+				EditorGUILayout.HelpBox("No cleanup candidates were found.", MessageType.None);
+				return;
+			}
+
+			BuildGroupIndex();
+			using(new EditorGUILayout.HorizontalScope()) {
+				DrawTreeView();
+				DrawDetailsPane();
+			}
+		}
+
+		private void BuildGroupIndex() {
+			_groupedItems.Clear();
+			var activeItems = _scanResults.Where(i => !i.IsKept).ToList();
+			foreach(var item in activeItems) {
+				var groupName = GetGroupName(item.AssetPath);
+				if(!_groupedItems.ContainsKey(groupName)) {
+					_groupedItems[groupName] = new List<ProjectCleanerItem>();
+				}
+				_groupedItems[groupName].Add(item);
+			}
+
+			var keptItems = _scanResults.Where(i => i.IsKept).ToList();
+			foreach(var item in keptItems) {
+				var groupName = GetGroupName(item.AssetPath);
+				if(!_groupedItems.ContainsKey(groupName)) {
+					_groupedItems[groupName] = new List<ProjectCleanerItem>();
+				}
+			}
+
+			if(string.IsNullOrEmpty(_selectedGroupPath) && _groupedItems.Count > 0) {
+				_selectedGroupPath = _groupedItems.Keys.OrderBy(k => k).First();
+			}
+		}
+
+		private void DrawTreeView() {
+			using(new EditorGUILayout.ScrollViewScope(_leftScrollPosition, GUILayout.Width(240F), GUILayout.ExpandHeight(true))) {
+				EditorGUILayout.LabelField("Groups", EditorStyles.boldLabel);
+				foreach(var group in _groupedItems.Keys.OrderBy(k => k)) {
+					var isSelected = string.Equals(group, _selectedGroupPath, System.StringComparison.Ordinal);
+					using(new EditorGUILayout.HorizontalScope()) {
+						GUI.backgroundColor = isSelected ? Color.cyan : Color.white;
+						if(GUILayout.Button(group, EditorStyles.miniButton, GUILayout.Width(220F))) {
+							_selectedGroupPath = group;
 						}
-						_rootObjectsScrollPos = innerScroll.scrollPosition;
+						GUI.backgroundColor = Color.white;
 					}
 				}
+			}
+		}
 
-				void DrawRootObjectsToolbar() {
-					using(new EditorGUILayout.HorizontalScope(EditorStyles.toolbar)) {
-						GUILayout.FlexibleSpace();
-						if(GUILayout.Button("+Add", EditorStyles.toolbarButton)) {
-							//TODO: add
-						}
-						if(GUILayout.Button("Delete Empty Dirs", EditorStyles.toolbarButton)) {
-							List<string> l = ProjectCleaner.DeleteEmptyDirectories();
-							if(l.Count>0) {
-								Debug.Log("Deleted Directories: \n    " + l.Aggregate((a,b) => a + "\n    " + b));
-								AssetDatabase.Refresh();
-							}
-						}
-					}
+		private void DrawDetailsPane() {
+			using(var scroll = new EditorGUILayout.ScrollViewScope(_rightScrollPosition, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true))) {
+				_rightScrollPosition = scroll.scrollPosition;
+				if(string.IsNullOrEmpty(_selectedGroupPath) || !_groupedItems.ContainsKey(_selectedGroupPath)) {
+					EditorGUILayout.HelpBox("Select a group from the left to inspect its items.", MessageType.Info);
+					return;
 				}
 
-				void DrawRootObjectsMultiColumnHeader() {
-					using(new EditorGUILayout.VerticalScope(GUILayout.MinWidth(_rootObjectInnerContentRect.width))) {
-						_rootObjectMultiColumnHeader.ResizeToFit();
-						_rootObjectColumnWidth = _rootObjectMultiColumnHeader.GetColumn(0).width;
-						_rootObjectMultiColumnHeader.OnGUI(GUILayoutUtility.GetRect(100F, 10000F, 24F, 24F), 0);
-					}
+				EditorGUILayout.LabelField(_selectedGroupPath, EditorStyles.boldLabel);
+				var activeItems = _groupedItems[_selectedGroupPath]
+					.Where(i => !i.IsKept)
+					.OrderBy(i => i.DisplayName)
+					.ToList();
+				var keptItems = _scanResults
+					.Where(i => i.IsKept && GetGroupName(i.AssetPath) == _selectedGroupPath)
+					.OrderBy(i => i.DisplayName)
+					.ToList();
+
+				foreach(var item in activeItems) {
+					DrawItem(item);
 				}
 
-				void DrawRootObjectsMultiColumnList() {
-					using(new GUILayout.VerticalScope()) {
-						DrawSceneRootObjectsMultiColumnList();
-						DrawResourcesRootObjectsMultiColumnList();
+				if(keptItems.Count > 0) {
+					var foldoutKey = _selectedGroupPath + "_kept";
+					if(!_foldoutStates.ContainsKey(foldoutKey)) {
+						_foldoutStates[foldoutKey] = false;
 					}
-
-					void DrawSceneRootObjectsMultiColumnList() {
-						for(int i = 0; i < _rootObjectGuids.Count; i++) {
-							DrawMultiColumnObject(_rootObjectGuids[i]);
-						}
-					}
-
-					void DrawResourcesRootObjectsMultiColumnList() {
-						string[] resGuids = AssetDatabase.FindAssets("Resources");
-						foreach(var resGuid in resGuids) {
-							string resPath = AssetDatabase.GUIDToAssetPath(resGuid);
-							if(Path.GetFileName(resPath) == "Resources") {
-								if(Directory.Exists(resPath)) {
-									string[] files = Directory.GetFiles(resPath, "*.*", SearchOption.AllDirectories);
-									foreach(var file in files) {
-										string assetGuid = AssetDatabase.AssetPathToGUID(file);
-										if(!string.IsNullOrEmpty(assetGuid)) {
-											DrawMultiColumnObject(assetGuid);
-										}
-									}
-								}
-							}
-						}
-					}
-
-					void DrawMultiColumnObject(string guid) {
-						ObjectData od = GetObjectDataFromGuid(guid);
-						using(new EditorGUILayout.HorizontalScope()) {
-							GUILayout.Label(od.name, GUILayout.Width(_rootObjectColumnWidth));
-							GUILayout.Label(od.path, GUILayout.ExpandWidth(true));
+					_foldoutStates[foldoutKey] = EditorGUILayout.Foldout(_foldoutStates[foldoutKey], "Kept Items");
+					if(_foldoutStates[foldoutKey]) {
+						foreach(var item in keptItems) {
+							DrawItem(item);
 						}
 					}
 				}
 			}
 		}
 
-		ObjectData GetObjectDataFromGuid(string guid) {
-			var retVal = new ObjectData {
-				guid = guid,
-				path = AssetDatabase.GUIDToAssetPath(guid)
-			};
-			retVal.name = Path.GetFileNameWithoutExtension(retVal.path);
-			return retVal;
+		private void DrawItem(ProjectCleanerItem item) {
+			using(new EditorGUILayout.VerticalScope(EditorStyles.helpBox)) {
+				using(new EditorGUILayout.HorizontalScope()) {
+					EditorGUILayout.LabelField(item.Category, EditorStyles.boldLabel);
+					EditorGUILayout.LabelField(item.Confidence, EditorStyles.miniLabel);
+				}
+
+				EditorGUILayout.LabelField(item.DisplayName, EditorStyles.miniBoldLabel);
+				EditorGUILayout.LabelField(item.AssetPath, EditorStyles.wordWrappedMiniLabel);
+				EditorGUILayout.LabelField(item.Reason, EditorStyles.wordWrappedMiniLabel);
+
+				using(new EditorGUILayout.HorizontalScope()) {
+					EditorGUILayout.LabelField(item.IsKept ? "Decision: Keep" : (item.CanDelete ? "Decision: Delete" : "Decision: Review first"), EditorStyles.miniLabel);
+					if(GUILayout.Button(item.IsKept ? "Keep" : "Keep", GUILayout.Width(80F))) {
+						SetKeep(item, true);
+					}
+					if(item.CanDelete && GUILayout.Button("Delete", GUILayout.Width(80F))) {
+						DeleteSingleItem(item);
+					}
+				}
+			}
 		}
 
-		struct ObjectData {
-			public string guid;
-			public string name;
-			public string path;
+		private string GetGroupName(string assetPath) {
+			if(string.IsNullOrEmpty(assetPath)) {
+				return "(no path)";
+			}
+
+			var normalizedPath = assetPath.Replace('\\', '/');
+			if(normalizedPath.StartsWith("Assets/", System.StringComparison.OrdinalIgnoreCase) || normalizedPath.Equals("Assets", System.StringComparison.OrdinalIgnoreCase)) {
+				return "Assets";
+			}
+
+			if(normalizedPath.StartsWith("Packages/", System.StringComparison.OrdinalIgnoreCase)) {
+				var segments = normalizedPath.Split('/');
+				if(segments.Length > 1) {
+					return segments[1];
+				}
+			}
+
+			if(normalizedPath.Contains("/Packages/", System.StringComparison.OrdinalIgnoreCase)) {
+				var start = normalizedPath.IndexOf("/Packages/", System.StringComparison.OrdinalIgnoreCase);
+				if(start >= 0) {
+					var segments = normalizedPath.Substring(start + 1).Split('/');
+					if(segments.Length > 1) {
+						return segments[1];
+					}
+				}
+			}
+
+			return "(project assets)";
 		}
 
+		private void RefreshResults() {
+			_scanResults = ProjectCleaner.ScanProject();
+		}
 
+		private void DeleteSafeItems() {
+			if(!EditorUtility.DisplayDialog("Delete Safe Items", "Delete the items marked as safe to delete?", "Delete", "Cancel")) {
+				return;
+			}
+
+			int deletedCount = ProjectCleaner.DeleteItems(_scanResults);
+			if(deletedCount > 0) {
+				EditorUtility.DisplayDialog("Cleanup Complete", "Deleted " + deletedCount + " item(s).", "OK");
+			}
+
+			RefreshResults();
+		}
+
+		private void DeleteSingleItem(ProjectCleanerItem item) {
+			if(!EditorUtility.DisplayDialog("Delete Item", "Delete " + item.AssetPath + "?", "Delete", "Cancel")) {
+				return;
+			}
+
+			int deletedCount = ProjectCleaner.DeleteItems(new List<ProjectCleanerItem> { item });
+			if(deletedCount > 0) {
+				EditorUtility.DisplayDialog("Cleanup Complete", "Deleted " + item.AssetPath + ".", "OK");
+			}
+
+			RefreshResults();
+		}
+
+		private void SetKeep(ProjectCleanerItem item, bool keep) {
+			var settings = ProjectCleanerSettings.instance;
+			settings.SetKeep(item.AssetPath, keep);
+			item.IsKept = keep;
+			RefreshResults();
+			Repaint();
+		}
+
+		private void DeleteEmptyDirectories() {
+			var directories = ProjectCleaner.DeleteEmptyDirectories();
+			if(directories.Count > 0) {
+				EditorUtility.DisplayDialog("Cleanup Complete", "Deleted " + directories.Count + " empty directory(ies).", "OK");
+			}
+			RefreshResults();
+		}
 	}
 }

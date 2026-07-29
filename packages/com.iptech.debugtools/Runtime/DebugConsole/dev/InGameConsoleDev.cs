@@ -12,17 +12,6 @@ using System;
 using UnityEngine.UIElements;
 
 public class InGameConsoleDev : MonoBehaviour {
-    public GameObject inGameConsoleView;
-    public UIToolkitInGameConsole uIToolkitInGameConsole;
-
-    public enum EUseType {
-        GUI,
-        Toolkit,
-        Default
-    }
-
-    public EUseType typeToUse;
-
     DebugConsoleService debugConsoleService;
 
     InGameDebugConsole service;
@@ -30,37 +19,11 @@ public class InGameConsoleDev : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         debugConsoleService = new DebugConsoleService();
-        
+        service = InGameDebugConsole.CreateDefault(debugConsoleService);
 
-        if(typeToUse == EUseType.GUI) {
-            service = new InGameDebugConsole(debugConsoleService);
-            service.RegisterDebugPanel("DebugPanel", "TestPanel", DebugPanelFactory);
+        service.RegisterDebugPanel("DebugPanel", "TestPanel", DebugPanelFactory);
 
-            SetupMockData();
-
-            uIToolkitInGameConsole.gameObject.SetActive(false);
-            inGameConsoleView.SetActive(true);
-            var view = inGameConsoleView.GetComponentInChildren<IInGameDebugConsoleView>(true);
-            service.SetInGameConsoleView(view);
-            inGameConsoleView.GetComponent<InGameDebugConsoleView>().RequestUpdateButtons();
-        } else if(typeToUse == EUseType.Toolkit) {
-            service = new InGameDebugConsole(debugConsoleService);
-            service.RegisterDebugPanel("DebugPanel", "TestPanel", DebugPanelFactory);
-
-            SetupMockData();
-
-            uIToolkitInGameConsole.gameObject.SetActive(true);
-            inGameConsoleView.SetActive(false);
-            service.SetInGameConsoleView(uIToolkitInGameConsole);
-        } else {
-            uIToolkitInGameConsole.gameObject.SetActive(false);
-            inGameConsoleView.SetActive(false);
-            service = InGameDebugConsole.CreateDefault(debugConsoleService);
-
-            service.RegisterDebugPanel("DebugPanel", "TestPanel", DebugPanelFactory);
-
-            SetupMockData();
-        }
+        SetupMockData();
     }
 
     private VisualElement DebugPanelFactory() {

@@ -18,12 +18,19 @@ namespace IPTech.DebugConsoleService.InGameConsole
 	public interface IInGameDebugConsoleView {
 		void MinimizeConsole();
         void RestoreConsole();
-        void UpdateButtons(IEnumerable<InGameDebugConsoleView.CommandData> actions);
+        void UpdateButtons(IEnumerable<CommandData> actions);
 		event Action<string> OnExecuteCommand;
 		event Action OnWantsUpdatedCommands;
 		void Output(string msg);
 		void Notify(string msg);
 		void Show(bool value);
+
+        public class CommandData {
+            public string Category;
+            public string Command;
+            public string ShortName;
+			public Func<VisualElement> visualElementFactory;
+		}
     }
 
 	public class InGameDebugConsole {
@@ -33,12 +40,12 @@ namespace IPTech.DebugConsoleService.InGameConsole
 		private IDebugConsoleService debugConsoleService;
 		private IInGameDebugConsoleView inGameConsoleView;
 		private IDebugCommands debugCommands;
-		private List<InGameDebugConsoleView.CommandData> debugPanels;
+		private List<IInGameDebugConsoleView.CommandData> debugPanels;
 
 		public InGameDebugConsole(IDebugConsoleService debugConsoleService) : this(debugConsoleService, new DebugCommands()) { }
         
 		public InGameDebugConsole(IDebugConsoleService debugConsoleService, IDebugCommands debugCommands) {
-			this.debugPanels = new List<InGameDebugConsoleView.CommandData>();
+			this.debugPanels = new List<IInGameDebugConsoleView.CommandData>();
 			SetDebugConsoleService(debugConsoleService);
 			this.debugCommands = debugCommands;
 			debugCommands.RegisterDebugCommands(debugConsoleService);
@@ -57,7 +64,7 @@ namespace IPTech.DebugConsoleService.InGameConsole
 		}
 
 		public void RegisterDebugPanel(string category, string name, Func<VisualElement> panelFactory) {
-			debugPanels.Add(new InGameDebugConsoleView.CommandData() {
+			debugPanels.Add(new IInGameDebugConsoleView.CommandData() {
 				Category = category,
 				Command = $"DEBUGPANEL.{category}.{name}",
 				ShortName = name,
@@ -165,9 +172,9 @@ namespace IPTech.DebugConsoleService.InGameConsole
 		private void UpdateButtons() {
 			if(this.debugConsoleService!=null && this.inGameConsoleView!=null) {
 				IList<ICommandInfo> cmdInfos = this.debugConsoleService.GetDebugCommands();
-                IEnumerable<InGameDebugConsoleView.CommandData> actions = cmdInfos
+                IEnumerable<IInGameDebugConsoleView.CommandData> actions = cmdInfos
 					.Where( ci => ci.CommandType==ECommandType.Alias )
-                    .Select( ci => new InGameDebugConsoleView.CommandData() { Category = ci.Category, Command = ci.Command, ShortName = ci.ShortName } )
+                    .Select( ci => new IInGameDebugConsoleView.CommandData() { Category = ci.Category, Command = ci.Command, ShortName = ci.ShortName } )
 					.Concat(debugPanels);
 					
 				this.inGameConsoleView.UpdateButtons(actions);
@@ -225,8 +232,6 @@ namespace IPTech.DebugConsoleService.InGameConsole
                 GameObject go = UnityEngine.Object.Instantiate(inGameConsoleSO.InGameConsoleViewPrefab);
                 if(go!=null) {
                     InGameDebugConsole newConsole = new InGameDebugConsole(debugConsoleService);
-
-
                     newConsole.SetInGameConsoleView(go.GetComponentInChildren<IInGameDebugConsoleView>());
                     return newConsole;
                 }

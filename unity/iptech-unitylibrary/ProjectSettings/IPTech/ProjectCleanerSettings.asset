@@ -1,0 +1,105 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &1
+MonoBehaviour:
+  m_ObjectHideFlags: 53
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0baa8710718d45e188fcf20a5b76e75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: IPTech.EditorExtensions.Editor::IPTech.EditorTools.ProjectCleanerSettings
+  _keptPaths:
+  - Assets/Plugins/IPTech.GameUtils/Source/ValueInterpolator.cs
+  - Assets/Plugins/IPTech.Model/Source/Api/IModel.cs
+  - Assets/Plugins/IPTech.Model/Source/Api/IModelManager.cs
+  - Assets/Plugins/IPTech.Model/Source/Api/IModelProperty.cs
+  - Assets/Plugins/IPTech.Model/Source/ChangedModelProperties.cs
+  - Assets/Plugins/IPTech.Model/Source/Model.cs
+  - Assets/Plugins/IPTech.Model/Source/ModelEnumerableProperty.cs
+  - Assets/Plugins/IPTech.Model/Source/ModelManager.cs
+  - Assets/Plugins/IPTech.Model/Source/ModelProperties.cs
+  - Assets/Plugins/IPTech.Model/Source/ModelProperty.cs
+  - Assets/Plugins/IPTech.PlayerInventory/Api/IInventoryCollection.cs
+  - Assets/Plugins/IPTech.PlayerInventory/Api/IInventoryItem.cs
+  - Assets/Plugins/IPTech.PlayerInventory/Api/InventoryExceptions.cs
+  - Assets/Plugins/IPTech.PlayerInventory/BasicInventoryCollection.cs
+  - Assets/Plugins/IPTech.PlayerInventory/BasicInventoryItem.cs
+  - Assets/Plugins/IPTech.Regenerator/Scripts/Comparitor.cs
+  - Assets/Plugins/IPTech.Regenerator/Scripts/RefreshTarget.cs
+  - Assets/Plugins/IPTech.StateMachines/Source/IState.cs
+  - Assets/Plugins/IPTech.StateMachines/Source/StateMachine.cs
+  - Assets/Plugins/IPTech.Strange/extensions/iptech/context/api/IContextViewAdapter.cs
+  - Assets/Plugins/IPTech.Strange/Strange/Views/AmountViewAnimParameter.cs
+  - Assets/Plugins/IPTech.Strange/Strange/Views/AmountViewBase.cs
+  - Assets/Plugins/IPTech.Strange/Strange/Views/AmountViewText.cs
+  - Assets/Plugins/IPTech.UnityStuff/Particles/AtrractorFunction_SpringForce.cs
+  - Assets/Plugins/IPTech.UnityStuff/Particles/AttractorFunction_ConstantForce.cs
+  - Assets/Plugins/IPTech.GameUtils/Source/AutoOscillate.cs
+  - Assets/Plugins/IPTech.UI/Source/Views/BaseView.cs
+  - Assets/Plugins/IPTech.Strange/Strange/BasicBootstrap.cs
+  - Assets/Plugins/IPTech.UnityStuff/UI/ButtonMultiFunction.cs
+  - Assets/Plugins/IPTech.UI/Source/Views/ButtonView.cs
+  - Assets/Plugins/IPTech.Strange/extensions/iptech/context/impl/ContextViewAdapter.cs
+  - Assets/Plugins/IPTech.Strange/Strange/CoroutineRunnerBehaviour.cs
+  - Assets/Plugins/IPTech.UI/Source/Views/DialogBoxView.cs
+  - Assets/Plugins/IPTech.Timeline/Source/DialogueTriggerBehaviour.cs
+  - Assets/Plugins/IPTech.Timeline/Source/DialogueTriggerClip.cs
+  - Assets/Plugins/IPTech.Timeline/Source/DialogueTriggerDriver.cs
+  - Assets/Plugins/IPTech.Timeline/Source/DialogueTriggerMixerBehaviour.cs
+  - Assets/Plugins/IPTech.Timeline/Source/DialogueTriggerTrack.cs
+  - Assets/Plugins/IPTech.UnityStuff/Utils/GameObjectUtilities.cs
+  - Assets/Plugins/IPTech.Strange/Strange/Views/Api/IAmountView.cs
+  - Assets/Plugins/IPTech.Strange/Strange/Api/ICoroutineRunner.cs
+  - Assets/Plugins/IPTech.Strange/PlayerInventory.Strange/Api/IInventoryCollectionView.cs
+  - Assets/Plugins/IPTech.Strange/PlayerInventory.Strange/Api/IInventoryItemView.cs
+  - Assets/Plugins/IPTech.Types/Source/Api/IIsReady.cs
+  - Assets/Plugins/IPTech.Strange/Strange/Api/ILog.cs
+  - Assets/Plugins/IPTech.Strange/Model.Strange/Api/IModelCollectionView.cs
+  - Assets/Plugins/IPTech.Strange/Model.Strange/Api/IModelView.cs
+  - Assets/Plugins/IPTech.UnityStuff/Core/InterfaceReference.cs
+  - Assets/Plugins/IPTech.UnityStuff/Core/InterfaceReferenceGeneric.cs
+  - Assets/Plugins/IPTech.Strange/PlayerInventory.Strange/InventoryCollectionMediator.cs
+  - Assets/Plugins/IPTech.Strange/PlayerInventory.Strange/InventoryCollectionView.cs
+  - Assets/Plugins/IPTech.Strange/PlayerInventory.Strange/InventoryCollectionViewAmountText.cs
+  - Assets/Plugins/IPTech.Strange/PlayerInventory.Strange/InventoryCollectionViewList.cs
+  - Assets/Plugins/IPTech.Strange/PlayerInventory.Strange/InventoryItemMediator.cs
+  - Assets/Plugins/IPTech.Strange/PlayerInventory.Strange/InventoryItemView.cs
+  - Assets/Plugins/IPTech.Strange/PlayerInventory.Strange/InventoryItemViewCurrency.cs
+  - Assets/Plugins/IPTech.Strange/PlayerInventory.Strange/InventoryItemViewText.cs
+  - Assets/Plugins/IPTech.Types/Source/Api/IService.cs
+  - Assets/Plugins/IPTech.Strange/Strange/Api/IUniqueIDGenerator.cs
+  - Assets/Plugins/IPTech.UI/Source/Views/IView.cs
+  - Assets/Plugins/IPTech.Strange/Model.Strange/ModelMediator.cs
+  - Assets/Plugins/IPTech.Strange/Model.Strange/ModelView.cs
+  - Assets/Plugins/IPTech.Strange/Model.Strange/ModelViewCollection.cs
+  - Assets/Plugins/IPTech.Strange/Model.Strange/ModelViewProperty.cs
+  - Assets/Plugins/IPTech.Strange/Model.Strange/ModelViewText.cs
+  - Assets/Plugins/IPTech.Strange/extensions/iptech/context/impl/MVCSContext.cs
+  - Assets/Plugins/IPTech.Strange/extensions/iptech/context/impl/MVCSContextBase.cs
+  - Assets/Plugins/IPTech.UnityStuff/Utils/OnAwakeDeactivate.cs
+  - Assets/Plugins/IPTech.UnityStuff/Utils/OnAwakeEvent.cs
+  - Assets/Plugins/IPTech.UI/Source/Views/PageView.cs
+  - Assets/Plugins/IPTech.UnityStuff/Particles/ParticleAttractor.cs
+  - Assets/Plugins/IPTech.Strange/PlayerInventory.Strange/PlayerInventorySignals.cs
+  - Assets/Plugins/IPTech.Types/Source/RName.cs
+  - Assets/Plugins/IPTech.UnityStuff/Core/ScriptableObjectSelector.cs
+  - Assets/Plugins/IPTech.UnityStuff/Utils/Spawner.cs
+  - Assets/Plugins/IPTech.UI/Source/Views/UEViews/Text.cs
+  - Assets/Plugins/IPTech.UI/Source/Views/TextView.cs
+  - Assets/Plugins/IPTech.Strange/Strange/UniqueIDGenerator.cs
+  - Assets/Plugins/IPTech.Strange/extensions/iptech/context/impl/UnityContextViewAdapter.cs
+  - Assets/Plugins/IPTech.UnityStuff/Utils/UnityEventTrigger.cs
+  - Assets/Plugins/IPTech.Strange/Strange/UnityLogger.cs
+  - Assets/Plugins/IPTech.UI/Source/ViewManager.cs
+  - Packages/com.iptech.ageverification/Runtime/Platforms/iOS/AgeRangeApi.cs
+  - Packages/com.iptech.ageverification/Editor/iOS/AgeRangePostProcessBuild.cs
+  - Packages/com.iptech.ageverification/Runtime/IAgeVerificationManager.cs
+  - Packages/com.iptech.ageverification/Runtime/IPTechConfigurationExtensionMethods.cs
+  - Packages/com.iptech.ageverification/Editor/iOS/ProjectCapabilityManagerExtensions.cs
+  - Packages/com.iptech.audio/Editor/Source/AudioConfigGeneratorCode.cs
+  - Packages/com.iptech.debugtools/Runtime/Assertions.cs
+  - Packages/com.iptech.debugtools/Runtime/DebugConsole/source/Modules/MemoryTools/Editor/SceneTextureMemoryEditorExtension.cs
