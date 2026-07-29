@@ -1,4 +1,4 @@
-name: CI Build
+name: release-please
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -9,15 +9,14 @@ on:
       
   workflow_dispatch:
 
-premissions:
+permissions:
   contents: write
   issues: write
-  pull_request: write
-
-name: release-please
+  pull-requests: write
 
 jobs:
   release-please:
+    runs-on: ubuntu-latest
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
