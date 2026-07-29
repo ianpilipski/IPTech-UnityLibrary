@@ -1,17 +1,19 @@
 {
-	"name": "com.iptech.packagecreator",
-	"displayName":"IPTech.PackageCreator",
-	"version": "0.0.1",
+    "name": "com.iptech.packagecreator",
+    "displayName": "IPTech.PackageCreator",
+    "version": "1.0.0",
     "unity": "2019.4",
-    "keywords": ["iptech", "package", "creator"],
+    "keywords": [
+        "iptech",
+        "package",
+        "creator"
+    ],
     "category": "editor",
-	"description": "Easily create new unity packages",
-	"hideInEditor": false,
-    "dependencies": {
-    },
+    "description": "Easily create new unity packages",
+    "hideInEditor": false,
+    "dependencies": {},
     "author": {
         "name": "Ian Pilipski",
         "url": "https://github.com/ianpilipski/IPTech-UnityLibrary.git"
     }
-
 }

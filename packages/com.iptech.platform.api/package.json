@@ -1,13 +1,13 @@
 {
   "name": "com.iptech.platform.api",
   "displayName": "IPTech.Platform.Api",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "unity": "2021.3",
   "unityRelease": "31f1",
   "keywords": [],
   "category": "",
   "dependencies": {
-    "com.iptech.utils": "0.0.1"
+    "com.iptech.utils": "1.0.0"
   },
   "samples": [],
   "author": {
