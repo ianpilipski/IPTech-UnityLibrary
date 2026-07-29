@@ -14,9 +14,7 @@
         "packages/com.iptech.debugtools": {},
         "packages/com.iptech.dialogmanager": {},
         "packages/com.iptech.editorextensions": {},
-        "packages/com.iptech.externaldependencymanager": {
-            "release-as": "1.2.813-iptech.0"
-        },
+        "packages/com.iptech.externaldependencymanager": {},
         "packages/com.iptech.fonts": {},
         "packages/com.iptech.hexmap": {},
         "packages/com.iptech.mathutils": {},

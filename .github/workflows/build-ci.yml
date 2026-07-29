@@ -3,24 +3,53 @@ name: CI Build
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
-  push:
-    branches: 
-      - main
-      #- features/**
-
   pull_request:
     branches: 
       - main
-      #- features/**
-
+  
   workflow_dispatch:
 
-
-
 env:
+  UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+  UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
 
 jobs:
+  build:
+    name: Test ${{ matrix.projectPath }} ${{ matrix.buildTarget }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        projectPath:
+          - unity/iptech-unitylibrary
+          - unity/iptech-unityservices
+        buildTarget:
+          - ios
+          - android
+        include:
+          - buildTarget: ios
+            buildConfig: DebugiOS
+          - buildTarget: android
+            buildConfig: DebugAndroid
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          lfs: true
+      - uses: actions/cache@v2
+        with:
+          path: ${{ matrix.projectPath }}/Library
+          key: LibraryBuild-${{ matrix.projectPath }}-${{ matrix.unityVersion }}
+
+      - uses: game-ci/unity-builder@v4
+        with:
+          unityVersion: auto
+          projectPath: ${{ matrix.projectPath }}
+          targetPlatform: ${{ matrix.buildTarget }}
+          buildMethod: IPTech.BuildTool.Builder.Build
+          customParameters: -buildConfig ${{ matrix.buildConfig }}
+
   test:
     name: Test ${{ matrix.projectPath }} ${{ matrix.buildTarget }}
     runs-on: ubuntu-latest
@@ -30,15 +59,16 @@ jobs:
       matrix:
         projectPath:
           - unity/iptech-unitylibrary
-          - unity/iptech-applovin
           - unity/iptech-unityservices
-        unityVersion:
-          - auto
-        testMode:
-          - editmode
         buildTarget:
           - ios
           - android
+        include:
+          - buildTarget: android
+            image: 'unityci/editor:ubuntu-6000.5.1f1-android-3'
+          - buildTarget: ios
+            image: 'unityci/editor:ubuntu-6000.5.1f1-ios-3'
+        
     steps:
       - uses: actions/checkout@v2
         with:
@@ -46,55 +76,19 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ${{ matrix.projectPath }}/Library
-          key: Library-${{ matrix.projectPath }}-${{ matrix.unityVersion }}
-      - uses: game-ci/unity-test-runner@v3
+          key: LibraryTest-${{ matrix.projectPath }}-${{ matrix.buildTarget }}
+      - uses: game-ci/unity-test-runner@v4
         id: tests
         with:
+          testMode: editmode
           projectPath: ${{ matrix.projectPath }}
-          unityVersion: ${{ matrix.unityVersion }}
-          testMode: ${{ matrix.testMode }}
           customParameters: -buildTarget ${{ matrix.buildTarget }}
-          artifactsPath: ${{ matrix.testMode }}-artifacts
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/upload-artifact@v2
+          customImage: ${{ matrix.image }}
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Test results for ${{ matrix.testMode }}
-          path: ${{ steps.tests.outputs.artifactsPath }}
+          name: Test results for ${{ matrix.projectPath }} ${{ matrix.buildTarget }}
+          path: artifacts
 
-  release-please:
-    needs: test
-    permissions:
-      contents: write
-      pull-requests: write
-    runs-on: ubuntu-latest
-    steps:
-      - uses: google-github-actions/release-please-action@v3
-        id: release
-        with:
-          command: manifest
-      
-      # The logic below handles the npm publication:
-      - name: Checkout Repository
-        if: ${{ steps.release.outputs.releases_created }}
-        uses: actions/checkout@v2
-      - name: Setup Node
-        uses: actions/setup-node@v1
-        if: ${{ steps.release.outputs.releases_created }}
-        with:
-          node-version: 14
-          registry-url: 'https://registry.npmjs.org'
-      - name: Build Packages
-        if: ${{ steps.release.outputs.releases_created }}
-        run: |
-          npm install
-          npx lerna init --packages="packages/*"
-
-      # Release Please has already incremented versions and published tags, so we just
-      # need to publish all unpublished versions to NPM here
-      # See: https://github.com/lerna/lerna/tree/main/commands/publish#bump-from-package
-      - name: Publish to NPM
-        if: ${{ steps.release.outputs.releases_created }}
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-        run: npx lerna publish from-package --no-push --no-private --yes
+  
