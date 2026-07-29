@@ -22,69 +22,79 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        projectPath:
-          - unity/iptech-unitylibrary
-          - unity/iptech-unityservices
+        projectName:
+          - iptech-unitylibrary
+          - iptech-unityservices
         buildTarget:
           - iOS
           - Android
         include:
+          - projectName: iptech-unitylibrary
+            projectPath: unity/iptech-unitylibrary
+          - projectName: iptech-unityservices
+            projectPath: unity/iptech-unityservices
           - buildTarget: iOS
             buildConfig: DebugiOS
           - buildTarget: Android
             buildConfig: DebugAndroid
+            
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v4
         with:
           path: ${{ matrix.projectPath }}/Library
-          key: LibraryBuild-${{ matrix.projectPath }}-${{ matrix.buildTarget }}
+          key: LibraryBuild-${{ matrix.projectName }}-${{ matrix.buildTarget }}
 
       - uses: game-ci/unity-builder@v4
         with:
-          unityVersion: auto
           projectPath: ${{ matrix.projectPath }}
           targetPlatform: ${{ matrix.buildTarget }}
           buildMethod: IPTech.BuildTool.Builder.Build
           customParameters: -buildConfig ${{ matrix.buildConfig }}
 
   test:
-    name: Test ${{ matrix.projectPath }} ${{ matrix.buildTarget }}
+    name: Test ${{ matrix.projectName }} ${{ matrix.buildTarget }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
-        projectPath:
-          - unity/iptech-unitylibrary
-          - unity/iptech-unityservices
+        projectName:
+          - iptech-unitylibrary
+          - iptech-unityservices
         buildTarget:
           - ios
           - android
         include:
-          - buildTarget: android
-            image: 'unityci/editor:ubuntu-6000.5.1f1-android-3'
-          - buildTarget: ios
+          - projectName: iptech-unitylibrary
+            projectPath: unity/iptech-unitylibrary
+          - projectName: iptech-unityservices
+            projectPath: unity/iptech-unityservices
+          - buildTarget: iOS
             image: 'unityci/editor:ubuntu-6000.5.1f1-ios-3'
-        
+          - buildTarget: Android
+            image: 'unityci/editor:ubuntu-6000.5.1f1-android-3'
+
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v4
         with:
           path: ${{ matrix.projectPath }}/Library
-          key: LibraryTest-${{ matrix.projectPath }}-${{ matrix.buildTarget }}
+          key: LibraryTest-${{ matrix.projectName }}-${{ matrix.buildTarget }}
       - uses: game-ci/unity-test-runner@v4
         id: tests
         with:
           testMode: editmode
+          unityVersion: auto
           projectPath: ${{ matrix.projectPath }}
           customParameters: -buildTarget ${{ matrix.buildTarget }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           customImage: ${{ matrix.image }}
+          
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Test results for ${{ matrix.projectPath }} ${{ matrix.buildTarget }}
+          name: Test results for ${{ matrix.projectName }} ${{ matrix.buildTarget }}
           path: artifacts
 
   
