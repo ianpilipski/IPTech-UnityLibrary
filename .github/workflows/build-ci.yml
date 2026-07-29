@@ -26,12 +26,12 @@ jobs:
           - unity/iptech-unitylibrary
           - unity/iptech-unityservices
         buildTarget:
-          - ios
-          - android
+          - iOS
+          - Android
         include:
-          - buildTarget: ios
+          - buildTarget: iOS
             buildConfig: DebugiOS
-          - buildTarget: android
+          - buildTarget: Android
             buildConfig: DebugAndroid
     steps:
       - uses: actions/checkout@v2
