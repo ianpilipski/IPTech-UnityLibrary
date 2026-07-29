@@ -34,7 +34,7 @@
       "dependencies": {}
     },
     "com.iptech.consentscreen": {
-      "version": "file:/Users/ian/github/IPTech-UnityLibrary/packages/com.iptech.consentscreen",
+      "version": "file:../../../packages/com.iptech.consentscreen",
       "depth": 0,
       "source": "local",
       "dependencies": {

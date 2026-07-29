@@ -1,3 +1,4 @@
+#if UNITY_IOS
 using System;
 using System.Reflection;
 using UnityEditor.iOS.Xcode;
@@ -43,3 +44,4 @@ namespace IPTech.AgeVerification.iOS.Editor
         }
     }
 }
+#endif

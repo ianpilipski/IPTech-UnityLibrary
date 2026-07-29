@@ -1,7 +1,8 @@
+#if UNITY_IOS
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
-using UnityEditor.iOS.Xcode;
 using UnityEngine;
+using UnityEditor.iOS.Xcode;
 
 namespace IPTech.AgeVerification.iOS.Editor
 {
@@ -45,4 +46,5 @@ namespace IPTech.AgeVerification.iOS.Editor
         }
     }
 }
+#endif
 

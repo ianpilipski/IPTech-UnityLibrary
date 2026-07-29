@@ -1,6 +1,5 @@
 
 using System;
-using System.Text.Json.Serialization;
 using UnityEngine;
 
 namespace IPTech.AgeVerification.iOS
