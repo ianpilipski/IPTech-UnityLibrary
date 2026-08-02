@@ -8,9 +8,9 @@ using UnityEngine;
 
 namespace IPTech.AgeVerification
 {
-    public class AgeVerificationManager : IAgeVerification
+    public class AgeVerificationService : IAgeVerificationService
     {
-        public async Task<AgeVerificationResult> VerifyAge(int requiredMinAge, CancellationToken ct, int additionalMinAge1 = 0, int additionalMinAge2 = 0)
+        public async Task<AgeVerificationResult> RequestAgeData(int requiredMinAge, CancellationToken ct, int additionalMinAge1 = 0, int additionalMinAge2 = 0)
         {
             if (IsIOS())
             {

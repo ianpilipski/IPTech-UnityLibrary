@@ -22,6 +22,8 @@ namespace IPTech.AgeVerification.iOS.Debugging
             // for json deserialization
         }
         public CachedResult(AgeRangeResult result) : this(result, null) {}
+
+        public CachedResult(Exception error) : this(new CachedError(error)) {}
         public CachedResult(CachedError error) : this(null, error) {}
         
         private CachedResult(AgeRangeResult result, CachedError error)

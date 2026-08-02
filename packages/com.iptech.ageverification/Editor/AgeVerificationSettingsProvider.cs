@@ -289,11 +289,8 @@ namespace IPTech.AgeVerification.iOS.Editor
                 {
                     if(_lastCachedResult.ResultKind == CachedResult.ResultType.AgeRangeResult)
                     {
-                        var mockResult = new MockResult();
-                        mockResult.PopulateFromResult(_lastCachedResult.Result);
-                        var mockResultUI = new MockResultUI(mockResult);
-                        var previewElement = mockResultUI.GetPreviewElement();
-                        _cachedResultPreviewContainer.Add(previewElement);
+                        var mockResultUI = new MockResultUI(_lastCachedResult.Result);
+                        _cachedResultPreviewContainer.Add(mockResultUI.PreviewVisualElement);
                     }
                     else
                     {

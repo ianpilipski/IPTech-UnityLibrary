@@ -11,14 +11,11 @@ namespace IPTech.AgeVerification.iOS.Debugging
         public int UpperBound = 17;
         public AgeDeclaration AgeDeclaration = AgeDeclaration.SelfDeclared;
 
-        public AgeRangeResult CreateResult()
+        public MockResult()
         {
-            var lowerBound = HasLowerBound ? (int?)LowerBound : null;
-            var upperBound = HasUpperBound ? (int?)UpperBound : null;
-            return new AgeRangeResult(Status, lowerBound, upperBound, AgeDeclaration);
         }
 
-        public void PopulateFromResult(AgeRangeResult result)
+        public MockResult(AgeRangeResult result)
         {
             Status = result.Status;
             HasLowerBound = result.LowerBound.HasValue;
@@ -26,6 +23,13 @@ namespace IPTech.AgeVerification.iOS.Debugging
             HasUpperBound = result.UpperBound.HasValue;
             UpperBound = result.UpperBound ?? 0;
             AgeDeclaration = result.AgeDeclaration;
+        }
+
+        public AgeRangeResult ToAgeRangeResult()
+        {
+            var lowerBound = HasLowerBound ? (int?)LowerBound : null;
+            var upperBound = HasUpperBound ? (int?)UpperBound : null;
+            return new AgeRangeResult(Status, lowerBound, upperBound, AgeDeclaration);
         }
     }
 }

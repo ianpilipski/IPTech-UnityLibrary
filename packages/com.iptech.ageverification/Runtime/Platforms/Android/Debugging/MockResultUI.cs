@@ -28,6 +28,10 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
         private TextField _jsonPreviewField;
         private VisualElement _previewContainer;
 
+        public MockResultUI(AgeSignalsResult ageSignalsResult) : this(new MockResult(ageSignalsResult))
+        {
+        }
+
         public MockResultUI(MockResult mockResult)
         {
             _mockResult = mockResult;
@@ -271,7 +275,7 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
         {
             if (_mockResult == null) return;
 
-            var result = _mockResult.CreateResult();
+            var result = _mockResult.ToAgeSignalsResult();
 
             _previewUserStatusLabel.text = $"User Status: {(result.UserStatus?.ToString() ?? "null")}";
             _previewAgeLowerLabel.text = $"Age Lower: {(result.AgeLower?.ToString() ?? "null")}";
@@ -315,7 +319,7 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
 
         public AgeSignalsResult GetCurrentResult()
         {
-            return _mockResult?.CreateResult();
+            return _mockResult?.ToAgeSignalsResult();
         }
     }
 }

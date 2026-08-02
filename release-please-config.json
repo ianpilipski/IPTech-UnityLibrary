@@ -1,15 +1,17 @@
 {
-    "bootstrap-sha": "5b6a370b32885c2f263ed64344e3e2f1a64a594d",
+    "bootstrap-sha": "d89d992e222e406e6420d9782b7b4b9de4eb1871",
     "release-type": "node",
     "monorepo-tags": true,
     "plugins": [ "node-workspace" ],
     "packages": {
+        "packages/com.iptech.ageverification": {},
         "packages/com.iptech.applovin.maxsdk": {
             "release-as": "6.0.1-0.0.1"
         },
         "packages/com.iptech.audio": {},
         "packages/com.iptech.buildtool": {},
         "packages/com.iptech.clickerengine": {},
+        "packages/com.iptech.consentscreen": {},
         "packages/com.iptech.coroutines": {},
         "packages/com.iptech.debugtools": {},
         "packages/com.iptech.dialogmanager": {},
@@ -32,6 +34,8 @@
         "packages/com.iptech.unityservices": {},
         "packages/com.iptech.unityservices.advertising": {},
         "packages/com.iptech.unityservices.analytics": {},
+        "packages/com.iptech.unityservices.leaderboards": {},
+        "packages/com.iptech.unityservices.remoteconfig": {},
         "packages/com.iptech.utils": {},
         "packages/com.iptech.zenject": {}
     }

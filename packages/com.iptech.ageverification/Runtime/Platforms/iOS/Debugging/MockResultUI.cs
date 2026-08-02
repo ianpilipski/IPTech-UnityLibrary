@@ -4,12 +4,13 @@ using UnityEngine.UIElements;
 
 namespace IPTech.AgeVerification.iOS.Debugging
 {
-    public class MockResultUI
+    public class MockResultUI : VisualElement
     {
         public event System.Action OnValuesChanged;
+        public VisualElement PreviewVisualElement { get; private set; }
+
         
         private MockResult _mockResult;
-        private VisualElement _root;
         private EnumField _statusField;
         private Toggle _hasLowerBoundToggle;
         private IntegerField _lowerBoundField;
@@ -21,17 +22,18 @@ namespace IPTech.AgeVerification.iOS.Debugging
         private Label _previewUpperBoundLabel;
         private Label _previewAgeDeclarationLabel;
         private TextField _jsonPreviewField;
-        private VisualElement _previewContainer;
+
+        
+        public MockResultUI(AgeRangeResult result) : this(new MockResult(result))
+        {
+        }
 
         public MockResultUI(MockResult mockResult)
         {
             _mockResult = mockResult;
-            if(_mockResult == null)
-            {
-                return;
-            }
-
+            
             var b = new MockPopupBuilder();
+            this.Add(b.Root);
             
             b.BeginSection("Result Status");
             _statusField = b.AddEnumProperty("Status", _mockResult.Status);
@@ -51,29 +53,14 @@ namespace IPTech.AgeVerification.iOS.Debugging
             CreatePresets(b);
             CreatePreviewSection(b);
 
-            // Initialize values from MockResult
-            InitializeValues();
+            Refresh(false);
 
-            // Update preview initially and register callbacks
-            UpdatePreview();
             RegisterCallbacks();
-
-            _root = b.Root;
-        }
-
-        public VisualElement GetRootElement()
-        {
-            return _root;
-        }
-        
-        public VisualElement GetPreviewElement() 
-        {
-            return _previewContainer;
         }
 
         private void CreatePreviewSection(MockPopupBuilder b)
         {
-            _previewContainer = b.BeginGroup("Preview");
+            PreviewVisualElement = b.BeginGroup("Preview");
             b.BeginSection("Preview");
             _previewStatusLabel = b.AddLabelProperty("Status");
             _previewLowerBoundLabel = b.AddLabelProperty("Lower Bound");
@@ -95,19 +82,19 @@ namespace IPTech.AgeVerification.iOS.Debugging
                 switch(i)
                 {
                     case 0:
-                        b.AddButton("Success (13-17)", () => SetPreset(AgeRangeResultStatus.Success, true, 13, true, 17, AgeDeclaration.SelfDeclared));
+                        b.AddButton("Success (13-17)", () => SetValues(AgeRangeResultStatus.Success, true, 13, true, 17, AgeDeclaration.SelfDeclared));
                         break;
                     case 1:
-                        b.AddButton("Success (5-12)", () => SetPreset(AgeRangeResultStatus.Success, true, 5, true, 12, AgeDeclaration.GuardianDeclared));
+                        b.AddButton("Success (5-12)", () => SetValues(AgeRangeResultStatus.Success, true, 5, true, 12, AgeDeclaration.GuardianDeclared));
                         break;
                     case 2:
-                        b.AddButton("Success (18+)", () => SetPreset(AgeRangeResultStatus.Success, true, 18, false, 0, AgeDeclaration.SelfDeclared));
+                        b.AddButton("Success (18+)", () => SetValues(AgeRangeResultStatus.Success, true, 18, false, 0, AgeDeclaration.SelfDeclared));
                         break;
                     case 3:
-                        b.AddButton("User Declined", () => SetPreset(AgeRangeResultStatus.UserDeclined, false, 0, false, 0, AgeDeclaration.Unknown));
+                        b.AddButton("User Declined", () => SetValues(AgeRangeResultStatus.UserDeclined, false, 0, false, 0, AgeDeclaration.Unknown));
                         break;
                     case 4:
-                        b.AddButton("Unsupported Platform", () => SetPreset(AgeRangeResultStatus.UnsupportedPlatformVersion, false, 0, false, 0, AgeDeclaration.Unknown));
+                        b.AddButton("Unsupported Platform", () => SetValues(AgeRangeResultStatus.UnsupportedPlatformVersion, false, 0, false, 0, AgeDeclaration.Unknown));
                         break;
                     default:
                         // Add more cases as needed
@@ -118,10 +105,48 @@ namespace IPTech.AgeVerification.iOS.Debugging
             b.EndSection();
         }
 
-        private void InitializeValues()
+        
+        private void RegisterCallbacks()
         {
-            if (_mockResult == null) return;
+            _statusField.RegisterValueChangedCallback(evt => 
+            {
+                _mockResult.Status = (AgeRangeResultStatus)evt.newValue;
+                Refresh(fireValuesChangedEvent: true);
+            });
+            
+            _hasLowerBoundToggle.RegisterValueChangedCallback(evt => 
+            {
+                _mockResult.HasLowerBound = evt.newValue;
+                Refresh(fireValuesChangedEvent: true);
+            });
+            
+            _lowerBoundField.RegisterValueChangedCallback(evt => 
+            {
+                _mockResult.LowerBound = evt.newValue;
+                Refresh(fireValuesChangedEvent: true);
+            });
+            
+            _hasUpperBoundToggle.RegisterValueChangedCallback(evt => 
+            {
+                _mockResult.HasUpperBound = evt.newValue;
+                Refresh(fireValuesChangedEvent: true);
+            });
+            
+            _upperBoundField.RegisterValueChangedCallback(evt => 
+            {
+                _mockResult.UpperBound = evt.newValue;
+                Refresh(fireValuesChangedEvent: true);
+            });
+            
+            _ageDeclarationField.RegisterValueChangedCallback(evt => 
+            {
+                _mockResult.AgeDeclaration = (AgeDeclaration)evt.newValue;
+                Refresh(fireValuesChangedEvent: true);
+            });
+        }
 
+        private void Refresh(bool fireValuesChangedEvent = false)
+        {
             _statusField.value = _mockResult.Status;
             _hasLowerBoundToggle.value = _mockResult.HasLowerBound;
             _lowerBoundField.value = _mockResult.LowerBound;
@@ -131,57 +156,12 @@ namespace IPTech.AgeVerification.iOS.Debugging
 
             UpdateLowerBoundFieldState();
             UpdateUpperBoundFieldState();
-        }
+            UpdatePreview();
 
-        private void RegisterCallbacks()
-        {
-            _statusField.RegisterValueChangedCallback(evt => 
+            if(fireValuesChangedEvent)
             {
-                if (_mockResult != null) _mockResult.Status = (AgeRangeResultStatus)evt.newValue;
-                UpdatePreview();
                 OnValuesChanged?.Invoke();
-            });
-            
-            _hasLowerBoundToggle.RegisterValueChangedCallback(evt => 
-            {
-                if (_mockResult != null) _mockResult.HasLowerBound = evt.newValue;
-                UpdateLowerBoundFieldState();
-                UpdatePreview();
-                OnValuesChanged?.Invoke();
-            });
-            
-            _lowerBoundField.RegisterValueChangedCallback(evt => 
-            {
-                if (_mockResult != null) _mockResult.LowerBound = evt.newValue;
-                UpdatePreview();
-                OnValuesChanged?.Invoke();
-            });
-            
-            _hasUpperBoundToggle.RegisterValueChangedCallback(evt => 
-            {
-                if (_mockResult != null) _mockResult.HasUpperBound = evt.newValue;
-                UpdateUpperBoundFieldState();
-                UpdatePreview();
-                OnValuesChanged?.Invoke();
-            });
-            
-            _upperBoundField.RegisterValueChangedCallback(evt => 
-            {
-                if (_mockResult != null) _mockResult.UpperBound = evt.newValue;
-                UpdatePreview();
-                OnValuesChanged?.Invoke();
-            });
-            
-            _ageDeclarationField.RegisterValueChangedCallback(evt => 
-            {
-                if (_mockResult != null) _mockResult.AgeDeclaration = (AgeDeclaration)evt.newValue;
-                UpdatePreview();
-                OnValuesChanged?.Invoke();
-            });
-
-            // Initial state
-            UpdateLowerBoundFieldState();
-            UpdateUpperBoundFieldState();
+            }
         }
 
         private void UpdateLowerBoundFieldState()
@@ -200,7 +180,7 @@ namespace IPTech.AgeVerification.iOS.Debugging
         {
             if (_mockResult == null) return;
 
-            var result = _mockResult.CreateResult();
+            var result = _mockResult.ToAgeRangeResult();
 
             _previewStatusLabel.text = $"Status: {result.Status}";
             _previewLowerBoundLabel.text = $"Lower Bound: {(result.LowerBound?.ToString() ?? "null")}";
@@ -211,7 +191,7 @@ namespace IPTech.AgeVerification.iOS.Debugging
             _jsonPreviewField.value = json;
         }
 
-        private void SetPreset(AgeRangeResultStatus status, bool hasLower, int lower, bool hasUpper, int upper, AgeDeclaration declaration)
+        private void SetValues(AgeRangeResultStatus status, bool hasLower, int lower, bool hasUpper, int upper, AgeDeclaration declaration)
         {
             if (_mockResult == null) return;
 
@@ -237,17 +217,9 @@ namespace IPTech.AgeVerification.iOS.Debugging
             OnValuesChanged?.Invoke();
         }
 
-        public void RefreshFromMockResult()
-        {
-            if (_mockResult == null) return;
-            
-            InitializeValues();
-            UpdatePreview();
-        }
-
         public AgeRangeResult GetCurrentResult()
         {
-            return _mockResult?.CreateResult();
+            return _mockResult?.ToAgeRangeResult();
         }
     }
 }

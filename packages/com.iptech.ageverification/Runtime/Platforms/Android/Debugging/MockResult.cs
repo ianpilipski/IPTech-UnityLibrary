@@ -15,7 +15,22 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
         public string MostRecentApprovalDateString = "";
         public string InstallId = "";
 
-        public AgeSignalsResult CreateResult()
+        public MockResult() {}
+
+        public MockResult(AgeSignalsResult result)
+        {
+            HasUserStatus = result.UserStatus.HasValue;
+            UserStatus = result.UserStatus ?? AgeSignalsVerificationStatus.UNKNOWN;
+            HasAgeLower = result.AgeLower.HasValue;
+            AgeLower = result.AgeLower ?? 0;
+            HasAgeUpper = result.AgeUpper.HasValue;
+            AgeUpper = result.AgeUpper ?? 0;
+            HasMostRecentApprovalDate = result.MostRecentApprovalDate.HasValue;
+            MostRecentApprovalDateString = result.MostRecentApprovalDate?.ToString("o") ?? "";
+            InstallId = result.InstallId ?? "";
+        }
+
+        public AgeSignalsResult ToAgeSignalsResult()
         {
             var userStatus = HasUserStatus ? (AgeSignalsVerificationStatus?)UserStatus : null;
             var ageLower = HasAgeLower ? (int?)AgeLower : null;
@@ -38,19 +53,6 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
                 MostRecentApprovalDate = mostRecentApprovalDate,
                 InstallId = InstallId
             };
-        }
-
-        public void PopulateFromResult(AgeSignalsResult result)
-        {
-            HasUserStatus = result.UserStatus.HasValue;
-            UserStatus = result.UserStatus ?? AgeSignalsVerificationStatus.UNKNOWN;
-            HasAgeLower = result.AgeLower.HasValue;
-            AgeLower = result.AgeLower ?? 0;
-            HasAgeUpper = result.AgeUpper.HasValue;
-            AgeUpper = result.AgeUpper ?? 0;
-            HasMostRecentApprovalDate = result.MostRecentApprovalDate.HasValue;
-            MostRecentApprovalDateString = result.MostRecentApprovalDate?.ToString("o") ?? "";
-            InstallId = result.InstallId ?? "";
         }
     }
 }

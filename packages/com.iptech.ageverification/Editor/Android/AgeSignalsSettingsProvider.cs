@@ -179,10 +179,7 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Editor
             {
                 if (cachedResult.ResultKind == CachedResult.ResultType.AgeSignalsResult)
                 {
-                    var mockResult = new MockResult();
-                    mockResult.PopulateFromResult(cachedResult.Result);
-                    var mockResultUI = new MockResultUI(mockResult);
-                    var previewElement = mockResultUI.GetPreviewElement();
+                    var previewElement = new MockResultUI(cachedResult.Result).GetPreviewElement();
                     _cachedResultPreviewContainer.Add(previewElement);
                 }
                 else if (cachedResult.ResultKind == CachedResult.ResultType.Exception)

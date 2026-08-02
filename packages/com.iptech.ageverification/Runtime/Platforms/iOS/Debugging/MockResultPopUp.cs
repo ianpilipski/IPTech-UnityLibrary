@@ -13,9 +13,8 @@ namespace IPTech.AgeVerification.iOS.Debugging
         private const string MOCKRESULT_POPUP_RESOURCE_NAME = "com.iptech.ageverification.ios.mockresultpopup";
         
         private PanelRenderer _panelRenderer;
-        private VisualElement _dialogOverlay;
+        private VisualElement _dialogRoot;
         private VisualElement _contentArea;
-        private Button _okButton;
         private Action _onClosed;
         private Toggle _rememberChoiceToggle;
         
@@ -57,6 +56,22 @@ namespace IPTech.AgeVerification.iOS.Debugging
             CreateUI();
         }
 
+        void OnEnable()
+        {
+            _panelRenderer.RegisterUIReloadCallback(OnUIReload);
+        }
+
+        void OnDisable() 
+        {
+            _panelRenderer.UnregisterUIReloadCallback(OnUIReload);
+        }
+
+
+        void OnUIReload(PanelRenderer panelRenderer, VisualElement rootElement)
+        {
+            rootElement.Add(_dialogRoot);
+        }
+
         public async Task<AgeRangeResult> Show(CancellationToken ct)
         {
             _mockResult = new MockResult();
@@ -77,14 +92,17 @@ namespace IPTech.AgeVerification.iOS.Debugging
             }
 
             var cachedResult = CreateCachedResult();
-            ConditionallyRememberChoice(cachedResult);
+            if (_rememberChoiceToggle.value)
+            {
+                AgeRangeDebugSettings.CachedResult = cachedResult;
+            }
             return GetResult(cachedResult);
         }
 
         void CreateUI()
         {
             var b = new MockPopupBuilder();
-            _dialogOverlay = b.BeginFullScreenOverlay();
+            _dialogRoot = b.BeginFullScreenOverlay();
             
             var dialogBox = b.BeginDialogBox("Age Verification");
             
@@ -97,7 +115,7 @@ namespace IPTech.AgeVerification.iOS.Debugging
 
             var footer = b.BeginGroup("Footer");
             footer.style.flexDirection = FlexDirection.Row;
-            b.AddButton("Confirm", OnOkClicked);
+            b.AddButton("Confirm", CloseDialog);
             _rememberChoiceToggle = b.AddToggleProperty("Remember My Choice", true);
             b.EndGroup(); // footer
             b.EndDialogBox(); // age verification
@@ -114,26 +132,16 @@ namespace IPTech.AgeVerification.iOS.Debugging
         {
             if(_mockResultType == CachedResult.ResultType.AgeRangeResult) 
             {
-                var res = _mockResult.CreateResult();
-                return new CachedResult(res);
+                return new CachedResult(_mockResult.ToAgeRangeResult());
             }
             else if(_mockResultType == CachedResult.ResultType.Exception) 
             {
-                var ex = _mockError.CreateException();
-                var err = new CachedError(ex);
-                return new CachedResult(err);
+                return new CachedResult(_mockError.CreateException());
             }
             throw new Exception("Invalid mock result type selected.");
         }
 
-        private void ConditionallyRememberChoice(CachedResult result)
-        {
-            if (_rememberChoiceToggle.value)
-            {
-                AgeRangeDebugSettings.CachedResult = result;
-            }
-        }
-
+        
         private static AgeRangeResult GetResult(CachedResult cachedResult)
         {
             if(cachedResult.ResultKind == CachedResult.ResultType.AgeRangeResult) 
@@ -147,28 +155,13 @@ namespace IPTech.AgeVerification.iOS.Debugging
             throw new Exception("Invalid cached result type.");
         }
 
-        void OnEnable()
-        {
-            _panelRenderer.RegisterUIReloadCallback(OnUIReload);
-        }
-
-        void OnDisable() 
-        {
-            _panelRenderer.UnregisterUIReloadCallback(OnUIReload);
-        }
-
-        void OnUIReload(PanelRenderer panelRenderer, VisualElement rootElement)
-        {
-            rootElement.Add(_dialogOverlay);
-        }
-
+        
         private void ComposeContent()
         {
             if (_mockResultType == CachedResult.ResultType.AgeRangeResult)
             {
-                var ui = new MockResultUI(_mockResult);
                 _contentArea.Clear();
-                _contentArea.Add(ui.GetRootElement());
+                _contentArea.Add(new MockResultUI(_mockResult));
             }
             else if (_mockResultType == CachedResult.ResultType.Exception)
             {
@@ -178,32 +171,9 @@ namespace IPTech.AgeVerification.iOS.Debugging
             }
         }
 
-        private void OnOkClicked()
-        {
-            CloseDialog();
-        }
-
-        private void OnOverlayClicked(ClickEvent evt)
-        {
-            // Close dialog when clicking on overlay background
-            CloseDialog();
-        }
-
-        private void OnDialogClicked(ClickEvent evt)
-        {
-            // Stop propagation to prevent overlay click
-            evt.StopImmediatePropagation();
-        }
-
         private void CloseDialog()
         {
             _onClosed?.Invoke();
-        }
-
-
-        private void OnDestroy()
-        {
-            _onClosed = null;
         }
     }
 }

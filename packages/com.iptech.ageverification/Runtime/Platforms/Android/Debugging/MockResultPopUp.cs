@@ -101,7 +101,7 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
         {
             if(_mockResultType == CachedResult.ResultType.AgeSignalsResult) 
             {
-                var res = _mockResult.CreateResult();
+                var res = _mockResult.ToAgeSignalsResult();
                 return new CachedResult(res);
             }
             else if(_mockResultType == CachedResult.ResultType.Exception) 

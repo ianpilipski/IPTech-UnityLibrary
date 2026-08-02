@@ -72,8 +72,8 @@ namespace IPTech.ConsentScreen {
         {
             try {
                 Debug.Log("Checking age gate...");
-                var mgr = new AgeVerificationManager();
-                var res = await mgr.VerifyAge(requiredMinAgeForAdult, CancellationToken.None);
+                var mgr = new AgeVerificationService();
+                var res = await mgr.RequestAgeData(requiredMinAgeForAdult, CancellationToken.None);
                 Debug.Log($"Age gate check finished: {res.Status}");
                 if(res.Status == AgeVerificationStatus.AgeRangeNotRequired) {
                     return EConsentAge.Adult;

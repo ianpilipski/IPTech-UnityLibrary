@@ -6,16 +6,16 @@ namespace IPTech.AgeVerification
     {
         public static void ConfigureAgeVerification(this IIPTechPlatformConfig config)
         {
-            config.RegisterFactory<IAgeVerification>(new IPTechServiceFactory<IAgeVerification>((p) => {
-                return new AgeVerificationManager();
+            config.RegisterFactory<IAgeVerificationService>(new IPTechServiceFactory<IAgeVerificationService>((p) => {
+                return new AgeVerificationService();
             }));
         }
 
-        public static IAgeVerification GetAgeVerification(this IIPTechPlatform platform)
+        public static IAgeVerificationService GetAgeVerification(this IIPTechPlatform platform)
         {
             try 
             {
-                return platform.Services.GetService<IAgeVerification>();
+                return platform.Services.GetService<IAgeVerificationService>();
             }
             catch (System.Exception ex)
             {
