@@ -39,24 +39,17 @@ namespace IPTech.AgeVerification
 
                 if (res.Status == AgeRangeResultStatus.UserDeclined)
                 {
-                    return new AgeVerificationResult
-                    {
-                        Status = AgeVerificationStatus.Unknown
-                    };
+                    Debug.Log("User declined age range request.");
                 }
                 if (res.Status == AgeRangeResultStatus.UnsupportedPlatformVersion)
                 {
                     Debug.LogWarning("Age Verification is not supported on this iOS version.");
-                    return new AgeVerificationResult
-                    {
-                        Status = AgeVerificationStatus.AgeRangeNotRequired
-                    };
                 }
                 if (res.Status == AgeRangeResultStatus.Error)
                 {
                     Debug.LogError("Age Verification failed with an error.");
                 }
-                // Error or unknown status
+                // AgeRangeUnavailable Error or unknown status
                 return new AgeVerificationResult
                 {
                     Status = AgeVerificationStatus.Unknown
@@ -65,7 +58,18 @@ namespace IPTech.AgeVerification
             else if (IsAndroid())
             {
                 var api = new AgeSignalsApi();
-                var res = await api.RequestAgeSignals(ct);
+                var accessRes = await api.RequestAgeSignalsAccess(ct);
+
+                if(!IsAgeVerificationRequired(accessRes))
+                {
+                    Debug.Log("Age verification is not required.");
+                    return new AgeVerificationResult
+                    {
+                        Status = AgeVerificationStatus.AgeRangeNotRequired
+                    };
+                }
+
+                var res = await api.CheckAgeSignals(ct);
                 if (res.UserStatus.HasValue)
                 {
                     var status = res.UserStatus.Value;
@@ -104,6 +108,7 @@ namespace IPTech.AgeVerification
                     }
                 }
                 // user is not in region that requires age
+                Debug.Log("Age verification is not required (no result from check).");
                 return new AgeVerificationResult
                 {
                     Status = AgeVerificationStatus.AgeRangeNotRequired
@@ -115,6 +120,12 @@ namespace IPTech.AgeVerification
             {
                 Status = AgeVerificationStatus.AgeRangeNotRequired
             };
+        }
+
+        private bool IsAgeVerificationRequired(AgeSignalsAccessResult accessResult)
+        {
+            return accessResult.AgeSignalsAccessStatus == AgeSignalsAccessStatus.SHARED
+                || accessResult.AgeSignalsAccessStatus == AgeSignalsAccessStatus.VERIFICATION_REQUIRED;
         }
 
         private bool IsIOS()

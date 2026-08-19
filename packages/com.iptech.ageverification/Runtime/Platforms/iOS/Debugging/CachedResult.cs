@@ -39,5 +39,18 @@ namespace IPTech.AgeVerification.iOS.Debugging
                 return Result != null ? ResultType.AgeRangeResult : ResultType.Exception;
             }
         }
+
+        public AgeRangeResult EmulateApiResponseAsIfCalled()
+        {
+            if(this.ResultKind == CachedResult.ResultType.AgeRangeResult) 
+            {
+                return this.Result;
+            }
+            else if(this.ResultKind == CachedResult.ResultType.Exception) 
+            {
+                throw this.Error.CreateException();
+            }
+            throw new Exception("Invalid cached result type.");
+        }
     }
 }

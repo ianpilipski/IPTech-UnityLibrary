@@ -61,7 +61,7 @@ namespace IPTech.AgeVerification.iOS
             ValidateAgeGates(requiredMinAge, additionalMinAge1, additionalMinAge2);
             if (EnableMockMode)
             {
-                return await DebugRecordResult(MockResultPopUp.ShowDialog(requiredMinAge, ct, additionalMinAge1, additionalMinAge2));
+                return await DebugRecordResult(MockResultPopUp.ShowDialog(ct));
             }
 
             if (!Application.isEditor)

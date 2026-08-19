@@ -3,13 +3,17 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using IPTech.AgeVerification.Android.AgeSignals.Debugging;
+using System.Xml.Linq;
+using System.IO;
 
 namespace IPTech.AgeVerification.Android.AgeSignals.Editor
 {
     public class AgeSignalsSettingsProvider : SettingsProvider
     {
-        private VisualElement _cachedResultPreviewContainer;
-        private VisualElement _cachedResultPreviewButtons;
+        private VisualElement _cachedAgeSignalsAccessResultPreviewContainer;
+        private VisualElement _cachedAgeSignalsAccessResultPreviewButtons;
+        private VisualElement _cachedAgeSignalsResultPreviewContainer;
+        private VisualElement _cachedAgeSignalsResultPreviewButtons;
         
         public AgeSignalsSettingsProvider() : base("Project/IPTech/AgeVerification/Android Age Signals", SettingsScope.Project, GetSearchKeywords())
         {
@@ -42,41 +46,99 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Editor
             scrollView.style.flexGrow = 1;
             rootElement.Add(scrollView);
 
-            CreateCachedResultSection(scrollView);
+            CreateSdkInfoSection(scrollView);
+            CreateCachedAgeSignalsAccessResultSection(scrollView);
+            CreateCachedAgeSignalsResultSection(scrollView);
             CreateActionsSection(scrollView);
 
-            RefreshCachedResultContent();
-            AgeSignalsDebugSettings.ValuesChanged += RefreshCachedResultContent;
+            RefreshAllContent();
+            AgeSignalsDebugSettings.ValuesChanged += RefreshAllContent;
         }
 
         public override void OnDeactivate()
         {
-            AgeSignalsDebugSettings.ValuesChanged -= RefreshCachedResultContent;
+            AgeSignalsDebugSettings.ValuesChanged -= RefreshAllContent;
         }
 
-        private void CreateCachedResultSection(VisualElement root)
+        private void RefreshAllContent()
+        {
+            RefreshCachedAgeSignalsAccessResultContent();
+            RefreshCachedAgeSignalsResultContent();
+        }
+
+        private void CreateSdkInfoSection(VisualElement root)
+        {
+            var section = CreateSection("Android AgeSignals Info", null);
+            var sdkVersion = ExtractAndroidAgeSignalsSdkVersionFromDependenciesXML();
+            var sdkVersionLabel = new Label($"Sdk Version: {sdkVersion}");
+            section.Add(sdkVersionLabel);
+            root.Add(section);
+        }
+
+        private string ExtractAndroidAgeSignalsSdkVersionFromDependenciesXML()
+        {
+            var xmlFilePath = "Packages/com.iptech.ageverification/Editor/Android/PlayAgeSignalsDependencies.xml";
+            if (File.Exists(xmlFilePath))
+            {
+                var doc = XDocument.Load(xmlFilePath);
+                var sdkVersion = doc.Root?.Element("androidPackages")?.Element("androidPackage")?.Attribute("spec")?.Value;
+                if (!string.IsNullOrEmpty(sdkVersion))
+                {
+                    // Do something with the SDK version
+                    return sdkVersion;
+                }
+            }
+            return "Version not found";
+        }
+
+        private void CreateCachedAgeSignalsAccessResultSection(VisualElement root)
+        {
+            var section = CreateSection("Cached Age Signals Access Result", 
+                "This shows the currently cached Age Signals access result that will be returned in mock mode.");
+
+            _cachedAgeSignalsAccessResultPreviewContainer = new VisualElement();
+            _cachedAgeSignalsAccessResultPreviewContainer.style.marginBottom = 15;
+            section.Add(_cachedAgeSignalsAccessResultPreviewContainer);
+
+            _cachedAgeSignalsAccessResultPreviewButtons = new VisualElement();
+            _cachedAgeSignalsAccessResultPreviewButtons.style.flexDirection = FlexDirection.Row;
+            _cachedAgeSignalsAccessResultPreviewButtons.style.marginTop = 10;
+
+            var clearButton = new Button(() => ClearCachedAgeSignalsAccessResult())
+            {
+                text = "Clear Cached Result"
+            };
+            clearButton.style.flexGrow = 1;
+            clearButton.style.marginRight = 10;
+            _cachedAgeSignalsAccessResultPreviewButtons.Add(clearButton);
+
+            section.Add(_cachedAgeSignalsAccessResultPreviewButtons);
+
+            root.Add(section);
+        }
+
+        private void CreateCachedAgeSignalsResultSection(VisualElement root)
         {
             var section = CreateSection("Cached Age Signals Result", 
                 "This shows the currently cached Age Signals result that will be returned in mock mode.");
             
-            _cachedResultPreviewContainer = new VisualElement();
-            _cachedResultPreviewContainer.style.marginBottom = 15;
-            section.Add(_cachedResultPreviewContainer);
+            _cachedAgeSignalsResultPreviewContainer = new VisualElement();
+            _cachedAgeSignalsResultPreviewContainer.style.marginBottom = 15;
+            section.Add(_cachedAgeSignalsResultPreviewContainer);
 
-            // Button container for actions
-            _cachedResultPreviewButtons = new VisualElement();
-            _cachedResultPreviewButtons.style.flexDirection = FlexDirection.Row;
-            _cachedResultPreviewButtons.style.marginTop = 10;
+            _cachedAgeSignalsResultPreviewButtons = new VisualElement();
+            _cachedAgeSignalsResultPreviewButtons.style.flexDirection = FlexDirection.Row;
+            _cachedAgeSignalsResultPreviewButtons.style.marginTop = 10;
 
-            var clearCachedResultButton = new Button(() => ClearCachedResult())
+            var clearButton = new Button(() => ClearCachedAgeSignalsResult())
             {
                 text = "Clear Cached Result"
             };
-            clearCachedResultButton.style.flexGrow = 1;
-            clearCachedResultButton.style.marginRight = 10;
-            _cachedResultPreviewButtons.Add(clearCachedResultButton);
+            clearButton.style.flexGrow = 1;
+            clearButton.style.marginRight = 10;
+            _cachedAgeSignalsResultPreviewButtons.Add(clearButton);
 
-            section.Add(_cachedResultPreviewButtons);
+            section.Add(_cachedAgeSignalsResultPreviewButtons);
             root.Add(section);
         }
 
@@ -152,19 +214,26 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Editor
 
         #region Utility Methods
 
-        private void ClearCachedResult()
+        private void ClearCachedAgeSignalsResult()
         {
-            AgeSignalsDebugSettings.CachedResult = null;
+            AgeSignalsDebugSettings.CachedAgeSignalsResult = null;
+            RefreshCachedAgeSignalsResultContent();
         }
 
-        private void RefreshCachedResultContent()
+        private void ClearCachedAgeSignalsAccessResult()
         {
-            if (_cachedResultPreviewContainer == null) return;
+            AgeSignalsDebugSettings.CachedAgeSignalsAccessResult = null;
+            RefreshCachedAgeSignalsAccessResultContent();
+        }
+
+        private void RefreshCachedAgeSignalsAccessResultContent()
+        {
+            if (_cachedAgeSignalsAccessResultPreviewContainer == null) return;
 
             // Clear existing content
-            _cachedResultPreviewContainer.Clear();
+            _cachedAgeSignalsAccessResultPreviewContainer.Clear();
 
-            var cachedResult = AgeSignalsDebugSettings.CachedResult;
+            var cachedResult = AgeSignalsDebugSettings.CachedAgeSignalsAccessResult;
 
             if (cachedResult == null)
             {
@@ -172,29 +241,60 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Editor
                 noCacheLabel.style.unityFontStyleAndWeight = FontStyle.Italic;
                 noCacheLabel.style.color = new Color(0.7f, 0.7f, 0.7f);
                 noCacheLabel.style.marginBottom = 10;
-                _cachedResultPreviewContainer.Add(noCacheLabel);
-                _cachedResultPreviewButtons.style.display = DisplayStyle.None;
+                _cachedAgeSignalsAccessResultPreviewContainer.Add(noCacheLabel);
+                _cachedAgeSignalsAccessResultPreviewButtons.style.display = DisplayStyle.None;
             }
             else
             {
-                if (cachedResult.ResultKind == CachedResult.ResultType.AgeSignalsResult)
+                if (cachedResult.ResultKind == CachedAgeSignalsAccessResult.ResultType.AgeSignalsAccessResult)
                 {
-                    var previewElement = new MockResultUI(cachedResult.Result).GetPreviewElement();
-                    _cachedResultPreviewContainer.Add(previewElement);
+                    _cachedAgeSignalsAccessResultPreviewContainer.Add(new AgeSignalsAccessResultUI(cachedResult.Result, isPreview: true));
                 }
-                else if (cachedResult.ResultKind == CachedResult.ResultType.Exception)
+                else if (cachedResult.ResultKind == CachedAgeSignalsAccessResult.ResultType.Exception)
                 {
-                    var mockErrorUI = new MockErrorUI(cachedResult.Error);
-                    _cachedResultPreviewContainer.Add(mockErrorUI);
+                    _cachedAgeSignalsAccessResultPreviewContainer.Add(new CachedErrorUI(cachedResult.Error, isPreview: true));
                 }
-                _cachedResultPreviewButtons.style.display = DisplayStyle.Flex;
+                _cachedAgeSignalsAccessResultPreviewButtons.style.display = DisplayStyle.Flex;
+            }
+        }
+
+        private void RefreshCachedAgeSignalsResultContent()
+        {
+            if (_cachedAgeSignalsResultPreviewContainer == null) return;
+
+            // Clear existing content
+            _cachedAgeSignalsResultPreviewContainer.Clear();
+
+            var cachedResult = AgeSignalsDebugSettings.CachedAgeSignalsResult;
+
+            if (cachedResult == null)
+            {
+                var noCacheLabel = new Label("No cached result available");
+                noCacheLabel.style.unityFontStyleAndWeight = FontStyle.Italic;
+                noCacheLabel.style.color = new Color(0.7f, 0.7f, 0.7f);
+                noCacheLabel.style.marginBottom = 10;
+                _cachedAgeSignalsResultPreviewContainer.Add(noCacheLabel);
+                _cachedAgeSignalsResultPreviewButtons.style.display = DisplayStyle.None;
+            }
+            else
+            {
+                if (cachedResult.ResultKind == CachedAgeSignalsResult.ResultType.AgeSignalsResult)
+                {
+                    _cachedAgeSignalsResultPreviewContainer.Add(new AgeSignalsResultUI(cachedResult.Result, isPreview: true));
+                }
+                else if (cachedResult.ResultKind == CachedAgeSignalsResult.ResultType.Exception)
+                {
+                    _cachedAgeSignalsResultPreviewContainer.Add(new CachedErrorUI(cachedResult.Error, isPreview: true));
+                }
+                _cachedAgeSignalsResultPreviewButtons.style.display = DisplayStyle.Flex;
             }
         }
 
         private void ResetToDefaults()
         {
             AgeSignalsDebugSettings.EnableMockMode = false;
-            AgeSignalsDebugSettings.CachedResult = null;
+            AgeSignalsDebugSettings.CachedAgeSignalsResult = null;
+            AgeSignalsDebugSettings.CachedAgeSignalsAccessResult = null;
         }
 
         private static IEnumerable<string> GetSearchKeywords()

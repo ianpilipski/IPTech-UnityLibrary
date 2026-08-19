@@ -48,7 +48,10 @@
         "temp/": true,
         "Temp/": true,
         "iptech-unitylibrary.slnx": true,
-        "Assets/**/*.meta": true
+        "Assets/**/*.meta": true,
+        "UserSettings/": true,
+        "Logs/": true,
+        "bin/": true
     },
     "omnisharp.useModernNet": false,
     "dotnet.codeLens.enableReferencesCodeLens": false,

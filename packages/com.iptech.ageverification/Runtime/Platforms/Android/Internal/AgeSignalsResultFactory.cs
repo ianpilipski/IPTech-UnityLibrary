@@ -5,17 +5,11 @@ using UnityEngine;
 
 namespace IPTech.AgeVerification.Android.AgeSignals.Internal
 {
-    internal static class AgeSignalResultFactory
+    internal static class AgeSignalsResultFactory
     {
-        internal static AgeSignalsResult CreateFromJavaObject(AndroidJavaObject javaResult)
+        internal static AgeSignalsResult CreateAgeSignalResultFromJavaObject(AndroidJavaObject javaResult)
         {
             var res = new AgeSignalsResult();
-            res.PopulateFromJavaObject(javaResult);
-            return res;
-        }
-
-        private static void PopulateFromJavaObject(this AgeSignalsResult res, AndroidJavaObject javaResult)
-        {
             if (javaResult != null)
             {
                 try
@@ -36,7 +30,27 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Internal
                     Debug.LogError($"Error parsing AgeSignalsResult: {e.Message}");
                 }
             }
+            return res;
         }
+
+        internal static AgeSignalsAccessResult CreateAgeSignalsAccessResultFromJavaObject(AndroidJavaObject javaResult)
+        {
+            var res = new AgeSignalsAccessResult();
+            if (javaResult != null)
+            {
+                try
+                {
+                    res.AgeSignalsAccessStatus = (AgeSignalsAccessStatus?)GetNullableJavaProperty<int>(javaResult, "getAgeSignalsStatus");
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Error parsing AgeSignalsAccessResult: {e.Message}");
+                }
+            }
+            return res;
+        }
+
+        
 
         private static T? GetNullableJavaProperty<T>(AndroidJavaObject javaResult, string methodName) where T : struct
         {

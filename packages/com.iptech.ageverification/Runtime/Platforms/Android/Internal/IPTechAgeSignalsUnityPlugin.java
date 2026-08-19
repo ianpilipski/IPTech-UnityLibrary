@@ -11,33 +11,65 @@ import com.unity3d.player.UnityPlayer;
 
 public class IPTechAgeSignalsUnityPlugin
 {
-    public interface IRequestAgeSignalsCallback {
+    public interface ICheckAgeSignalsCallback {
         void onSuccess(AgeSignalsResult result);
         void onFailure(int errorCode, String errorMsg);
         void onCancel();
     }
 
-    public static void requestAgeSignals(IRequestAgeSignalsCallback callback) {
-        try {
+    public interface IRequestAgeSignalsAccessCallback {
+        void onSuccess(int ageSignalsRequestStatus);
+        void onFailure(int errorCode, String errorMsg);
+        void onCancel();
+    }
+
+    private static AgeSignalsManager ageSignalsManagerInst;
+    private static AgeSignalsManager getAgeSignalsManager() throws IllegalStateException {
+        if (ageSignalsManagerInst == null) {
+            // create the age signals manager instance
             // get the current activity
             Activity currentActivity = UnityPlayer.currentActivity;
             if (currentActivity == null) {
-                callback.onFailure(0, "Could not get the UnityPlayer.currentActivity");
-                return;
+                throw new IllegalStateException("Could not get the UnityPlayer.currentActivity");
             }
 
             // Create an instance of a manager
-            AgeSignalsManager ageSignalsManager = AgeSignalsManagerFactory.create(currentActivity.getApplicationContext());
-
-            // Request an age signals check
-            ageSignalsManager
-                    .checkAgeSignals(AgeSignalsRequest.builder().build())
-                    .addOnSuccessListener(callback::onSuccess)
-                    .addOnFailureListener(e -> {
-                        HandleException(callback, e);
-                    })
-                    .addOnCanceledListener(callback::onCancel);
+            ageSignalsManagerInst = AgeSignalsManagerFactory.create(currentActivity.getApplicationContext());
         }
+        return ageSignalsManagerInst;
+    }
+
+    public static void requestAgeSignalsAccess(IRequestAgeSignalsAccessCallback callback) {
+        try {
+            AgeSignalsManager ageSignalsManager = getAgeSignalsManager();
+
+            // 2. Request or check for age signals access.
+            // Passing the current Activity allows the Play Store to render the age sharing prompt UI if required.
+            AgeSignalsAccessRequest accessRequest = AgeSignalsAccessRequest.builder()
+                .setActivity(UnityPlayer.currentActivity)
+                .build();
+
+            ageSignalsManager.requestAgeSignalsAccess(accessRequest)
+                .addOnSuccessListener(callback::onSuccess)
+                .addOnFailureListener(callback::onFailure)
+                .addOnCanceledListener(callback::onCancel);
+        }
+        catch(Exception e) {
+            HandleException(callback, e);
+        }
+    }
+
+    public static void checkAgeSignals(ICheckAgeSignalsCallback callback) {
+        try {
+            AgeSignalsManager ageSignalsManager = getAgeSignalsManager();
+
+            ageSignalsManager.checkAgeSignals(AgeSignalsRequest.builder().build())
+                .addOnSuccessListener(callback::onSuccess)
+                .addOnFailureListener(exception -> {
+                    HandleException(callback, exception);
+                })
+                .addOnCanceledListener(callback::onCancel);
+            }
         catch(Exception e) {
             HandleException(callback, e);
         }

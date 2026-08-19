@@ -1,4 +1,5 @@
 using System;
+using UnityEngine.Scripting;
 
 namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
 {
@@ -17,7 +18,7 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
         public ErrorType Type = ErrorType.GeneralException;
         public string Message = "[Mock] An error occurred";
 
-        [Obsolete("used for json serialization only", true)]
+        [Preserve]
         public CachedError()
         {
             // json serialization only
@@ -28,6 +29,13 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
             Type = type;
             ErrorCode = errorCode;
             Message = message;
+        }
+
+        public CachedError(CachedError other)
+        {
+            Type = other.Type;
+            ErrorCode = other.ErrorCode;
+            Message = other.Message;
         }
 
         public CachedError(Exception exception)
@@ -50,6 +58,22 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
                 Type = ErrorType.GeneralException;
             }
             Message = exception.Message;
+        }
+
+        public Exception CreateException()
+        {
+            switch (Type)
+            {
+                case CachedError.ErrorType.PlatformNotSupportedException:
+                    return new PlatformNotSupportedException(Message);
+                case CachedError.ErrorType.InvalidOperationException:
+                    return new InvalidOperationException(Message);
+                case CachedError.ErrorType.AgeSignalsException:
+                    return new AgeSignalsException(ErrorCode, Message);
+                case CachedError.ErrorType.GeneralException:
+                default:
+                    return new Exception(Message);
+            }
         }
     }
 }

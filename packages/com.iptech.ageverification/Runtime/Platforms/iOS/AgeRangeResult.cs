@@ -1,6 +1,7 @@
 
 using System;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace IPTech.AgeVerification.iOS
 {
@@ -21,8 +22,18 @@ namespace IPTech.AgeVerification.iOS
         GuardianDeclared = 2
     }
 
+    public interface IAgeRangeResultBackingFields 
+    {
+        public AgeRangeResultStatus Status { get; set; }
+        public int _lowerBound { get; set; }
+        public bool _lowerBoundHasValue { get; set; }
+        public int _upperBound { get; set; }
+        public bool _upperBoundHasValue { get; set; }
+        public AgeDeclaration AgeDeclaration { get; set;}
+    }
+
     [Serializable]
-    public class AgeRangeResult
+    public class AgeRangeResult : IAgeRangeResultBackingFields
     {
         public AgeRangeResultStatus Status;
 
@@ -54,7 +65,7 @@ namespace IPTech.AgeVerification.iOS
         
         public AgeDeclaration AgeDeclaration;
 
-        [Obsolete("used only for unity json deserialization", true)]
+        [Preserve]
         public AgeRangeResult()
         {
         }
@@ -67,14 +78,32 @@ namespace IPTech.AgeVerification.iOS
             AgeDeclaration = ageDeclaration;
         }
 
+        public AgeRangeResult(AgeRangeResult other)
+        {
+            Status = other.Status;
+            LowerBound = other.LowerBound;
+            UpperBound = other.UpperBound;
+            AgeDeclaration = other.AgeDeclaration;
+        }
+
         public string ToJson(bool prettyPrint = false)
         {
-            return JsonUtility.ToJson(this);
+            return JsonUtility.ToJson(this, prettyPrint);
         }
 
         public override string ToString()
         {
             return $"AgeRangeResult(Status={Status}, LowerBound={LowerBound}, UpperBound={UpperBound}, AgeDeclaration={AgeDeclaration})";
         }
+
+
+        #region IAgeRangeResultBackingFields
+        AgeRangeResultStatus IAgeRangeResultBackingFields.Status { get => Status; set => Status = value; }
+        int IAgeRangeResultBackingFields._lowerBound { get => _lowerBound; set => _lowerBound = value; }
+        bool IAgeRangeResultBackingFields._lowerBoundHasValue { get => _lowerBoundHasValue; set => _lowerBoundHasValue = value; }
+        int IAgeRangeResultBackingFields._upperBound { get => _upperBound; set => _upperBound = value; }
+        bool IAgeRangeResultBackingFields._upperBoundHasValue { get => _upperBoundHasValue; set => _upperBoundHasValue = value; }
+        AgeDeclaration IAgeRangeResultBackingFields.AgeDeclaration { get => AgeDeclaration; set => AgeDeclaration = value; }
+        #endregion
     }
 }

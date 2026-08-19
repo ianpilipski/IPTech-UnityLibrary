@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 namespace IPTech.AgeVerification.iOS.Editor
 {
-    public class AgeVerificationSettingsProvider : SettingsProvider
+    public class AgeRangeSettingsProvider : SettingsProvider
     {
         private Toggle _postProcessToggle;
         private CachedResult _mockCachedResult;
@@ -16,14 +16,14 @@ namespace IPTech.AgeVerification.iOS.Editor
         private VisualElement _cachedIsEligiblePreviewContainer;
         private VisualElement _cacheIsEligibleButtons;
         
-        public AgeVerificationSettingsProvider() : base("Project/IPTech/AgeVerification/iOS Age Range", SettingsScope.Project, GetSearchKeywords())
+        public AgeRangeSettingsProvider() : base("Project/IPTech/AgeVerification/iOS Age Range", SettingsScope.Project, GetSearchKeywords())
         {
         }
 
         [SettingsProvider]
         public static SettingsProvider CreateAgeRangeSettingsProvider()
         {
-            return new AgeVerificationSettingsProvider();
+            return new AgeRangeSettingsProvider();
         }
 
         private bool PostProcessEnabled
@@ -56,11 +56,11 @@ namespace IPTech.AgeVerification.iOS.Editor
             scrollView.style.flexGrow = 1;
             rootElement.Add(scrollView);
 
-            // Cached Result Section
-            CreateCachedResultSection(scrollView);
-
             // Cached IsEligible Section
             CreateCachedIsEligibleSection(scrollView);
+
+            // Cached Result Section
+            CreateCachedResultSection(scrollView);
 
             // Build Configuration Section  
             CreateBuildConfigurationSection(scrollView);
@@ -107,7 +107,7 @@ namespace IPTech.AgeVerification.iOS.Editor
 
         private void CreateCachedIsEligibleSection(VisualElement root)
         {
-            var section = CreateSection("Cached Age Features Eligibility", 
+            var section = CreateSection("Cached Age Range IsEligible Result", 
                 "This shows the currently cached eligibility result that will be returned in mock mode.");
             
             _cachedIsEligiblePreviewContainer = new VisualElement();
@@ -289,13 +289,11 @@ namespace IPTech.AgeVerification.iOS.Editor
                 {
                     if(_lastCachedResult.ResultKind == CachedResult.ResultType.AgeRangeResult)
                     {
-                        var mockResultUI = new MockResultUI(_lastCachedResult.Result);
-                        _cachedResultPreviewContainer.Add(mockResultUI.PreviewVisualElement);
+                        _cachedResultPreviewContainer.Add(new AgeRangeResultUI(_lastCachedResult.Result, isPreview: true));
                     }
                     else
                     {
-                        var mockErrorUI = new MockErrorUI(_lastCachedResult.Error);
-                        _cachedResultPreviewContainer.Add(mockErrorUI);
+                        _cachedResultPreviewContainer.Add(new CachedErrorUI(_lastCachedResult.Error, isPreview: true));
                     }
                     _cachedResultButtons.style.display = DisplayStyle.Flex;
                 }
@@ -321,18 +319,13 @@ namespace IPTech.AgeVerification.iOS.Editor
             }
             else
             {
-                // Create and display the preview
                 if(cachedIsEligible.ResultKind == CachedIsEligibleResult.ResultType.IsEligibleResult)
                 {
-                    var mockIsEligible = new MockIsEligible();
-                    mockIsEligible.PopulateFromResult(cachedIsEligible);
-                    var previewElement = new MockIsEligibleUI(mockIsEligible, false);
-                    _cachedIsEligiblePreviewContainer.Add(previewElement);
+                    _cachedIsEligiblePreviewContainer.Add(new IsEligibleResultUI(cachedIsEligible.Result, true));
                 }
                 else
                 {
-                    var mockErrorUI = new MockIsEligibleErrorUI(cachedIsEligible.Error);
-                    _cachedIsEligiblePreviewContainer.Add(mockErrorUI);
+                    _cachedIsEligiblePreviewContainer.Add(new CachedIsEligibleErrorUI(cachedIsEligible.Error, true));
                 }
                 _cacheIsEligibleButtons.style.display = DisplayStyle.Flex;
             }

@@ -1,5 +1,6 @@
 
 using System;
+using UnityEngine.Scripting;
 
 namespace IPTech.AgeVerification.iOS.Debugging
 {
@@ -16,18 +17,22 @@ namespace IPTech.AgeVerification.iOS.Debugging
         public ErrorType Type = ErrorType.AgeRangeNotAvailableException;
         public string Message = "[Mock] An error occurred";
 
-
-        [Obsolete("used only for unity json deserialization", true)]
+        [Preserve]
         public CachedIsEligibleError()
         {
-            // for deserialization
         }
 
         public CachedIsEligibleError(ErrorType type, string message)
         {
             Type = type;
             Message = message;
-        } 
+        }
+
+        public CachedIsEligibleError(CachedIsEligibleError other)
+        {
+            Type = other.Type;
+            Message = other.Message;
+        }
 
         public CachedIsEligibleError(Exception exception)
         {
@@ -45,5 +50,21 @@ namespace IPTech.AgeVerification.iOS.Debugging
             }
             Message = exception.Message;
         }
+
+        public Exception CreateException()
+        {
+            switch (Type)
+            {
+                case CachedIsEligibleError.ErrorType.AgeRangeNotAvailableException:
+                    return new AgeRangeNotAvailableException(Message);
+                case CachedIsEligibleError.ErrorType.PlatformNotSupportedException:
+                    return new PlatformNotSupportedException(Message);
+                case CachedIsEligibleError.ErrorType.GeneralException:
+                default:
+                    return new Exception(Message);
+            }
+        }
+
+        
     }
 }

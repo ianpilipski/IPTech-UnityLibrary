@@ -50,6 +50,7 @@ namespace IPTech.ConsentScreen {
                         {
                             Destroy(optInScreen.gameObject);
                             var consentAge = await CheckAgeGate();
+                            Debug.Log($"Consent age check finished: {consentAge}");
                             //TODO: Ironsource says to show their dialog here??? https://developers.is.com/ironsource-mobile/flutter/permission-popup-ios/#step-1
                             CheckATT(new ConsentInfo {
                                 Consent = EConsentValue.Accepted,
@@ -76,20 +77,24 @@ namespace IPTech.ConsentScreen {
                 var res = await mgr.RequestAgeData(requiredMinAgeForAdult, CancellationToken.None);
                 Debug.Log($"Age gate check finished: {res.Status}");
                 if(res.Status == AgeVerificationStatus.AgeRangeNotRequired) {
+                    Debug.Log("Age gate check: Age range not required, Assuming adult.");
                     return EConsentAge.Adult;
                 } 
                 else if(res.Status == AgeVerificationStatus.HasAgeRange)
                 {
                     if(res.LowerBound >= requiredMinAgeForAdult) {
+                        Debug.Log($"Age gate check: LowerBound={res.LowerBound}, UpperBound={res.UpperBound}, Assuming adult.");
                         return EConsentAge.Adult;
                     } else {
+                        Debug.Log($"Age gate check: LowerBound={res.LowerBound}, UpperBound={res.UpperBound}, Assuming child.");
                         return EConsentAge.Child;
                     }
                 } 
-                Debug.Log($"Age gate check: {res.Status}");
+                Debug.Log($"Age gate check: {res.Status}, Assuming child.");
                 return EConsentAge.Child;
             } catch(Exception e) {
                 Debug.LogException(e);
+                Debug.LogWarning("Failed to check age gate. Assuming child.");
                 return EConsentAge.Child;
             }
         }

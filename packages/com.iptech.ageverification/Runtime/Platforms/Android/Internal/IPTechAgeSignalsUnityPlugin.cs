@@ -8,7 +8,8 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Internal
     public static class IPTechAgeSignalsUnityPlugin
     {
         private const string JAVA_CLASS_NAME = "com.IPTech.AgeVerification.Android.agesignals.IPTechAgeSignalsUnityPlugin";
-        private const string CALLBACK_INTERFACE_NAME = "com.IPTech.AgeVerification.Android.agesignals.IPTechAgeSignalsUnityPlugin$IRequestAgeSignalsCallback";
+        private const string CHECKAGESIGNALS_CALLBACK_INTERFACE_NAME = "com.IPTech.AgeVerification.Android.agesignals.IPTechAgeSignalsUnityPlugin$ICheckAgeSignalsCallback";
+        private const string REQUESTAGESIGNALSACCESS_CALLBACK_INTERFACE_NAME = "com.IPTech.AgeVerification.Android.agesignals.IPTechAgeSignalsUnityPlugin$IRequestAgeSignalsAccessCallback";
 
         private static AndroidJavaClass _javaClass;
 
@@ -27,15 +28,32 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Internal
             }
         }
 
-        public static Task<AgeSignalsResult> RequestAgeSignals()
+        public static Task<AgeSignalsAccessResult> RequestAgeSignalsAccess()
         {
             try
             {
                 AssertAndroidRuntimePlatform();
                 AssertJavaClassInitialized();
 
-                var callback = new RequestAgeSignalsCallbackProxy();
-                _javaClass.CallStatic("requestAgeSignals", callback);
+                var callback = new RequestAgeSignalsAccessCallbackProxy();
+                _javaClass.CallStatic("requestAgeSignalsAccess", callback);
+                return callback.Task;
+            }
+            catch (Exception e)
+            {
+                return Task.FromException<AgeSignalsAccessResult>(e);
+            }
+        }
+
+        public static Task<AgeSignalsResult> CheckAgeSignals()
+        {
+            try
+            {
+                AssertAndroidRuntimePlatform();
+                AssertJavaClassInitialized();
+
+                var callback = new CheckAgeSignalsCallbackProxy();
+                _javaClass.CallStatic("checkAgeSignals", callback);
                 return callback.Task;
             }
             catch (Exception e)
@@ -60,11 +78,31 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Internal
             }
         }
 
-        private class RequestAgeSignalsCallbackProxy : AndroidJavaProxy 
+        private class RequestAgeSignalsAccessCallbackProxy : AndroidJavaProxy
+        {
+            private readonly TaskCompletionSource<AgeSignalsAccessResult> _tcs = new TaskCompletionSource<AgeSignalsAccessResult>();
+
+            public RequestAgeSignalsAccessCallbackProxy() : base(REQUESTAGESIGNALSACCESS_CALLBACK_INTERFACE_NAME)
+            {
+            }
+
+            public void onSuccess(AndroidJavaObject result)
+            {
+                var ageSignalsAccessResult = AgeSignalsResultFactory.CreateAgeSignalsAccessResultFromJavaObject(result);
+                _tcs.TrySetResult(ageSignalsAccessResult);
+            }
+
+            public void onFailure(int errorCode, string errorMsg) => _tcs.TrySetException(new AgeSignalsException(errorCode, errorMsg));
+            public void onCancel() => _tcs.TrySetCanceled();
+
+            public Task<AgeSignalsAccessResult> Task => _tcs.Task;
+        }
+
+        private class CheckAgeSignalsCallbackProxy : AndroidJavaProxy 
         {
             private readonly TaskCompletionSource<AgeSignalsResult> _tcs = new TaskCompletionSource<AgeSignalsResult>();
 
-            public RequestAgeSignalsCallbackProxy() : base(CALLBACK_INTERFACE_NAME)
+            public CheckAgeSignalsCallbackProxy() : base(CHECKAGESIGNALS_CALLBACK_INTERFACE_NAME)
             {
             }
 
@@ -72,7 +110,7 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Internal
             {
                 try
                 {
-                    var ageSignalsResult = AgeSignalResultFactory.CreateFromJavaObject(result);
+                    var ageSignalsResult = AgeSignalsResultFactory.CreateAgeSignalResultFromJavaObject(result);
                     _tcs.TrySetResult(ageSignalsResult);
                 }
                 catch (Exception e)

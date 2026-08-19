@@ -1,5 +1,6 @@
 
 using System;
+using UnityEngine.Scripting;
 
 namespace IPTech.AgeVerification.iOS.Debugging
 {
@@ -14,15 +15,23 @@ namespace IPTech.AgeVerification.iOS.Debugging
             AgeRangeInvalidRequestException
         }
 
-        public ErrorType Type {get;} = ErrorType.GeneralException;
-        public string Message {get;} = "[Mock] An error occurred";
+        public ErrorType Type = ErrorType.GeneralException;
+        public string Message = "[Mock] An error occurred";
 
+        [Preserve]
+        public CachedError() {}
 
         public CachedError(ErrorType type, string message)
         {
             Type = type;
             Message = message;
         } 
+
+        public CachedError(CachedError other)
+        {
+            Type = other.Type;
+            Message = other.Message;
+        }
 
         public CachedError(Exception exception)
         {
@@ -43,6 +52,22 @@ namespace IPTech.AgeVerification.iOS.Debugging
                 Type = ErrorType.GeneralException;
             }
             Message = exception.Message;
+        }
+
+        public Exception CreateException()
+        {
+            switch (Type)
+            {
+                case CachedError.ErrorType.PlatformNotSupportedException:
+                    return new PlatformNotSupportedException(Message);
+                case CachedError.ErrorType.AgeRangeNotAvailableException:
+                    return new AgeRangeNotAvailableException(Message);
+                case CachedError.ErrorType.AgeRangeInvalidRequestException:
+                    return new AgeRangeInvalidRequestException(Message);
+                case CachedError.ErrorType.GeneralException:
+                default:
+                    return new Exception(Message);
+            }
         }
     }
 }

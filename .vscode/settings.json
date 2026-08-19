@@ -1,0 +1,14 @@
+{
+    "files.exclude": {
+        "unity/*/*.csproj": true,
+        "unity/*/UserSettings/": true,
+        "unity/*/Logs/": true,
+        "unity/*/bin/": true,
+        "unity/*/Library/": true,
+        "unity/*/*.slnx": true,
+        "unity/*/*.sln": true,
+        "unity/*/obj/": true,
+        "unity/*/Temp/": true,
+        "unity/**/*.meta": true
+    }
+}

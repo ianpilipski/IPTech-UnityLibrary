@@ -1,22 +1,52 @@
-.mockui-section {
+#age-signals-access-result-popup {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#age-signals-access-result-ui {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.ageui-invalid-field {
+    background-color: rgba(255, 0, 0, 0.3);
+}
+
+.ageui-popup-root {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.ageui-section {
     margin-bottom: 15px;
 }
 
-.mockui-property-field {
+.ageui-group {
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    position: relative;
+}
+
+.ageui-property-field {
     padding-left: 15px;
 }
 
-.mockui-section > Label {
+.ageui-section > Label {
     -unity-font-style: bold;
 }
 
-.mockui-dialog-box {
+.ageui-dialog-box {
     flex-direction: column;
     flex-shrink: 1;
     flex-grow: 0;
     background-color: rgba(1, 1, 1, 0.15);
-    max-width: 95%;
-    max-height: 95%;
+    max-width: 90%;
+    max-height: 90%;
+    min-width: 90%;
     padding: 15px;
     margin: 15px;
     border-radius: 10px;
@@ -25,7 +55,7 @@
     background-color: var(--unity-colors-box-background);
 }
 
-.mockui-full-screen-overlay {
+.ageui-full-screen-overlay {
     position: absolute;
     align-items: center;
     justify-content: center;

@@ -12,30 +12,27 @@ namespace IPTech.AgeVerification.iOS.Debugging
     {
         private const string MOCK_IS_ELIGIBLE_POPUP_PREFAB_RESOURCE_NAME = "com.iptech.ageverification.ios.mockiseligiblepopup";
         
-        [SerializeField]
-        private string _title = "Mock Is Eligible";
-        
         private PanelRenderer _panelRenderer;
         private VisualElement _dialogOverlay;
-        private VisualElement _dialogContainer;
+        private EnumField _resultTypeField;
         private VisualElement _contentArea;
-        private Label _dialogTitle;
-        private Button _okButton;
-        private Action _onClosed;
+        private TaskCompletionSource<bool> _onOkClicked;
         private Toggle _rememberChoiceToggle;
         
         private CachedIsEligibleResult.ResultType _mockResultType;
-        private MockIsEligible _mockIsEligible;
-        private MockIsEligibleError _mockError;
-        
+        private IsEligibleResult _mutatedIsEligibleResult;
+        private CachedIsEligibleError _mutatedCachedError;
+        private bool _useAutoApprove;
+        private float _autoApproveTimeoutTime;
+        private VisualElement _autoApproveButtons;
+        private Button _autoApproveCancelButton;
+        private VisualElement _approveButtons;
+        private bool _wasAutoApproved;
+
         public static async Task<bool> ShowDialog(CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
-            if (AgeRangeDebugSettings.CachedIsEligibleForAgeFeaturesResult != null)
-            {
-                return GetResult(AgeRangeDebugSettings.CachedIsEligibleForAgeFeaturesResult);
-            }
-
+            
             var mockPopUpPrefab = Resources.Load<MockIsEligiblePopUp>(MOCK_IS_ELIGIBLE_POPUP_PREFAB_RESOURCE_NAME);
             if(mockPopUpPrefab == null) {
                 throw new Exception($"MockPopUp resource '{MOCK_IS_ELIGIBLE_POPUP_PREFAB_RESOURCE_NAME}' not found in Resources folder.");
@@ -43,10 +40,9 @@ namespace IPTech.AgeVerification.iOS.Debugging
 
             var mockPopUpInst = Instantiate(mockPopUpPrefab);
             DontDestroyOnLoad(mockPopUpInst.gameObject);
-
             try 
             {
-                return await mockPopUpInst.Show(ct);
+                return await mockPopUpInst.Show(AgeRangeDebugSettings.CachedIsEligibleForAgeFeaturesResult, ct);
             }
             finally
             {
@@ -59,34 +55,16 @@ namespace IPTech.AgeVerification.iOS.Debugging
 
         private void Awake()
         {
+            _onOkClicked = new TaskCompletionSource<bool>();
             _panelRenderer = GetComponent<PanelRenderer>();
             CreateDialog();
+
+            _autoApproveTimeoutTime = Time.realtimeSinceStartup + 5f; // 5 seconds from now
         }
 
-        public async Task<bool> Show(CancellationToken ct)
+        private void OnDestroy()
         {
-            _title = "Mock Age Features Eligibility";
-            _mockIsEligible = new MockIsEligible();
-            _mockError = new MockIsEligibleError();
-            _mockResultType = CachedIsEligibleResult.ResultType.IsEligibleResult;
-    
-            bool isOkClicked = false;
-            _onClosed = () => { isOkClicked = true; };
-
-            ComposeContent();
-
-            while (!isOkClicked)
-            {
-                await Task.Yield();
-                if (ct.IsCancellationRequested)
-                {
-                    ct.ThrowIfCancellationRequested();
-                }
-            }
-
-            var cachedResult = CreateCachedResult();
-            ConditionallyRememberChoice(cachedResult);
-            return GetResult(cachedResult);
+            _onOkClicked.TrySetException(new TaskCanceledException("Popup was destroyed."));
         }
 
         void OnEnable()
@@ -105,27 +83,80 @@ namespace IPTech.AgeVerification.iOS.Debugging
             rootElement.Add(_dialogOverlay);
         }
 
+        void Update()
+        {
+            if(_useAutoApprove && !_wasAutoApproved)
+            {
+                if(_autoApproveCancelButton != null)
+                {
+                    var secondsRemaining = _autoApproveTimeoutTime - Time.realtimeSinceStartup;
+                    var secondsRemainingString = secondsRemaining.ToString("F1");
+                    _autoApproveCancelButton.text = $"Cancel Auto-approve in {secondsRemainingString}s";
+                    if(Time.realtimeSinceStartup >= _autoApproveTimeoutTime)
+                    {
+                        _autoApproveCancelButton.text = "Auto-approved";
+                        _wasAutoApproved = true;
+                        OnOkClicked();
+                    }
+                }
+            }
+        }
+
+        private async Task<bool> Show(CachedIsEligibleResult cachedResult, CancellationToken ct)
+        {
+            if(cachedResult != null) {
+                _mockResultType = cachedResult.ResultKind;
+                if(_mockResultType == CachedIsEligibleResult.ResultType.IsEligibleResult) {
+                    _mutatedIsEligibleResult = new IsEligibleResult(cachedResult.Result);
+                } else if(_mockResultType == CachedIsEligibleResult.ResultType.Exception) {
+                    _mutatedCachedError = new CachedIsEligibleError(cachedResult.Error);
+                }
+                _useAutoApprove = true;
+            }
+
+            _mutatedIsEligibleResult ??= new IsEligibleResult();
+            _mutatedCachedError ??= new CachedIsEligibleError();
+            
+            ComposeContent();
+
+            using var reg = ct.Register(() => _onOkClicked.TrySetCanceled());
+            
+            await _onOkClicked.Task;
+
+            var newCachedResult = CreateCachedResult();
+            if(!_wasAutoApproved) {
+                AgeRangeDebugSettings.CachedIsEligibleForAgeFeaturesResult = _rememberChoiceToggle.value ? newCachedResult : null;
+            }
+            return newCachedResult.EmulateApiResponseAsIfCalled();
+        }
+
         private void CreateDialog()
         {
             var b = new MockPopupBuilder();
             _dialogOverlay = b.BeginFullScreenOverlay();
             
             
-            b.BeginDialogBox(_title);
-            var resultTypeField = b.AddEnumProperty("Result Type", _mockResultType);
+            b.BeginDialogBox("Mock Age Features Eligibility");
+            _resultTypeField = b.AddEnumProperty("Result Type", _mockResultType);
             _contentArea = b.BeginGroup("content-area");
             b.EndGroup();
             
-            var buttons = b.BeginGroup("buttons");
-            buttons.style.flexDirection = FlexDirection.Row;
-            _okButton = b.AddButton("Confirm", OnOkClicked);
+            _autoApproveButtons = b.BeginGroup("auto-approve");
+            _autoApproveButtons.style.flexDirection = FlexDirection.Row;
+            b.AddButton("Ok", OnOkClicked);
+            _autoApproveCancelButton = b.AddButton("Cancel", OnAutoApproveCancelled);
+            b.EndGroup();
+            
+            _approveButtons = b.BeginGroup("buttons");
+            _approveButtons.style.flexDirection = FlexDirection.Row;
+            b.AddButton("Ok", OnOkClicked);
             _rememberChoiceToggle = b.AddToggleProperty("Remember this choice", true);
-            b.EndGroup(); // buttons
+            b.EndGroup();
 
             b.EndDialogBox();
             b.EndFullScreenOverlay();
 
-            resultTypeField.RegisterValueChangedCallback(evt => 
+            _resultTypeField.RegisterValueChangedCallback(evt => 
             {
                 if (_mockResultType != (CachedIsEligibleResult.ResultType)evt.newValue)
                 {
@@ -137,63 +168,55 @@ namespace IPTech.AgeVerification.iOS.Debugging
 
         private void ComposeContent()
         {
+             _resultTypeField.SetValueWithoutNotify(_mockResultType);
+             
             _contentArea.Clear();
             if (_mockResultType == CachedIsEligibleResult.ResultType.IsEligibleResult)
             {
-                var ui = new MockIsEligibleUI(_mockIsEligible, true);
-                _contentArea.Add(ui);
+                _contentArea.Add(new IsEligibleResultUI(_mutatedIsEligibleResult, false));
             }
             else if (_mockResultType == CachedIsEligibleResult.ResultType.Exception)
             {
-                var ui = new MockIsEligibleErrorUI(_mockError);
-                _contentArea.Add(ui);
+                _contentArea.Add(new CachedIsEligibleErrorUI(_mutatedCachedError, false));
             }
+
+            if(_useAutoApprove)
+            {
+                _autoApproveButtons.style.display = DisplayStyle.Flex;
+                _approveButtons.style.display = DisplayStyle.None;
+                _contentArea.SetEnabled(false);
+            }
+            else
+            {
+                _autoApproveButtons.style.display = DisplayStyle.None;
+                _approveButtons.style.display = DisplayStyle.Flex;
+                _contentArea.SetEnabled(true);
+            }
+        }
+
+        private void OnAutoApproveCancelled()
+        {
+            if(_wasAutoApproved) return;
+            _useAutoApprove = false;
+            ComposeContent();
         }
 
         private void OnOkClicked()
         {
-            _onClosed?.Invoke();
+            _onOkClicked.TrySetResult(true);
         }
 
         private CachedIsEligibleResult CreateCachedResult()
         {
             if(_mockResultType == CachedIsEligibleResult.ResultType.IsEligibleResult) 
             {
-                return new CachedIsEligibleResult(_mockIsEligible.IsEligible);
+                return new CachedIsEligibleResult(_mutatedIsEligibleResult);
             }
             else if(_mockResultType == CachedIsEligibleResult.ResultType.Exception) 
             {
-                var ex = _mockError.CreateException();
-                var err = new CachedIsEligibleError(ex);
-                return new CachedIsEligibleResult(err);
+                return new CachedIsEligibleResult(_mutatedCachedError);
             }
             throw new Exception("Invalid mock result type selected.");
-        }
-
-        private void ConditionallyRememberChoice(CachedIsEligibleResult result)
-        {
-            if (_rememberChoiceToggle.value)
-            {
-                AgeRangeDebugSettings.CachedIsEligibleForAgeFeaturesResult = result;
-            }
-        }
-
-        private static bool GetResult(CachedIsEligibleResult cachedResult)
-        {
-            if(cachedResult.ResultKind == CachedIsEligibleResult.ResultType.IsEligibleResult) 
-            {
-                return cachedResult.Result;
-            }
-            else if(cachedResult.ResultKind == CachedIsEligibleResult.ResultType.Exception) 
-            {
-                throw new MockIsEligibleError(cachedResult.Error).CreateException();
-            }
-            throw new Exception("Invalid cached result type.");
-        }
-
-        private void OnDestroy()
-        {
-            _onClosed = null;
         }
     }
 }

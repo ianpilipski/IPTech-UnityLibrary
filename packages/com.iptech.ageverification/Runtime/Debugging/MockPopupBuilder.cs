@@ -36,6 +36,9 @@ namespace IPTech.AgeVerification.Debugging
         public MockPopupBuilder()
         {
             Root = new VisualElement();
+            Root.name = "age-popup-root";
+            Root.AddToClassList("ageui-popup-root");
+            
             _parentStack.Push(new StackNode()
             {
                 NodeType = NodeType.None,
@@ -49,8 +52,7 @@ namespace IPTech.AgeVerification.Debugging
             {
                 name = "full-screen-overlay"
             };
-            overlay.AddToClassList("mockui-full-screen-overlay");
-            overlay.AddToClassList("mockui-dialog-overlay");
+            overlay.AddToClassList("ageui-full-screen-overlay");
             _parentStack.Peek().Add(overlay);
             PushStackNode(overlay, NodeType.FullScreenOverlay);
             return overlay;
@@ -73,7 +75,7 @@ namespace IPTech.AgeVerification.Debugging
             {
                 name = "dialog-box"
             };
-            dialogBox.AddToClassList("mockui-dialog-box");
+            dialogBox.AddToClassList("ageui-dialog-box");
             dialogBox.Add(new Label(title));
             _parentStack.Peek().Add(dialogBox);
             PushStackNode(dialogBox, NodeType.DialogBox);
@@ -97,7 +99,7 @@ namespace IPTech.AgeVerification.Debugging
             {
                 name = CreateSectionName("section", sectionName)
             };
-            section.AddToClassList("mockui-section");
+            section.AddToClassList("ageui-section");
             section.Add(new Label(sectionName));
             
             _parentStack.Peek().Add(section);
@@ -131,7 +133,7 @@ namespace IPTech.AgeVerification.Debugging
             {
                 name = CreateSectionName("columns", columnsName)
             };
-            columns.AddToClassList("mockui-columns");
+            columns.AddToClassList("ageui-columns");
             _parentStack.Peek().Add(columns);
             PushStackNode(columns, NodeType.Column);
         }
@@ -153,7 +155,7 @@ namespace IPTech.AgeVerification.Debugging
             {
                 name = CreateSectionName("group", groupName)
             };
-            group.AddToClassList("mockui-group");
+            group.AddToClassList("ageui-group");
             _parentStack.Peek().Add(group);
             PushStackNode(group, NodeType.Group);
             return group;
@@ -176,7 +178,7 @@ namespace IPTech.AgeVerification.Debugging
             {
                 name = "scroll-view"
             };
-            scrollView.AddToClassList("mockui-scroll-view");
+            scrollView.AddToClassList("ageui-scroll-view");
             _parentStack.Peek().Add(scrollView);
             PushStackNode(scrollView, NodeType.ScrollView);
         }
@@ -194,7 +196,7 @@ namespace IPTech.AgeVerification.Debugging
 
         public void AddProperty(VisualElement property)
         {
-            property.AddToClassList("mockui-property-field");
+            property.AddToClassList("ageui-property-field");
             _parentStack.Peek().Add(property);
         }
 

@@ -4,19 +4,15 @@ using UnityEngine.UIElements;
 
 namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
 {
-    public class MockErrorUI : VisualElement
+    public class CachedErrorUI : VisualElement
     {
-        private MockError _mockError;
-        private bool _isEditing;
-
-        public MockErrorUI(CachedError error): this(new MockError(error), false)
+        private CachedError _cachedError;
+        private bool _isPreview;
+        
+        public CachedErrorUI(CachedError error, bool isPreview = false)
         {
-        }
-
-        public MockErrorUI(MockError mockError, bool isEditing = true)
-        {
-            _mockError = mockError;
-            _isEditing = isEditing;
+            _cachedError = error;
+            _isPreview = isPreview;
             ComposeUI();
         }
 
@@ -25,30 +21,31 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
             this.Clear();
 
             var b = new MockPopupBuilder();
+            this.Add(b.Root);
 
-            if(_isEditing) {
+            if(!_isPreview) {
                 var errorCodeField = b.AddEnumProperty("Error Code", AgeSignalsException.KnownErrorCodes.NO_ERROR);
                 
-                var errorTypeField = b.AddEnumProperty("Error Type", _mockError.Type);
+                var errorTypeField = b.AddEnumProperty("Error Type", _cachedError.Type);
                 errorTypeField.RegisterValueChangedCallback(evt =>
                 {
-                    _mockError.Type = (CachedError.ErrorType)evt.newValue;
+                    _cachedError.Type = (CachedError.ErrorType)evt.newValue;
                     ToggleErrorCodeFieldVisibility(errorCodeField);
                 });
                 
                 errorCodeField.value = AgeSignalsException.KnownErrorCodes.NO_ERROR;
-                if(AgeSignalsException.TryGetKnownErrorCode(_mockError.ErrorCode, out var knownError))
+                if(AgeSignalsException.TryGetKnownErrorCode(_cachedError.ErrorCode, out var knownError))
                 {
                     errorCodeField.value = knownError;
                 }
                 errorCodeField.RegisterValueChangedCallback(evt =>
                 {
-                    _mockError.ErrorCode = (int)(AgeSignalsException.KnownErrorCodes)evt.newValue;
+                    _cachedError.ErrorCode = (int)(AgeSignalsException.KnownErrorCodes)evt.newValue;
                 });
-                var errorMessageField = b.AddTextFieldProperty("Error Message", _mockError.Message);
+                var errorMessageField = b.AddTextFieldProperty("Error Message", _cachedError.Message);
                 errorMessageField.RegisterValueChangedCallback(evt =>
                 {
-                    _mockError.Message = evt.newValue;
+                    _cachedError.Message = evt.newValue;
                 });
                 
                 ToggleErrorCodeFieldVisibility(errorCodeField);
@@ -56,24 +53,24 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
             else
             {
                 b.BeginSection("Generated Result:");
-                b.AddLabelProperty($"Exception: {_mockError.Type}");
-                if(_mockError.Type == CachedError.ErrorType.AgeSignalsException)
+                b.AddLabelProperty($"Exception: {_cachedError.Type}");
+                if(_cachedError.Type == CachedError.ErrorType.AgeSignalsException)
                 {
                     var knownErrorStr = "Unknown";
-                    if(_mockError.ErrorCode!=0 && AgeSignalsException.TryGetKnownErrorCode(_mockError.ErrorCode, out var knownError))
+                    if(_cachedError.ErrorCode!=0 && AgeSignalsException.TryGetKnownErrorCode(_cachedError.ErrorCode, out var knownError))
                     {
                        knownErrorStr = knownError.ToString();
                     }
-                    b.AddLabelProperty($"Error Code: {knownErrorStr} ({_mockError.ErrorCode})");
+                    b.AddLabelProperty($"Error Code: {knownErrorStr} ({_cachedError.ErrorCode})");
                 }
-                b.AddLabelProperty($"Exception Message: {_mockError.Message}");
+                b.AddLabelProperty($"Exception Message: {_cachedError.Message}");
                 b.EndSection();
             }
         }
 
         private void ToggleErrorCodeFieldVisibility(VisualElement errorCodeField)
         {
-            if(_mockError.Type == CachedError.ErrorType.AgeSignalsException)
+            if(_cachedError.Type == CachedError.ErrorType.AgeSignalsException)
             {
                 errorCodeField.style.display = DisplayStyle.Flex;
             }
