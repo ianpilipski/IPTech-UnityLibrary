@@ -51,8 +51,7 @@
         "Assets/**/*.meta": true,
         "UserSettings/": true,
         "Logs/": true,
-        "bin/": true,
-        "*.csproj": true,
+        "bin/": true
     },
     "omnisharp.useModernNet": false,
     "dotnet.codeLens.enableReferencesCodeLens": false,

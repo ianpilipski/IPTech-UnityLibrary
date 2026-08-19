@@ -16,7 +16,8 @@
 			"node_modules/**": true,
 			".gradle/**": true,
 			".idea": true,
-			"package-lock.json": true
+			"package-lock.json": true,
+			"*.csproj": true,
 		},
 		"java.configuration.updateBuildConfiguration": "interactive"
 	}

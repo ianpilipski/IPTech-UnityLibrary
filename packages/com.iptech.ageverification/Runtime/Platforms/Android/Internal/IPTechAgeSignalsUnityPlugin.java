@@ -2,6 +2,8 @@ package com.IPTech.AgeVerification.Android.agesignals;
 
 import android.app.Activity;
 
+import com.google.android.play.agesignals.AgeSignalsAccessRequest;
+import com.google.android.play.agesignals.AgeSignalsAccessResult;
 import com.google.android.play.agesignals.AgeSignalsException;
 import com.google.android.play.agesignals.AgeSignalsManager;
 import com.google.android.play.agesignals.AgeSignalsManagerFactory;
@@ -18,7 +20,7 @@ public class IPTechAgeSignalsUnityPlugin
     }
 
     public interface IRequestAgeSignalsAccessCallback {
-        void onSuccess(int ageSignalsRequestStatus);
+        void onSuccess(AgeSignalsAccessResult ageSignalsRequestStatus);
         void onFailure(int errorCode, String errorMsg);
         void onCancel();
     }
@@ -46,16 +48,18 @@ public class IPTechAgeSignalsUnityPlugin
             // 2. Request or check for age signals access.
             // Passing the current Activity allows the Play Store to render the age sharing prompt UI if required.
             AgeSignalsAccessRequest accessRequest = AgeSignalsAccessRequest.builder()
-                .setActivity(UnityPlayer.currentActivity)
-                .build();
+                    .setActivity(UnityPlayer.currentActivity)
+                    .build();
 
             ageSignalsManager.requestAgeSignalsAccess(accessRequest)
-                .addOnSuccessListener(callback::onSuccess)
-                .addOnFailureListener(callback::onFailure)
-                .addOnCanceledListener(callback::onCancel);
+                    .addOnSuccessListener(callback::onSuccess)
+                    .addOnFailureListener( exception -> {
+                        HandleRequestAgeSignalAccessException(callback, exception);
+                    })
+                    .addOnCanceledListener(callback::onCancel);
         }
         catch(Exception e) {
-            HandleException(callback, e);
+            HandleRequestAgeSignalAccessException(callback, e);
         }
     }
 
@@ -64,19 +68,29 @@ public class IPTechAgeSignalsUnityPlugin
             AgeSignalsManager ageSignalsManager = getAgeSignalsManager();
 
             ageSignalsManager.checkAgeSignals(AgeSignalsRequest.builder().build())
-                .addOnSuccessListener(callback::onSuccess)
-                .addOnFailureListener(exception -> {
-                    HandleException(callback, exception);
-                })
-                .addOnCanceledListener(callback::onCancel);
-            }
+                    .addOnSuccessListener(callback::onSuccess)
+                    .addOnFailureListener(exception -> {
+                        HandleCheckAgeSignalsException(callback, exception);
+                    })
+                    .addOnCanceledListener(callback::onCancel);
+        }
         catch(Exception e) {
-            HandleException(callback, e);
+            HandleCheckAgeSignalsException(callback, e);
         }
     }
 
-    private static void HandleException(IRequestAgeSignalsCallback callback, Exception e) {
+    private static void HandleRequestAgeSignalAccessException(IRequestAgeSignalsAccessCallback callback, Exception e) {
         if (e instanceof AgeSignalsException) {
+            AgeSignalsException ase = (AgeSignalsException)e;
+            callback.onFailure(ase.getErrorCode(), ase.getMessage());
+        } else {
+            callback.onFailure(0, e.getMessage());
+        }
+    }
+
+    private static void HandleCheckAgeSignalsException(ICheckAgeSignalsCallback callback, Exception e)
+    {
+        if(e instanceof AgeSignalsException) {
             AgeSignalsException ase = (AgeSignalsException)e;
             callback.onFailure(ase.getErrorCode(), ase.getMessage());
         } else {
