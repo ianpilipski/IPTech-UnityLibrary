@@ -5,9 +5,6 @@
     "plugins": [ "node-workspace" ],
     "packages": {
         "packages/com.iptech.ageverification": {},
-        "packages/com.iptech.applovin.maxsdk": {
-            "release-as": "6.0.1-0.0.1"
-        },
         "packages/com.iptech.audio": {},
         "packages/com.iptech.buildtool": {},
         "packages/com.iptech.clickerengine": {},
