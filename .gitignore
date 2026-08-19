@@ -4,3 +4,5 @@ iptech-unitylibrary.slnx
 /build/
 /build-cache/
 .gradle/
+/lerna.json
+
