@@ -6,9 +6,16 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/EmptyScene.unity
-    guid: 4c2cd1406e401466a968377edc7025f5
-  - enabled: 1
     path: Assets/Scenes/Consent.unity
     guid: 4a93740b3f1ab4282be4b085015dc04c
-  m_configObjects: {}
+  - enabled: 1
+    path: Packages/com.iptech.debugtools/Runtime/DebugConsole/dev/InGameConsoleDev.unity
+    guid: 5ef8ea3f1ef4842d99e1160585e9236c
+  - enabled: 1
+    path: Assets/Scenes/EmptyScene.unity
+    guid: 4c2cd1406e401466a968377edc7025f5
+  m_configObjects:
+    com.unity.input.settings: {fileID: 11400000, guid: c1b12625650d146cfb645cdbd6fbd169,
+      type: 2}
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 737bae69ac6e94847be7913478d588cf,
+      type: 3}

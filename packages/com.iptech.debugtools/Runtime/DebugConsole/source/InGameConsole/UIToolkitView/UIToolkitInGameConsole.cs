@@ -81,6 +81,8 @@ namespace IPTech.DebugConsoleService.InGameConsole
         private void UIReload(PanelRenderer panelRenderer, VisualElement rootElement)
         {
             root = rootElement;
+            
+            root.pickingMode = PickingMode.Ignore;
             main = root.Q<VisualElement>("sub");
             handle = main.Q<VisualElement>("handle");
             handleLabel = handle.Q<Label>("labelHandle");

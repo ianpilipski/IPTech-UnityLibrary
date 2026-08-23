@@ -29,7 +29,11 @@ namespace IPTech.DebugConsoleService {
 			info.AppendFormat("Streaming Path: {0}\n", Application.streamingAssetsPath);
 			info.AppendLine();
 			info.AppendFormat("Net Reachability: {0}\n", Application.internetReachability);
+			#if ENABLE_INPUT_SYSTEM
+			info.AppendFormat("Multitouch: {0}\n", UnityEngine.InputSystem.EnhancedTouch.EnhancedTouchSupport.enabled);
+			#else
 			info.AppendFormat("Multitouch: {0}\n", Input.multiTouchEnabled);
+			#endif
 
 			completedCallback(info.ToString());
 		}
