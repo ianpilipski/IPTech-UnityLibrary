@@ -13,10 +13,21 @@ namespace IPTech.Utils {
         public void Listen<T>(Action<T> listener) where T : ISignal {
             listeners.TryAdd(typeof(T), new List<Delegate>());
             listeners[typeof(T)].Add(listener);
-            ListenerRegistered?.Invoke(typeof(T), listener);
 
-            if(stickySignals.TryGetValue(typeof(T), out var sig)) {
-                listener.DynamicInvoke(sig);
+            try 
+            {
+                ListenerRegistered?.Invoke(typeof(T), listener);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+
+            if(stickySignals.Count > 0)
+            {
+                stickySignals.Where(kv => CanListenerReceiveSignal(typeof(T), kv.Value)).Select(kv => kv.Value)
+                    .ToList()
+                    .ForEach(sig => SafeInvoke(listener, sig));
             }
         }
 
@@ -28,18 +39,26 @@ namespace IPTech.Utils {
 
         public void Send<T>(T signal) where T : ISignal {
             if(signal.Sticky) stickySignals[typeof(T)] = signal;
+            
+            listeners.Where(kv => CanListenerReceiveSignal(kv.Key, signal)).SelectMany(kv => kv.Value)
+                .ToList()
+                .ForEach(del => SafeInvoke(del, signal));
+        }
 
-            var dels = listeners.Where(kv => kv.Key == typeof(T) || typeof(T).IsSubclassOf(kv.Key)).SelectMany(kv => kv.Value).ToList();
-            foreach(var del in dels) 
+        private bool CanListenerReceiveSignal(Type listenerType, ISignal signal)
+        {
+            return listenerType.IsAssignableFrom(signal.GetType());
+        }
+
+        private void SafeInvoke(Delegate del, ISignal signal)
+        {
+            try
             {
-                try
-                {
-                    del.DynamicInvoke(signal);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogException(e);
-                }
+                del.DynamicInvoke(signal);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
             }
         }
     }
