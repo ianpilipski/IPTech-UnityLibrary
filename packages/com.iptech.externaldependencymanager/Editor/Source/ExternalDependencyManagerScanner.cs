@@ -51,7 +51,7 @@ namespace IPTech.ExternalDependencyManager
             
             try
             {
-                _scanTask = Task.Run(HasEDM4UInstalled);
+                _scanTask = HasEDM4UInstalled();
                 var res = await _scanTask;
                 if(res)
                 {
@@ -67,9 +67,40 @@ namespace IPTech.ExternalDependencyManager
             }
         }
 
-        public static bool HasEDM4UInstalled()
+        public static async Task<bool> HasEDM4UInstalled()
         {
-            return TypeCache.GetTypesDerivedFrom<object>("Google.PackageManagerResolver").Any();
+            return await DetectUnityEDM4UPackage() ||
+                   DetectGoogleEDM4UInstallation();
+
+            async Task<bool> DetectUnityEDM4UPackage()
+            {
+                var listRequest = Client.List(true, true);
+                while(!listRequest.IsCompleted)
+                {
+                    await Task.Yield();
+                }
+                if(listRequest.Error != null)
+                {
+                    throw new System.Exception($"Error checking EDM4U installation: errorCode={listRequest.Error.errorCode}, {listRequest.Error.message}");
+                }
+
+                if(listRequest.Result?.Any() != true)
+                {
+                    throw new System.Exception("Error checking EDM4U installation: listRequest.Result is null or empty");
+                }
+
+                var edm4uPackage = listRequest.Result.FirstOrDefault(p => p.name == "com.unity.external-dependency-manager");
+                if(edm4uPackage != null)
+                {
+                    return true;
+                }
+                return false;
+            }
+
+            bool DetectGoogleEDM4UInstallation()
+            {
+                return TypeCache.GetTypesDerivedFrom<object>("Google.PackageManagerResolver").Any();
+            }
         }
 
         public static void ShowEDM4UInstallationPrompt()
@@ -86,7 +117,6 @@ namespace IPTech.ExternalDependencyManager
         {
             try 
             {
-                InstallOpenUPMScopedRegistry();
                 await InstallEDM4U(CancellationToken.None);
             } 
             catch(Exception ex)
@@ -96,16 +126,11 @@ namespace IPTech.ExternalDependencyManager
             }
         }
 
-        public static bool InstallOpenUPMScopedRegistry()
-        {
-            return ScopedRegistryUtility.AddRegistry("OpenUPM", "https://package.openupm.com", new string[] { "com.google.external-dependency-manager" });
-        }
-
         public static async Task InstallEDM4U(CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();            
 
-            var addRequest = Client.Add("com.google.external-dependency-manager");
+            var addRequest = Client.Add("com.unity.external-dependency-manager");
             while(!addRequest.IsCompleted)
             {
                 await Task.Yield();
