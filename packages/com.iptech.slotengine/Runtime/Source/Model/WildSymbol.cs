@@ -1,14 +1,17 @@
 using IPTech.SlotEngine.Model.Api;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using UnityEngine;
 
 namespace IPTech.SlotEngine.Model
 {
 	[Serializable]
 	public class WildSymbol : IWildSymbol
 	{
-		public string ID { get; set; }
+		[SerializeField] private string _id;
+
+		public string ID {
+			get { return this._id; }
+			set { this._id = value; }
+		}
 	}
 }

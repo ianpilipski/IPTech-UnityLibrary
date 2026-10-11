@@ -74,9 +74,9 @@ jobs:
           - projectName: iptech-unityservices
             projectPath: unity/iptech-unityservices
           - buildTarget: iOS
-            image: 'unityci/editor:ubuntu-6000.5.1f1-ios-3'
+            image: 'unityci/editor:ubuntu-6000.6.5f1-ios-3'
           - buildTarget: Android
-            image: 'unityci/editor:ubuntu-6000.5.1f1-android-3'
+            image: 'unityci/editor:ubuntu-6000.6.5f1-android-3'
 
     steps:
       - uses: actions/checkout@v2

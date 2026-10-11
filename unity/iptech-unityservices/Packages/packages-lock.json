@@ -1,14 +1,19 @@
 {
   "dependencies": {
-    "com.google.external-dependency-manager": {
-      "version": "1.2.188",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://package.openupm.com"
-    },
     "com.iptech.buildtool": {
       "version": "file:../../../packages/com.iptech.buildtool",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "com.iptech.debugtools": {
+      "version": "file:/Users/ian/github/IPTech-UnityLibrary/packages/com.iptech.debugtools",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "com.iptech.editorextensions": {
+      "version": "file:/Users/ian/github/IPTech-UnityLibrary/packages/com.iptech.editorextensions",
       "depth": 0,
       "source": "local",
       "dependencies": {}
@@ -92,8 +97,17 @@
       "source": "builtin",
       "dependencies": {}
     },
+    "com.unity.external-dependency-manager": {
+      "version": "2.1.1",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.uielements": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.ide.visualstudio": {
-      "version": "2.0.27",
+      "version": "2.0.28",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -144,7 +158,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.services.authentication": {
-      "version": "3.7.3",
+      "version": "3.8.0",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -177,7 +191,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.services.levelplay": {
-      "version": "9.5.0",
+      "version": "9.5.1",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -186,7 +200,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.test-framework": {
-      "version": "1.7.0",
+      "version": "1.8.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
@@ -196,7 +210,7 @@
       }
     },
     "com.unity.ugui": {
-      "version": "2.5.0",
+      "version": "2.6.0",
       "depth": 2,
       "source": "builtin",
       "dependencies": {
@@ -350,6 +364,12 @@
         "com.unity.modules.physics": "1.0.0",
         "com.unity.modules.terrain": "1.0.0"
       }
+    },
+    "com.unity.modules.tetgen": {
+      "version": "1.0.0",
+      "depth": 0,
+      "source": "builtin",
+      "dependencies": {}
     },
     "com.unity.modules.tilemap": {
       "version": "1.0.0",

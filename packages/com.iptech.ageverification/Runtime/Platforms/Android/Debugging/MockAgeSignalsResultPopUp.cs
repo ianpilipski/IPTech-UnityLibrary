@@ -27,6 +27,7 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
         private Button _autoApproveCancelButton;
         private float _autoApproveTimeoutTime;
         private bool _wasAutoApproved;
+        private int _panelVersion = -1;
 
         public static async Task<AgeSignalsResult> ShowDialog(CancellationToken ct)
         {
@@ -122,8 +123,10 @@ namespace IPTech.AgeVerification.Android.AgeSignals.Debugging
             _panelRenderer.UnregisterUIReloadCallback(UpdateUI);
         }
 
-        private void UpdateUI(PanelRenderer panelRenderer, VisualElement rootElement)
+        private void UpdateUI(PanelRenderer panelRenderer, VisualElement rootElement, int version)
         {
+            if(_panelVersion == version) return;
+            _panelVersion = version;
             rootElement.Add(_dialogOverlay);
         }
 

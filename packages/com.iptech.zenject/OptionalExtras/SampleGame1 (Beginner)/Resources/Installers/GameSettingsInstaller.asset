@@ -3,8 +3,9 @@
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -20,9 +21,6 @@ MonoBehaviour:
       oscillationFrequency: 1
       oscillationAmplitude: 0.1
     StateDead:
-      brokenTemplate: {fileID: 100010, guid: 5b84466ca2cdf93418bd1e3234edb0e1, type: 2}
-      explosionTemplate: {fileID: 100000, guid: 185972cb8011a1449b7360c07a62fdf2,
-        type: 2}
       explosionForce: 15
     StateStarting:
       StartOffset: {x: 0, y: 3, z: 0}
@@ -45,7 +43,7 @@ MonoBehaviour:
   AudioHandler:
     CrashSound: {fileID: 8300000, guid: b083b7753425f9c48ae0b375d6568e2f, type: 3}
   GameInstaller:
-    ExplosionPrefab: {fileID: 100000, guid: 185972cb8011a1449b7360c07a62fdf2, type: 2}
-    BrokenShipPrefab: {fileID: 100010, guid: 5b84466ca2cdf93418bd1e3234edb0e1, type: 2}
-    AsteroidPrefab: {fileID: 100000, guid: 972561acbe31e7147b76d1a430caf37d, type: 2}
-    ShipPrefab: {fileID: 100008, guid: f4cdd74364fb9d6448ecf7663dd0cfe9, type: 2}
+    ExplosionPrefab: {fileID: 100000, guid: 185972cb8011a1449b7360c07a62fdf2, type: 3}
+    BrokenShipPrefab: {fileID: 100010, guid: 5b84466ca2cdf93418bd1e3234edb0e1, type: 3}
+    AsteroidPrefab: {fileID: 100000, guid: 972561acbe31e7147b76d1a430caf37d, type: 3}
+    ShipPrefab: {fileID: 100008, guid: f4cdd74364fb9d6448ecf7663dd0cfe9, type: 3}

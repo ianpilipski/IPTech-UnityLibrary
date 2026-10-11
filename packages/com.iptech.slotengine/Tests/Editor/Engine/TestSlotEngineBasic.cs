@@ -185,13 +185,13 @@ namespace IPTech.SlotEngine.Tests
 
 		public class MockPaylineSet : IPaylineSet
 		{
-			public IList<IPayline> PayLines { get; set; }
+			public List<IPayline> PayLines { get; set; }
 			public MockPaylineSet() {}
 		}
 
 		public class MockPayline : IPayline
 		{
-			public IList<IPaylineEntry> PaylineEntries { get; set; }
+			public List<IPaylineEntry> PaylineEntries { get; set; }
 			public MockPayline(int row) {
 				this.PaylineEntries = new List<IPaylineEntry>() {
 					new MockPaylineEntry() { ReelColumn=0, ReelRow=row },
@@ -210,7 +210,7 @@ namespace IPTech.SlotEngine.Tests
 		public class MockPayoutTable : IPayoutTable
 		{
 			public string ID { get; set; }
-			public IList<IPayoutTableEntry> PayoutTableEntries { get; set; }
+			public List<IPayoutTableEntry> PayoutTableEntries { get; set; }
 
 			public MockPayoutTable(string ID) {
 				this.ID = ID;
@@ -221,7 +221,7 @@ namespace IPTech.SlotEngine.Tests
 		{
 			public string ID { get; set; }
 			public float PayoutMultiplier { get; set; }
-			public IList<string> SymbolIDList { get; set; }
+			public List<string> SymbolIDList { get; set; }
 
 			public MockPayoutTableEntry(string symbol) {
 				this.ID = symbol;
@@ -252,7 +252,7 @@ namespace IPTech.SlotEngine.Tests
 
 		public class MockWildSymbolSet : IWildSymbolSet
 		{
-			public IList<IWildSymbol> WildSymbols { get; set; }
+			public List<IWildSymbol> WildSymbols { get; set; }
 			public MockWildSymbolSet() {}
 		}
 

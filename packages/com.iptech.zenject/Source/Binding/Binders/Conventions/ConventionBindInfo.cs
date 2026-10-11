@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEngine.Assemblies;
 
 namespace Zenject
 {
@@ -32,7 +33,7 @@ namespace Zenject
         {
             // This seems fast enough that it's not worth caching
             // We also want to allow dynamically loading assemblies
-            return AppDomain.CurrentDomain.GetAssemblies();
+            return CurrentAssemblies.GetLoadedAssemblies();
         }
 
         bool ShouldIncludeAssembly(Assembly assembly)

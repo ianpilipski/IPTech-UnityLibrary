@@ -8,17 +8,19 @@ using System.Collections;
 namespace IPTech.SlotEngine.Model
 {
 	[Serializable]
-	public class Reel : IReel, ISerializable
+	public class Reel : IReel
 	{
-		const string SERIALIZATION_IDENTIFIER_FOR_ID = "<ID>k__BackingField";
-		const string SERIALIZATION_IDENTIFIER_FOR_SYMBOLS = "<Symbols>k__BackingField";
-
-		public string ID { get; set; }
-
-		private IList<ISymbol> symbols { get; set; }
+		[SerializeField] private string _id;
+		[SerializeReference] private List<ISymbol> symbols;
 
 		public Reel() {
 			this.symbols = new List<ISymbol>();
+		}
+
+		public string ID 
+		{
+			get => _id;
+			set => _id = value;
 		}
 
 		#region ICollection<ISymbol>
@@ -66,18 +68,6 @@ namespace IPTech.SlotEngine.Model
 
 		IEnumerator IEnumerable.GetEnumerator() {
 			return this.symbols.GetEnumerator();
-		}
-		#endregion
-
-		#region ISerializable
-		public Reel(SerializationInfo info, StreamingContext context) {
-			this.ID = info.GetString(SERIALIZATION_IDENTIFIER_FOR_ID);
-			this.symbols = (IList<ISymbol>)info.GetValue(SERIALIZATION_IDENTIFIER_FOR_SYMBOLS, typeof(IList<ISymbol>));
-		}
-
-		public void GetObjectData(SerializationInfo info, StreamingContext context) {
-			info.AddValue(SERIALIZATION_IDENTIFIER_FOR_ID, this.ID, typeof(string));
-			info.AddValue(SERIALIZATION_IDENTIFIER_FOR_SYMBOLS, this.symbols, this.symbols.GetType());
 		}
 		#endregion
 	}

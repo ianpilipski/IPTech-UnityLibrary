@@ -1,4 +1,5 @@
 
+using System;
 using System.Collections.Generic;
 
 namespace IPTech.Utils {
@@ -13,20 +14,34 @@ namespace IPTech.Utils {
                 }
                 return inst;
             }
-
-            #if UNITY_EDITOR
-            // for unit testing be sure to set to null when test is completed
-            set {
-                inst = value;
-            }
-            #endif
         }
 
-        public static IServiceContainer GetContext(string name = null) {
+        public static IServiceContainer GetContext(string name = "default") {
+            if(string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Context name cannot be null or whitespace", nameof(name));
             lock(namedContexts) {
                 if(!namedContexts.ContainsKey(name)) namedContexts[name] = new ServiceContainer();
             }
             return namedContexts[name];
         }
+
+        #if UNITY_EDITOR
+        public static class Spy
+        {
+            public static void SetInst(IServiceLocator value) 
+            {
+                lock(namedContexts) {
+                    inst = value;
+                }
+            }
+
+            public static void ClearAll()
+            {
+                lock(namedContexts) {
+                    inst = null;
+                    namedContexts.Clear();
+                }
+            }
+        }
+        #endif
     }
 }

@@ -1,19 +1,34 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using IPTech.SlotEngine.Model.Api;
+using UnityEngine;
 
 namespace IPTech.SlotEngine.Model
 {
 	[Serializable]
 	public class PayoutTableEntry : IPayoutTableEntry
 	{
-		public string ID { get; set; }
+		[SerializeField] private string _id;
+		[SerializeField] private float _payoutMultiplier;
+		[SerializeReference] private List<string> _symbolIDList;
+		
+		public string ID 
+		{ 
+			get => _id; 
+			set => _id = value; 
+		}
 
-		public float PayoutMultiplier { get; set; }
+		public float PayoutMultiplier
+		{
+			get => _payoutMultiplier;
+			set => _payoutMultiplier = value;
+		}
 
-		public IList<string> SymbolIDList { get; set; }
+		public List<string> SymbolIDList 
+		{ 
+			get => _symbolIDList; 
+			set => _symbolIDList = value; 
+		}
 
 		public PayoutTableEntry() {
 			this.SymbolIDList = new List<string>();

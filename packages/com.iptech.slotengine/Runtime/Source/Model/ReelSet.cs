@@ -2,15 +2,20 @@ using System.Collections.Generic;
 using IPTech.SlotEngine.Model.Api;
 using System;
 using System.Collections;
+using UnityEngine;
 
 namespace IPTech.SlotEngine.Model
 {
 	[Serializable]
 	public class ReelSet : IReelSet
 	{
-		protected IList<IReel> Reels { get; set; }
+		[SerializeField] private string _id;
+		[SerializeReference] protected List<IReel> Reels;
 
-		public string ID { get; set; }
+		public string ID {
+			get => _id;
+			set => _id = value;
+		}
 
 		public int Count {
 			get {

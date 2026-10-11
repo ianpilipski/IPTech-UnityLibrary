@@ -83,8 +83,7 @@ PanelRenderer:
   m_MaskInteraction: 0
   serializedVersion: 1
   m_PanelSettings: {fileID: 11400000, guid: 06c6320252ee24443994b1f7da568b06, type: 2}
-  sourceAsset: {fileID: 9197481963319205126, guid: 01bf4f2d229c8430a9d8b88e74c320c3,
-    type: 3}
+  sourceAsset: {fileID: 9197481963319205126, guid: 01bf4f2d229c8430a9d8b88e74c320c3, type: 3}
   m_ParentUI: {fileID: 0}
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
@@ -104,4 +103,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2807e63038fe749b0abdf3630737bff6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: IPTech.AgeVerification.Runtime::IPTech.AgeVerification.iOS.Debugging.MockIsEligiblePopUp
-  _title: Mock Is Eligible

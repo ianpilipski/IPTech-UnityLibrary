@@ -12,5 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9eac7fe63ef9947568e4ec0e5fe7e7f1, type: 3}
   m_Name: IPTech.DebugConsoleService.InGameConsoleView
   m_EditorClassIdentifier: 
-  InGameConsoleViewPrefab: {fileID: 1701777044270057790, guid: ea9cf58b7c45c416bbefd48b5a308d7e,
-    type: 3}
+  InGameConsoleViewPrefab: {fileID: 1701777044270057790, guid: ea9cf58b7c45c416bbefd48b5a308d7e, type: 3}

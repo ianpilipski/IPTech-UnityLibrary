@@ -28,6 +28,7 @@ namespace IPTech.AgeVerification.iOS.Debugging
         private Button _autoApproveCancelButton;
         private VisualElement _approveButtons;
         private bool _wasAutoApproved;
+        private int _panelVersion = -1;
 
         public static async Task<bool> ShowDialog(CancellationToken ct)
         {
@@ -77,8 +78,10 @@ namespace IPTech.AgeVerification.iOS.Debugging
             _panelRenderer.UnregisterUIReloadCallback(OnUIReload);
         }
 
-        void OnUIReload(PanelRenderer panelRenderer, VisualElement rootElement)
+        void OnUIReload(PanelRenderer panelRenderer, VisualElement rootElement, int version)
         {
+            if(_panelVersion == version) return;
+            _panelVersion = version;
             rootElement.Clear();
             rootElement.Add(_dialogOverlay);
         }

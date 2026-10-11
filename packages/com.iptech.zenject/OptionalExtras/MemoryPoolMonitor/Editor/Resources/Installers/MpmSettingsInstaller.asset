@@ -3,8 +3,9 @@
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -78,10 +79,13 @@ MonoBehaviour:
       m_TextClipping: 0
       m_ImagePosition: 0
       m_ContentOffset: {x: 2.63, y: 4.65}
+      m_ContentSpacing: 1
       m_FixedWidth: 0
       m_FixedHeight: 0
+      m_ImageIsTopAligned: 0
       m_StretchWidth: 1
       m_StretchHeight: 0
+      m_IsSDF: 0
     HeaderTextStyleName:
       m_Name: 
       m_Normal:
@@ -145,10 +149,13 @@ MonoBehaviour:
       m_TextClipping: 0
       m_ImagePosition: 0
       m_ContentOffset: {x: 23.1, y: 0}
+      m_ContentSpacing: 1
       m_FixedWidth: 0
       m_FixedHeight: 0
+      m_ImageIsTopAligned: 0
       m_StretchWidth: 1
       m_StretchHeight: 0
+      m_IsSDF: 0
     HeaderTextStyle:
       m_Name: 
       m_Normal:
@@ -212,10 +219,13 @@ MonoBehaviour:
       m_TextClipping: 0
       m_ImagePosition: 0
       m_ContentOffset: {x: 7.2, y: 0}
+      m_ContentSpacing: 1
       m_FixedWidth: 0
       m_FixedHeight: 0
+      m_ImageIsTopAligned: 0
       m_StretchWidth: 1
       m_StretchHeight: 0
+      m_IsSDF: 0
     ContentNumberTextStyle:
       m_Name: 
       m_Normal:
@@ -279,10 +289,13 @@ MonoBehaviour:
       m_TextClipping: 0
       m_ImagePosition: 0
       m_ContentOffset: {x: 0, y: 0}
+      m_ContentSpacing: 1
       m_FixedWidth: 0
       m_FixedHeight: 0
+      m_ImageIsTopAligned: 0
       m_StretchWidth: 1
       m_StretchHeight: 0
+      m_IsSDF: 0
     ContentNameTextStyle:
       m_Name: 
       m_Normal:
@@ -346,10 +359,13 @@ MonoBehaviour:
       m_TextClipping: 0
       m_ImagePosition: 0
       m_ContentOffset: {x: 9.01, y: 0}
+      m_ContentSpacing: 1
       m_FixedWidth: 0
       m_FixedHeight: 0
+      m_ImageIsTopAligned: 0
       m_StretchWidth: 1
       m_StretchHeight: 0
+      m_IsSDF: 0
     RowBackground1: {r: 0.854902, g: 0.854902, b: 0.854902, a: 1}
     RowBackground2: {r: 0.833, g: 0.833, b: 0.833, a: 1}
     RowBackgroundHighlighted: {r: 0, g: 0, b: 0, a: 0}

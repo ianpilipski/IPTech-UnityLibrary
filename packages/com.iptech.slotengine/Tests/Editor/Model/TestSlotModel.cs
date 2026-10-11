@@ -15,8 +15,7 @@ namespace IPTech.SlotEngine.Tests.Model
 	class TestSlotModel
 	{
 		private SlotModel slotModel;
-		private ObjectSerializer<SlotModel> slotModelSerializer;
-
+		
 		public static IPaylineSet[] paylineSetData = new IPaylineSet[] { null, new MockPaylineSet() };
 		public static IPayoutTable[] payoutTableData = new IPayoutTable[] { null, new MockPayoutTable() };
 		public static IReelSet[] reelSetData = new IReelSet[] { null, new MockReelSet() };
@@ -25,7 +24,6 @@ namespace IPTech.SlotEngine.Tests.Model
 		[SetUp]
 		public void SetUp() {
 			this.slotModel = new SlotModel();
-			this.slotModelSerializer = new ObjectSerializer<SlotModel>() { TargetObject = this.slotModel };
 		}
 
 		[Test, TestCaseSource("paylineSetData")]
@@ -52,30 +50,10 @@ namespace IPTech.SlotEngine.Tests.Model
 			Assert.AreSame(wildSymbolSet, this.slotModel.WildSymbolSet);
 		}
 
-		[Test, Ignore("TODO: Fix test")]
-		public void SerializationWithOlderVersion_IsCompatible() {
-			this.slotModelSerializer.SerializeBinaryObject();
-			Assert.AreEqual(SERIALIZED_HEX_STRING, this.slotModelSerializer.HexString);
-		}
-
-		const string SERIALIZED_HEX_STRING = 
-			"00-01-00-00-00-FF-FF-FF-FF-01-00-00-00-00-00-00-00-0C-02-00-00-00-0F-41-73-73-65-6D-62-6C-79-2D-" +
-			"43-53-68-61-72-70-05-01-00-00-00-21-49-50-54-65-63-68-2E-53-6C-6F-74-45-6E-67-69-6E-65-2E-4D-6F-" +
-			"64-65-6C-2E-53-6C-6F-74-4D-6F-64-65-6C-04-00-00-00-1B-3C-50-61-79-6C-69-6E-65-53-65-74-3E-6B-5F-" +
-			"5F-42-61-63-6B-69-6E-67-46-69-65-6C-64-1C-3C-50-61-79-6F-75-74-54-61-62-6C-65-3E-6B-5F-5F-42-61-" +
-			"63-6B-69-6E-67-46-69-65-6C-64-18-3C-52-65-65-6C-53-65-74-3E-6B-5F-5F-42-61-63-6B-69-6E-67-46-69-" +
-			"65-6C-64-1E-3C-57-69-6C-64-53-79-6D-62-6F-6C-53-65-74-3E-6B-5F-5F-42-61-63-6B-69-6E-67-46-69-65-" +
-			"6C-64-04-04-04-04-27-49-50-54-65-63-68-2E-53-6C-6F-74-45-6E-67-69-6E-65-2E-4D-6F-64-65-6C-2E-41-" +
-			"70-69-2E-49-50-61-79-6C-69-6E-65-53-65-74-02-00-00-00-28-49-50-54-65-63-68-2E-53-6C-6F-74-45-6E-" +
-			"67-69-6E-65-2E-4D-6F-64-65-6C-2E-41-70-69-2E-49-50-61-79-6F-75-74-54-61-62-6C-65-02-00-00-00-24-" +
-			"49-50-54-65-63-68-2E-53-6C-6F-74-45-6E-67-69-6E-65-2E-4D-6F-64-65-6C-2E-41-70-69-2E-49-52-65-65-" +
-			"6C-53-65-74-02-00-00-00-2A-49-50-54-65-63-68-2E-53-6C-6F-74-45-6E-67-69-6E-65-2E-4D-6F-64-65-6C-" + 
-			"2E-41-70-69-2E-49-57-69-6C-64-53-79-6D-62-6F-6C-53-65-74-02-00-00-00-02-00-00-00-0A-0A-0A-0A-0B";
-		
 		#region Mocks
 		public class MockPaylineSet : IPaylineSet
 		{
-			public IList<IPayline> PayLines {
+			public List<IPayline> PayLines {
 				get {
 					throw new NotImplementedException();
 				}
@@ -98,7 +76,7 @@ namespace IPTech.SlotEngine.Tests.Model
 				}
 			}
 
-			public IList<IPayoutTableEntry> PayoutTableEntries {
+			public List<IPayoutTableEntry> PayoutTableEntries {
 				get {
 					throw new NotImplementedException();
 				}
@@ -170,7 +148,7 @@ namespace IPTech.SlotEngine.Tests.Model
 
 		public class MockWildSymbolSet : IWildSymbolSet
 		{
-			public IList<IWildSymbol> WildSymbols {
+			public List<IWildSymbol> WildSymbols {
 				get {
 					throw new NotImplementedException();
 				}

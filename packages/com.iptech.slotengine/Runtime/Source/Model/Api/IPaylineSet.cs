@@ -7,6 +7,6 @@ namespace IPTech.SlotEngine.Model.Api
 {
 	public interface IPaylineSet
 	{
-		IList<IPayline> PayLines { get; set; }
+		List<IPayline> PayLines { get; set; }
 	}
 }

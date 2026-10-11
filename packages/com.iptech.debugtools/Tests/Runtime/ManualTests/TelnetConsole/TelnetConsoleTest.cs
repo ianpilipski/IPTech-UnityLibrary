@@ -1,4 +1,4 @@
-#if !(UNITY_EDITOR || DEVELOPMENT_BUILD || QA_BUILD)
+#if !(DEBUG || QA_BUILD)
 #define CONTAINERDEBUGSERVICE_DISABLED
 #endif
 
@@ -24,7 +24,7 @@ public class TelnetConsoleTest : MonoBehaviour {
 	}
 
 	private void myTestCommand(string[] args, Action<string> result) {
-		GameObject[] all = GameObject.FindObjectsOfType<GameObject>();
+		GameObject[] all = GameObject.FindObjectsByType<GameObject>();
 
 		StringBuilder sb = new StringBuilder();
 		sb.AppendLine("** myTestCommand : All Game Objects **");

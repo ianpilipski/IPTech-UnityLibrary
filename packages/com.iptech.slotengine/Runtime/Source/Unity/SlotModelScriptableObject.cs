@@ -7,39 +7,14 @@ using UnityEngine;
 namespace IPTech.SlotEngine.Unity
 {
 	[CreateAssetMenu(menuName = "IPTech/SlotEngine/Create Slot Model", fileName = "SlotModel")]
-	public class SlotModelScriptableObject : ScriptableObject, ISerializationCallbackReceiver {
-
-		public ISlotModel slotModel { get; set; }
-
-		[SerializeField, HideInInspector]
-		private string serializedObjectAsString;
+	public class SlotModelScriptableObject : ScriptableObject 
+	{
+		[SerializeReference] private ISlotModel _slotModel;
 		
-		private void Serialize() {
-			if(slotModel==null) {
-				return;
-			}
-
-			this.serializedObjectAsString = SerializationUtil.SerializeToBase64String(slotModel);
+		public ISlotModel slotModel {
+			get => _slotModel;
+			set => _slotModel = value;
 		}
 
-		private void Deserialize() {
-			if(string.IsNullOrEmpty(this.serializedObjectAsString)) {
-				return;
-			}
-
-			this.slotModel = SerializationUtil.DeserializeFromBase64String(serializedObjectAsString) as ISlotModel;
-		}
-
-		#region ISerializationCallbackReceiver
-
-		public void OnBeforeSerialize() {
-			Serialize();
-		}
-
-		public void OnAfterDeserialize() {
-			Deserialize();
-		}
-
-		#endregion
 	}
 }

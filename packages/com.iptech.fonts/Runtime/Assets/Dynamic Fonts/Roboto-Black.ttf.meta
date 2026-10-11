@@ -1,15 +1,15 @@
 fileFormatVersion: 2
 guid: 65cf13baef6fd4ef08217a06800e46f2
-timeCreated: 1490122507
-licenseType: Pro
 TrueTypeFontImporter:
-  serializedVersion: 3
+  externalObjects: {}
+  serializedVersion: 4
   fontSize: 16
   forceTextureCase: -2
-  characterSpacing: 1
-  characterPadding: 0
+  characterSpacing: 0
+  characterPadding: 1
   includeFontData: 1
-  fontNames: []
+  fontNames:
+  - Roboto
   fallbackFontReferences:
   - {fileID: 12800000, guid: 4926e3504fef6a44f8cd517d21f2e91a, type: 3}
   - {fileID: 12800000, guid: 3abf6804207f50445bab3d3b60ec2ec1, type: 3}
@@ -21,6 +21,9 @@ TrueTypeFontImporter:
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  subsetRecipes: []
   userData: 
   assetBundleName: 
   assetBundleVariant: 

@@ -1,4 +1,4 @@
-#if !(UNITY_EDITOR && (DEVELOPMENT_BUILD || QA_BUILD))
+#if !(UNITY_EDITOR && (DEBUG || QA_BUILD))
 #define CONTAINERDEBUGSERVICE_DISABLED
 #endif
 
@@ -6,6 +6,7 @@
 
 using UnityEngine;
 using UnityEditor;
+using System;
 
 namespace IPTech.DebugConsoleService
 {
@@ -19,15 +20,17 @@ namespace IPTech.DebugConsoleService
         [MenuItem(ENABLE_MENU)]
         public static void EnableCalculateTextureMemoryInSceneHierarchy() {
             if(!extensionEnabled) {
-                EditorApplication.hierarchyWindowItemOnGUI += HandleHierarchyWindowItemOnGUI;
+                EditorApplication.hierarchyWindowItemByEntityIdOnGUI += HandleHierarchyWindowItemByEntityIdOnGUI;
                 extensionEnabled = true;
                 EditorApplication.RepaintHierarchyWindow();
             }
         }
 
+        
+
         [MenuItem(DISABLE_MENU)]
         public static void DisableCalculateTextureMemoryInSceneHierarchy() {
-            EditorApplication.hierarchyWindowItemOnGUI -= HandleHierarchyWindowItemOnGUI;
+            EditorApplication.hierarchyWindowItemByEntityIdOnGUI -= HandleHierarchyWindowItemByEntityIdOnGUI;
             extensionEnabled = false;
             EditorApplication.RepaintHierarchyWindow();
         }
@@ -42,10 +45,11 @@ namespace IPTech.DebugConsoleService
             return extensionEnabled;
         }
 
-        static void HandleHierarchyWindowItemOnGUI(int instanceID, Rect selectionRect) {
+        private static void HandleHierarchyWindowItemByEntityIdOnGUI(EntityId entityId, Rect selectionRect)
+        {
             EnsureLabelStyleIsCreated();
 
-            string memString = GenerateStringForMemoryLabel(instanceID);
+            string memString = GenerateStringForMemoryLabel(entityId);
             DrawMemoryLabel(selectionRect, memString);
         }
 
@@ -62,8 +66,8 @@ namespace IPTech.DebugConsoleService
             GUI.Label(r, memString, alignRightLabelStyle);
         }
 
-        private static string GenerateStringForMemoryLabel(int instanceID) {
-            GameObject obj = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
+        private static string GenerateStringForMemoryLabel(EntityId entityId) {
+            GameObject obj = EditorUtility.EntityIdToObject(entityId) as GameObject;
             if(obj!=null) {
                 MemoryData mem = CalculateTextureMemoryForGameObject(obj);
                 return GenerateStringForMemoryMB(mem.SizeInMegabytes);

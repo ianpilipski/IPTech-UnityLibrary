@@ -7,6 +7,6 @@ namespace IPTech.SlotEngine.Model.Api
 {
 	public interface IWildSymbolSet
 	{
-		IList<IWildSymbol> WildSymbols { get; set; }
+		List<IWildSymbol> WildSymbols { get; set; }
 	}
 }

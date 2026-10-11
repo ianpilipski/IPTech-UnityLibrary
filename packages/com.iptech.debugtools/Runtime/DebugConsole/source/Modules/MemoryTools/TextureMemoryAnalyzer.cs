@@ -1,14 +1,12 @@
-#if !UNITY_6000_0_OR_NEWER
-#if !(UNITY_EDITOR || DEVELOPMENT_BUILD || QA_BUILD)
+#if !UNITY_6000_OR_NEWER
+#if !(DEBUG || QA_BUILD)
 #define CONTAINERDEBUGSERVICE_DISABLED
 #endif
 
 #if !CONTAINERDEBUGSERVICE_DISABLED
 
-using System;
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.UI;
 
 namespace IPTech.DebugConsoleService
 {

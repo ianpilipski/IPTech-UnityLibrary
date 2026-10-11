@@ -1,4 +1,4 @@
-#if !(UNITY_EDITOR || DEVELOPMENT_BUILD || QA_BUILD)
+#if !(DEBUG || QA_BUILD)
 #define CONTAINERDEBUGSERVICE_DISABLED
 #endif
 
@@ -7,7 +7,6 @@
 using UnityEngine;
 using System.Collections;
 using IPTech.DebugConsoleService;
-using IPTechShared;
 using System;
 
 public class InGameConsoleDepricatedTest : MonoBehaviour {
@@ -19,8 +18,6 @@ public class InGameConsoleDepricatedTest : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		this.dcs = new DebugConsoleService();
-		DebugConsole.SetDebugConsoleService(this.dcs);
-
 		this.dcs.RegisterCommand("test", test, null);
 	}
 

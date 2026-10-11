@@ -62,7 +62,7 @@ namespace CoroutineFunctionTests {
 			CallInfo ci = new CallInfo();
 			CFunc coroutineUnderTest = new CFunc(RoutineYield(ci, () => {
 				DownloadHandlerBuffer buffer = new DownloadHandlerBuffer();
-				UnityWebRequest wr = new UnityWebRequest("http://httpbin.org/get?hello");
+				UnityWebRequest wr = new UnityWebRequest("https://httpbin.org/get?hello");
 				wr.downloadHandler = buffer;
 				return wr.SendWebRequest();
 			}));

@@ -1,4 +1,4 @@
-#if !(UNITY_EDITOR || DEVELOPMENT_BUILD || QA_BUILD)
+#if !(DEBUG || QA_BUILD)
 #define CONTAINERDEBUGSERVICE_DISABLED
 #endif
 
@@ -49,6 +49,7 @@ namespace IPTech.DebugConsoleService.InGameConsole
         IEnumerable<IInGameDebugConsoleView.CommandData> deferredCommands;
         private Task hideNotifyTask;
         private CancellationTokenSource destroyedCancellationTokenSource;
+        private int _panelVersion = -1;
 
         public event Action<string> OnExecuteCommand;
         public event Action OnWantsUpdatedCommands;
@@ -78,8 +79,11 @@ namespace IPTech.DebugConsoleService.InGameConsole
             destroyedCancellationTokenSource.Cancel();
         }
 
-        private void UIReload(PanelRenderer panelRenderer, VisualElement rootElement)
+        private void UIReload(PanelRenderer panelRenderer, VisualElement rootElement, int version)
         {
+            if(_panelVersion == version) return;
+            _panelVersion = version;
+
             root = rootElement;
             
             root.pickingMode = PickingMode.Ignore;

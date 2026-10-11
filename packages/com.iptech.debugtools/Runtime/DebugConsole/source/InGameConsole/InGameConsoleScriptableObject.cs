@@ -1,4 +1,4 @@
-#if !(UNITY_EDITOR || DEVELOPMENT_BUILD || QA_BUILD)
+#if !(DEBUG || QA_BUILD)
 #define CONTAINERDEBUGSERVICE_DISABLED
 #endif
 
@@ -38,7 +38,7 @@ public class InGameConsoleScriptableObject : ScriptableObject, ISerializationCal
 #if UNITY_EDITOR
     private bool IsConsoleDisabled(IList<string> defs) {
         bool qaBuild = defs.Contains("QA_BUILD");
-        bool devBuild = defs.Contains("DEVELOPMENT_BUILD") || Debug.isDebugBuild;
+        bool devBuild = Debug.isDebugBuild;
         bool consoleDisabled = defs.Contains("CONTAINERDEBUGSERVICE_DISABLED");
 
         return !(qaBuild || devBuild) || consoleDisabled;

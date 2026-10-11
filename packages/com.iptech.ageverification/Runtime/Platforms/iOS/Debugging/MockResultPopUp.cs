@@ -28,6 +28,7 @@ namespace IPTech.AgeVerification.iOS.Debugging
         private float _autoApproveTimeoutTime;
         private EnumField _resultTypeField;
         private bool _wasAutoApproved;
+        private int _panelVersion = -1;
 
         public static async Task<AgeRangeResult> ShowDialog(CancellationToken ct)
         {
@@ -78,8 +79,10 @@ namespace IPTech.AgeVerification.iOS.Debugging
         }
 
 
-        void OnUIReload(PanelRenderer panelRenderer, VisualElement rootElement)
+        void OnUIReload(PanelRenderer panelRenderer, VisualElement rootElement, int version)
         {
+            if(_panelVersion == version) return;
+            _panelVersion = version;
             rootElement.Add(_dialogRoot);
         }
 

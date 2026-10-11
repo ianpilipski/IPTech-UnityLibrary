@@ -1,5 +1,5 @@
-#if !UNITY_6000_0_OR_NEWER
-#if !(UNITY_EDITOR || DEVELOPMENT_BUILD || QA_BUILD)
+#if !UNITY_6000_OR_NEWER
+#if !(DEBUG || QA_BUILD)
 #define CONTAINERDEBUGSERVICE_DISABLED
 #endif
 
@@ -55,10 +55,12 @@ namespace IPTech.DebugConsoleService
 
         private bool IsPVCRTCompressed() {
             switch(RuntimeFormat) {
+                #pragma warning disable 618
                 case TextureFormat.PVRTC_RGB2:
                 case TextureFormat.PVRTC_RGB4:
                 case TextureFormat.PVRTC_RGBA2:
                 case TextureFormat.PVRTC_RGBA4:
+                #pragma warning restore 618
                     return true;
                 default:
                     return false;
@@ -110,7 +112,6 @@ namespace IPTech.DebugConsoleService
 			if(ti!=null) {
 				ti.GetPlatformTextureSettings(currentBuildTarget.ToString(), out int maxTextureSize, out TextureImporterFormat textureFormat);
 				switch(textureFormat) {
-
                     case TextureImporterFormat.Alpha8:                      return TextureFormat.Alpha8;
                     case TextureImporterFormat.ARGB16:                      return TextureFormat.ARGB4444;
                     case TextureImporterFormat.ARGB32:                      return TextureFormat.ARGB32;
@@ -132,24 +133,16 @@ namespace IPTech.DebugConsoleService
                     case TextureImporterFormat.ETC2_RGB4_PUNCHTHROUGH_ALPHA: return TextureFormat.ETC_RGB4;
                     case TextureImporterFormat.ETC2_RGBA8:                  return TextureFormat.ETC2_RGBA8;
                     case TextureImporterFormat.ETC_RGB4:                    return TextureFormat.ETC_RGB4;
-                    case TextureImporterFormat.PVRTC_RGB2:                  return TextureFormat.PVRTC_RGB2;
-                    case TextureImporterFormat.PVRTC_RGB4:                  return TextureFormat.PVRTC_RGB4;
-                    case TextureImporterFormat.PVRTC_RGBA2:                 return TextureFormat.PVRTC_RGBA2;
-                    case TextureImporterFormat.PVRTC_RGBA4:                 return TextureFormat.PVRTC_RGBA4;
                     case TextureImporterFormat.RGB16:                       return TextureFormat.RGB565;
                     case TextureImporterFormat.RGB24:                       return TextureFormat.RGB24;
                     case TextureImporterFormat.RGBA16:                      return TextureFormat.ARGB4444;
                     case TextureImporterFormat.RGBA32:                      return TextureFormat.RGBA32;
 #pragma warning disable 618
-					//case TextureImporterFormat.ATC_RGB4:                    return TextureFormat.ATC_RGB4;
-					//case TextureImporterFormat.ATC_RGBA8:                   return TextureFormat.ATC_RGBA8;
-
-                    case TextureImporterFormat.Automatic16bit:
-                    case TextureImporterFormat.AutomaticCompressed:
-                    case TextureImporterFormat.AutomaticCrunched:
-                    case TextureImporterFormat.AutomaticTruecolor:
+					case TextureImporterFormat.PVRTC_RGB2:                  return TextureFormat.PVRTC_RGB2;
+                    case TextureImporterFormat.PVRTC_RGB4:                  return TextureFormat.PVRTC_RGB4;
+                    case TextureImporterFormat.PVRTC_RGBA2:                 return TextureFormat.PVRTC_RGBA2;
+                    case TextureImporterFormat.PVRTC_RGBA4:                 return TextureFormat.PVRTC_RGBA4;
 #pragma warning restore
-                        return GetBestGuessAutomaticTextureFormat(texture, textureFormat);
                     default:
                         if(textureFormat!=0) {
                             Debug.LogWarning("unknown format " + textureFormat);
@@ -160,47 +153,7 @@ namespace IPTech.DebugConsoleService
             return texture.format;
         }
 
-		private TextureFormat GetBestGuessAutomaticTextureFormat(Texture2D texture, TextureImporterFormat importerFormat) {
-#pragma warning disable 618
-            switch (importerFormat) {
-                case TextureImporterFormat.Automatic16bit:
-                    if(IsAlphaFormat(texture.format)) {
-                        if(IsAlphaEncodedFirst(texture.format)) 
-                            return TextureFormat.ARGB4444;
-                        return TextureFormat.RGBA4444;
-                    }
-                    return TextureFormat.RGB565;   
-                case TextureImporterFormat.AutomaticCrunched:
-                    if(IsAlphaFormat(texture.format)) {
-                        return TextureFormat.DXT5Crunched;
-                    }     
-                    return TextureFormat.DXT1Crunched;
-                case TextureImporterFormat.AutomaticTruecolor:
-                    int bpp = GetBitsPerPixelForFormat(texture.format);
-                    if(bpp == 32) {
-                        if(IsAlphaFormat(texture.format)) {
-                            if(IsAlphaEncodedFirst(texture.format))
-                                return TextureFormat.ARGB32;
-                        }
-                        return TextureFormat.RGBA32;
-                    }
-                    if(bpp == 8) {
-                        return TextureFormat.Alpha8;
-                    }
-                    return TextureFormat.RGB24;
-                case TextureImporterFormat.AutomaticCompressed:
-                    if(IsAlphaFormat(texture.format)) {
-                        return TextureFormat.DXT5;
-                    }
-                    return TextureFormat.DXT1;
-                default:
-                    Debug.LogWarning("unknown format " + importerFormat);
-                    return texture.format;
-            }
-#pragma warning restore
-        }
-
-        private bool IsAlphaFormat(TextureFormat textureFormat) {
+		private bool IsAlphaFormat(TextureFormat textureFormat) {
             switch(textureFormat) {
                 case TextureFormat.Alpha8:
                 case TextureFormat.ARGB32:
@@ -216,8 +169,10 @@ namespace IPTech.DebugConsoleService
                 case TextureFormat.DXT5Crunched:
                 case TextureFormat.ETC2_RGBA1:
                 case TextureFormat.ETC2_RGBA8:
+                #pragma warning disable 618
                 case TextureFormat.PVRTC_RGBA2:
                 case TextureFormat.PVRTC_RGBA4:
+                #pragma warning restore 618
                 case TextureFormat.RGBA32:
                 case TextureFormat.RGBA4444:
                 case TextureFormat.RGBAFloat:
@@ -243,8 +198,10 @@ namespace IPTech.DebugConsoleService
         private int GetBitsPerPixelForFormat(TextureFormat textureFormat) 
         {
             switch(textureFormat) {
+                #pragma warning disable 618
                 case TextureFormat.PVRTC_RGB2:
                 case TextureFormat.PVRTC_RGBA2:
+                #pragma warning restore 618
                     return 2;
                 case TextureFormat.DXT1:
                 #if UNITY_IOS
@@ -252,8 +209,10 @@ namespace IPTech.DebugConsoleService
                 #else
                 case TextureFormat.DXT1Crunched:
                 #endif
+                #pragma warning disable 618
                 case TextureFormat.PVRTC_RGB4:
                 case TextureFormat.PVRTC_RGBA4:
+                #pragma warning restore 618
                 case TextureFormat.ETC_RGB4:
                 //case TextureFormat.ATC_RGB4:
                     return 4;

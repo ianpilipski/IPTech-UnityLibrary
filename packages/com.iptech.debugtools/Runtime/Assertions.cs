@@ -1,10 +1,8 @@
-#if DEVELOPMENT_BUILD
+#if DEBUG
 #define ASSERTIONSON
 #endif
 
-using UnityEngine;
 using System;
-using System.Collections;
 using System.Diagnostics;
 
 namespace IPTech

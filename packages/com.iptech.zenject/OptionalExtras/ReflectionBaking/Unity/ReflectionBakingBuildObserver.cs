@@ -6,6 +6,7 @@ using ModestTree;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
+using UnityEngine.Assemblies;
 using Zenject.ReflectionBaking.Mono.Cecil;
 using Debug = UnityEngine.Debug;
 
@@ -81,7 +82,7 @@ namespace Zenject.ReflectionBaking
             }
 
             var assemblyName = Path.GetFileNameWithoutExtension(assemblyAssetPath);
-            var assembly = AppDomain.CurrentDomain.GetAssemblies()
+            var assembly = CurrentAssemblies.GetLoadedAssemblies()
                 .Where(x => x.GetName().Name == assemblyName).OnlyOrDefault();
 
             Assert.IsNotNull(assembly, "Could not find unique assembly '{0}' in currently loaded list of assemblies", assemblyName);

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 
 namespace IPTech.BuildTool
@@ -76,26 +77,14 @@ namespace IPTech.BuildTool
         static Dictionary<Type,GenList> GenerateListsImmediate(Type[] types) {
             Dictionary<Type,GenList> lists = new Dictionary<Type, GenList>();
             for(int ii=0;ii<types.Length;ii++) {
-                lists[types[ii]] = new GenList();
-                lists[types[ii]].IsFinishedGenerating = true;
+                lists[types[ii]] = new GenList
+                {
+                    IsFinishedGenerating = true
+                };
+                var derivedTypes = TypeCache.GetTypesDerivedFrom(types[ii]);
+                lists[types[ii]].AddRange(derivedTypes);
             }
 
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach(var asm in assemblies) {
-                var asmTypes = asm.GetTypes();
-                for(int i=0;i<asmTypes.Length;i++) {    
-                    var asmT = asmTypes[i];
-                    if(!asmT.IsAbstract) {
-                        for(int j=0;j<types.Length;j++) {
-                            var targetType = types[j];
-                            if(asmT.IsSubclassOf(targetType)) {
-                                lists[targetType].Add(asmT);
-                            }
-                        }
-                    }
-                }
-            }
-        
             return lists;
         }
 
