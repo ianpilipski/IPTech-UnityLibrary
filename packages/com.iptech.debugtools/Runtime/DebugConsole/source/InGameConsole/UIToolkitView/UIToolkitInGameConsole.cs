@@ -84,26 +84,16 @@ namespace IPTech.DebugConsoleService.InGameConsole
             if(_panelVersion == version) return;
             _panelVersion = version;
 
+            UnregisterCallbacks();
             root = rootElement;
-            
+
             root.pickingMode = PickingMode.Ignore;
             main = root.Q<VisualElement>("sub");
             handle = main.Q<VisualElement>("handle");
             handleLabel = handle.Q<Label>("labelHandle");
             textFieldCommand = main.Q<TextField>("textFieldCommand");
-            textFieldCommand.RegisterCallback<KeyDownEvent>(evt =>
-            {
-                if (evt.keyCode == KeyCode.Return)
-                {
-                    OnExecuteCommand?.Invoke(textFieldCommand.value);
-                }
-            });
-
+           
             buttonGo = main.Q<Button>("buttonGo");
-            buttonGo.clicked += () =>
-            {
-                OnExecuteCommand?.Invoke(textFieldCommand.value);
-            };
 
             listViewOutput = new ListViewOutput(main.Q<ListView>("listViewOutput"));
             listViewNotify = new ListViewOutput(main.Q<ListView>("listViewNotify"));
@@ -124,7 +114,7 @@ namespace IPTech.DebugConsoleService.InGameConsole
 
             ShowConsoleView(true);
             HideNotifications();
-            RegisterHandleDragCallbacks();
+            RegisterCallbacks();
             initCalled = true;
 
             if (deferredCommands != null)
@@ -133,11 +123,45 @@ namespace IPTech.DebugConsoleService.InGameConsole
             }
         }
 
-        void RegisterHandleDragCallbacks()
+        private void RegisterCallbacks()
         {
+            root.RegisterCallback<DetachFromPanelEvent>(HandleDetachFromPanel);
+            textFieldCommand.RegisterCallback<KeyDownEvent>(HandleTextFieldCommandKeyDownEvent);
+            buttonGo.clicked += HandleButtonGoClicked;
             handle.RegisterCallback<MouseDownEvent>(HandleMouseDown);
             handle.RegisterCallback<MouseUpEvent>(HandleMouseUp);
             handle.RegisterCallback<MouseMoveEvent>(HandleMouseMove);
+        }
+
+        private void UnregisterCallbacks()
+        {
+            if(root == null) return;
+
+            root.UnregisterCallback<DetachFromPanelEvent>(HandleDetachFromPanel);
+            textFieldCommand.UnregisterCallback<KeyDownEvent>(HandleTextFieldCommandKeyDownEvent);
+            buttonGo.clicked -= HandleButtonGoClicked;
+            handle.UnregisterCallback<MouseDownEvent>(HandleMouseDown);
+            handle.UnregisterCallback<MouseUpEvent>(HandleMouseUp);
+            handle.UnregisterCallback<MouseMoveEvent>(HandleMouseMove);
+        }
+
+        private void HandleDetachFromPanel(DetachFromPanelEvent evt)
+        {
+            UnregisterCallbacks();
+            root = null;
+        }
+
+        private void HandleTextFieldCommandKeyDownEvent(KeyDownEvent evt)
+        {
+            if (evt.keyCode == KeyCode.Return)
+            {
+                OnExecuteCommand?.Invoke(textFieldCommand.value);
+            }
+        }
+
+        private void HandleButtonGoClicked() 
+        {
+            OnExecuteCommand?.Invoke(textFieldCommand.value);
         }
 
         private void HandleMouseMove(MouseMoveEvent evt)
@@ -373,17 +397,20 @@ namespace IPTech.DebugConsoleService.InGameConsole
 
         public void Show(bool value)
         {
+            if(root == null) return;
             this.root.visible = value;
         }
 
         public void MinimizeConsole()
         {
+            if(root == null) return;
             lastOpenHeight = main.resolvedStyle.height;
             SetMainHeight(0);
         }
 
         public void RestoreConsole()
         {
+            if(root == null) return;
             OnWantsUpdatedCommands?.Invoke();
             if (lastOpenHeight < 200)
             {
@@ -394,6 +421,7 @@ namespace IPTech.DebugConsoleService.InGameConsole
 
         void IInGameDebugConsoleView.Output(string msg)
         {
+            if(root == null) return;
             if (listViewOutput != null)
             {
                 listViewOutput.Add(msg);
@@ -402,6 +430,7 @@ namespace IPTech.DebugConsoleService.InGameConsole
 
         void IInGameDebugConsoleView.Notify(string msg)
         {
+            if(root == null) return;
             if (listViewNotify != null)
             {
                 listViewNotify.Add(msg);
@@ -439,6 +468,7 @@ namespace IPTech.DebugConsoleService.InGameConsole
 
         void HideNotifications()
         {
+            if(root == null) return;
             listViewNotify.Clear();
             listViewNotify.listView.parent.style.display = DisplayStyle.None;
         }
