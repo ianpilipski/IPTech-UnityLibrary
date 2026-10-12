@@ -2,7 +2,8 @@
   "name": "com.iptech.unityservices.remoteconfig",
   "displayName": "IPTech.UnityServices.RemoteConfig",
   "version": "0.0.1",
-  "unity": "2021.3",
+  "unity": "6000.6",
+  "unityRelease": "5f1",
   "dependencies": {
     "com.iptech.unityservices": "0.0.0",
     "com.unity.remote-config": "4.2.5"

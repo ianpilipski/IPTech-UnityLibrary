@@ -2,7 +2,7 @@
   "name": "com.iptech.unityservices.analytics",
   "displayName": "IPTech.UnityServices.Analytics",
   "version": "0.0.1",
-  "unity": "2021.3",
+  "unity": "6000.6",
   "keywords": [
     "analytics",
     "iptech"
@@ -18,5 +18,5 @@
     "com.unity.services.analytics": "6.1.0",
     "com.iptech.unityservices": "0.0.1"
   },
-  "unityRelease": "31f1"
+  "unityRelease": "5f1"
 }

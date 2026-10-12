@@ -3,7 +3,8 @@
   "version": "2.0.0",
   "displayName": "IPTech.Coroutines",
   "description": "A coroutine library that allows error handling and debug visualization",
-  "unity": "2019.4",
+  "unity": "6000.6",
+  "unityRelease": "5f1",
   "keywords": [
     "coroutine",
     "iptech",

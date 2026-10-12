@@ -8,7 +8,8 @@
   "keywords": [],
   "category": "",
   "samples": [],
-  "unity": "2017.1",
+  "unity": "6000.6",
+  "unityRelease": "5f1",
   "author": {
     "name": "Ian Pilipski",
     "url": "https://github.com/ianpilipski/IPTech-UnityLibrary.git"
