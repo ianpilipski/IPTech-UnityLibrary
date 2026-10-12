@@ -1,11 +1,11 @@
 {
   "name": "com.iptech.ageverification",
   "displayName": "IPTech.AgeVerification",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "unity": "6000.6",
   "unityRelease": "5f1",
   "dependencies": {
-    "com.iptech.platform.api": "0.0.1"
+    "com.iptech.platform.api": "1.0.0"
   },
   "keywords": [
     "Age",
