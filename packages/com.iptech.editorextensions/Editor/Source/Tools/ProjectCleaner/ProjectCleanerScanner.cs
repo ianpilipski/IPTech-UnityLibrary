@@ -20,7 +20,7 @@ namespace IPTech.EditorTools {
         private static readonly string[] ProtectedExtensions = {
             ".asmdef", ".asmref", ".dll", ".rsp", ".json", ".xml", ".csv", ".txt", ".md", ".cginc", ".hlsl", ".spriteatlas", ".uxml", ".uss"
         };
-        private readonly ProjectCleanerSettings _settings;
+        private readonly IProjectCleanerSettings _settings;
         private readonly IEnumerator<bool> _steps;
         private readonly Dictionary<string, ProjectCleanerItem> _items = new Dictionary<string, ProjectCleanerItem>();
         private readonly Dictionary<string, string> _scriptCode = new Dictionary<string, string>();
@@ -31,7 +31,7 @@ namespace IPTech.EditorTools {
 
         public ProjectCleanerScan Result { get; } = new ProjectCleanerScan();
 
-        public ProjectCleanerScanner(ProjectCleanerSettings settings, IEnumerable<string> sources = null) {
+        public ProjectCleanerScanner(IProjectCleanerSettings settings, IEnumerable<string> sources = null) {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _sources = sources;
             Result.IsScoped = sources != null;
@@ -274,7 +274,7 @@ namespace IPTech.EditorTools {
                 "IPreprocessBuild", "IPostprocessBuild", "OnOpenAsset" }.Any(source.Contains);
         }
 
-        public static void Classify(ProjectCleanerScan scan, ProjectCleanerSettings settings) {
+        public static void Classify(ProjectCleanerScan scan, IProjectCleanerSettings settings) {
             var protectedPaths = new HashSet<string>();
             var kept = settings.KeptPaths.ToArray();
             var incoming = scan.References.GroupBy(r => r.Target).ToDictionary(g => g.Key, g => g.ToList());

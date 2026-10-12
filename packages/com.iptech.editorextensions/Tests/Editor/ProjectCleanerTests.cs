@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using NSubstitute;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -11,22 +12,18 @@ namespace IPTech.EditorTools.Tests {
     public class ProjectCleanerTests {
         private string _root;
         private string _backupRoot;
-        private bool _packages;
+        private IProjectCleanerSettings _settings;
 
         [SetUp]
         public void SetUp() {
             _root = "Assets/ProjectCleanerTests-" + Guid.NewGuid().ToString("N");
             AssetDatabase.CreateFolder("Assets", Path.GetFileName(_root));
             _backupRoot = Path.Combine(ProjectCleanerPaths.ProjectRoot, "Temp", "ProjectCleanerTests-" + Guid.NewGuid().ToString("N"));
-            _packages = ProjectCleanerSettings.instance.IncludeEditablePackages;
+            _settings = ProjectCleanerSessionTests.CreateSettings();
         }
 
         [TearDown]
         public void TearDown() {
-            foreach(var path in ProjectCleanerSettings.instance.KeptPaths.Where(p => ProjectCleanerPaths.Contains(_root, p)).ToArray()) {
-                ProjectCleanerSettings.instance.SetKeep(path, false);
-            }
-            ProjectCleanerSettings.instance.IncludeEditablePackages = _packages;
             AssetDatabase.DeleteAsset(_root);
             if(Directory.Exists(_backupRoot)) Directory.Delete(_backupRoot, true);
         }
@@ -75,7 +72,7 @@ namespace IPTech.EditorTools.Tests {
             } finally { Object.DestroyImmediate(copy); }
             AssetDatabase.ImportAsset(referencePath, ImportAssetOptions.ForceSynchronousImport);
             var paths = new[] { AssetDatabase.GetAssetPath(target), referencePath, AssetDatabase.GetAssetPath(terrain) };
-            using(var scanner = new ProjectCleanerScanner(ProjectCleanerSettings.instance, paths)) {
+            using(var scanner = new ProjectCleanerScanner(_settings, paths)) {
                 while(scanner.Step()) { }
                 var scan = scanner.Result;
                 Assert.That(scan.Errors, Is.Empty);
@@ -90,15 +87,20 @@ namespace IPTech.EditorTools.Tests {
         }
 
         [Test]
-        public void KeepSurvivesMovesAndCanBeRemoved() {
+        public void ClassificationUsesInjectedKeepPathsAfterAssetMoves() {
             var asset = CreateFixture("kept");
             var path = AssetDatabase.GetAssetPath(asset);
-            ProjectCleanerSettings.instance.SetKeep(path, true);
             var moved = _root + "/moved.asset";
             Assert.That(AssetDatabase.MoveAsset(path, moved), Is.Empty);
-            Assert.That(ProjectCleanerSettings.instance.IsKept(moved), Is.True);
-            ProjectCleanerSettings.instance.SetKeep(moved, false);
-            Assert.That(ProjectCleanerSettings.instance.IsKept(moved), Is.False);
+            _settings.KeptPaths.Returns(new[] { moved });
+            var item = Item(moved);
+            var scan = new ProjectCleanerScan();
+            scan.Items.Add(item);
+            ProjectCleaner.Reclassify(scan, _settings);
+            Assert.That(item.IsKept, Is.True);
+            _settings.KeptPaths.Returns(Array.Empty<string>());
+            ProjectCleaner.Reclassify(scan, _settings);
+            Assert.That(item.IsKept, Is.False);
         }
 
         [Test]
@@ -111,8 +113,8 @@ namespace IPTech.EditorTools.Tests {
             var scan = new ProjectCleanerScan();
             scan.Items.AddRange(new[] { child, dependency, folder });
             scan.References.Add(new CleanerReference { Source = child.AssetPath, Target = dependency.AssetPath });
-            ProjectCleanerSettings.instance.SetKeep(_root, true);
-            ProjectCleaner.Reclassify(scan);
+            _settings.KeptPaths.Returns(new[] { _root });
+            ProjectCleaner.Reclassify(scan, _settings);
             Assert.That(scan.Items.All(i => i.Status == CleanerStatus.Protected && !i.CanDelete), Is.True);
             Assert.That(child.IsKept, Is.True);
             Assert.That(scan.Items.Contains(child), Is.True);
@@ -125,11 +127,11 @@ namespace IPTech.EditorTools.Tests {
             var scan = new ProjectCleanerScan();
             scan.Items.AddRange(new[] { root, target });
             scan.References.Add(new CleanerReference { Source = root.AssetPath, Target = target.AssetPath });
-            ProjectCleanerSettings.instance.SetKeep(root.AssetPath, true);
-            ProjectCleaner.Reclassify(scan);
+            _settings.KeptPaths.Returns(new[] { root.AssetPath });
+            ProjectCleaner.Reclassify(scan, _settings);
             Assert.That(target.Status, Is.EqualTo(CleanerStatus.Protected));
-            ProjectCleanerSettings.instance.SetKeep(root.AssetPath, false);
-            ProjectCleaner.Reclassify(scan);
+            _settings.KeptPaths.Returns(Array.Empty<string>());
+            ProjectCleaner.Reclassify(scan, _settings);
             Assert.That(target.Status, Is.EqualTo(CleanerStatus.Referenced));
             Assert.That(target.IsRoot, Is.False);
         }
@@ -140,18 +142,18 @@ namespace IPTech.EditorTools.Tests {
             script.IsScript = true;
             var scan = new ProjectCleanerScan();
             scan.Items.Add(script);
-            ProjectCleaner.Reclassify(scan);
+            ProjectCleaner.Reclassify(scan, _settings);
             Assert.That(script.Status, Is.EqualTo(CleanerStatus.ReviewRequired));
             Assert.That(script.Confidence, Is.EqualTo("Review required"));
             scan.Errors.Add("Unreadable source");
-            ProjectCleaner.Reclassify(scan);
+            ProjectCleaner.Reclassify(scan, _settings);
             Assert.That(script.CanDelete, Is.False);
             Assert.That(scan.CanClean, Is.False);
         }
 
         [Test]
         public void CancelledScanCannotAuthorizeCleanup() {
-            using(var scanner = new ProjectCleanerScanner(ProjectCleanerSettings.instance)) {
+            using(var scanner = new ProjectCleanerScanner(_settings)) {
                 scanner.Cancel();
                 Assert.That(scanner.Step(), Is.False);
                 Assert.That(scanner.Result.Cancelled, Is.True);
@@ -168,9 +170,9 @@ namespace IPTech.EditorTools.Tests {
             var meta = File.ReadAllBytes(ProjectCleanerPaths.FullPath(path) + ".meta");
             var item = Item(path);
             var session = ProjectCleanerCleanup.Backup(new[] { item }, _backupRoot);
-            Assert.That(ProjectCleanerCleanup.Restore(session, false).All(o => !o.Success), Is.True, "Existing assets are collisions.");
+            Assert.That(ProjectCleanerCleanup.Restore(session, false, _settings).All(o => !o.Success), Is.True, "Existing assets are collisions.");
             Assert.That(AssetDatabase.DeleteAsset(path), Is.True);
-            Assert.That(ProjectCleanerCleanup.Restore(session, true).All(o => o.Success), Is.True);
+            Assert.That(ProjectCleanerCleanup.Restore(session, true, _settings).All(o => o.Success), Is.True);
             Assert.That(File.ReadAllBytes(ProjectCleanerPaths.FullPath(path)), Is.EqualTo(bytes));
             Assert.That(File.ReadAllBytes(ProjectCleanerPaths.FullPath(path) + ".meta"), Is.EqualTo(meta));
             Assert.That(AssetDatabase.AssetPathToGUID(path), Is.EqualTo(guid));
@@ -191,7 +193,7 @@ namespace IPTech.EditorTools.Tests {
             var session = ProjectCleanerCleanup.Backup(new[] { Item(path) }, _backupRoot);
             AssetDatabase.DeleteAsset(path);
             File.AppendAllText(Path.Combine(session, path), "corruption");
-            Assert.That(ProjectCleanerCleanup.Restore(session, true).Single().Success, Is.False);
+            Assert.That(ProjectCleanerCleanup.Restore(session, true, _settings).Single().Success, Is.False);
             Assert.That(File.Exists(ProjectCleanerPaths.FullPath(path)), Is.False);
         }
 
@@ -215,7 +217,7 @@ namespace IPTech.EditorTools.Tests {
             item.IsDirectory = true;
             var session = ProjectCleanerCleanup.Backup(new[] { item }, _backupRoot);
             AssetDatabase.DeleteAsset(parent);
-            Assert.That(ProjectCleanerCleanup.Restore(session, true).All(o => o.Success), Is.True);
+            Assert.That(ProjectCleanerCleanup.Restore(session, true, _settings).All(o => o.Success), Is.True);
             Assert.That(AssetDatabase.AssetPathToGUID(parent), Is.EqualTo(parentGuid));
             Assert.That(AssetDatabase.AssetPathToGUID(child), Is.EqualTo(childGuid));
         }
@@ -237,13 +239,13 @@ namespace IPTech.EditorTools.Tests {
                 UnityEditor.SceneManagement.EditorSceneManager.ClosePreviewScene(scene);
             }
             var count = UnityEngine.SceneManagement.SceneManager.sceneCount;
-            using(var scanner = new ProjectCleanerScanner(ProjectCleanerSettings.instance, new[] { targetPath, prefabPath })) {
+            using(var scanner = new ProjectCleanerScanner(_settings, new[] { targetPath, prefabPath })) {
                 while(scanner.Step()) { }
                 Assert.That(scanner.Result.Errors, Is.Empty);
                 Assert.That(scanner.Result.References.Any(r => r.Source == prefabPath && r.Target == targetPath && r.Evidence == CleanerEvidence.AssetReference), Is.True);
                 var previewRoot = PrefabUtility.LoadPrefabContents(prefabPath);
                 try {
-                    using(var inspection = new ProjectCleanerScanner(ProjectCleanerSettings.instance, new[] { targetPath })) {
+                    using(var inspection = new ProjectCleanerScanner(_settings, new[] { targetPath })) {
                         while(inspection.Step()) { }
                         inspection.Spy.InspectHierarchy(prefabPath, previewRoot);
                         Assert.That(inspection.Result.References.Any(r => r.Source == prefabPath && r.Target == targetPath && r.Evidence == CleanerEvidence.AssetReference), Is.True);
@@ -288,7 +290,7 @@ namespace IPTech.EditorTools.Tests {
             try {
                 var create = settings.GetType().GetMethods().Single(m => m.Name == "CreateOrMoveEntry" && m.GetParameters().Length == 4);
                 create.Invoke(settings, new object[] { entryGuid, group, false, false });
-                using(var scanner = new ProjectCleanerScanner(ProjectCleanerSettings.instance, new[] { _root, targetPath })) {
+                using(var scanner = new ProjectCleanerScanner(_settings, new[] { _root, targetPath })) {
                     while(scanner.Step()) { }
                     Assert.That(scanner.Result.Errors, Is.Empty);
                     var item = scanner.Result.Items.Single(i => i.AssetPath == targetPath);

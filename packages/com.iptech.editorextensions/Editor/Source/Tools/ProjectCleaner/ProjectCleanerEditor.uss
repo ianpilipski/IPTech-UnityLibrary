@@ -26,6 +26,30 @@
     flex-shrink: 0;
 }
 
+.tab-content-host {
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.tab-content {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.settings-header {
+    font-size: 16px;
+    unity-font-style: bold;
+    margin-bottom: 8px;
+}
+
+.settings-content {
+    flex-grow: 1;
+    min-height: 0;
+}
+
 #search {
     flex-grow: 1;
     min-width: 100px;
@@ -47,6 +71,45 @@
 #status { width: 160px; }
 #scope { width: 200px; }
 #sort { width: 170px; }
+
+.protected-folders-list {
+    max-height: 220px;
+    min-height: 50px;
+}
+
+.protected-folders-box {
+    border-width: 1px;
+    border-radius: 6px;
+    border-color: rgba(128, 128, 128, 0.6);
+    padding: 8px;
+    margin-top: 6px;
+    margin-bottom: 8px;
+}
+
+.protected-folders-title {
+    unity-font-style: bold;
+    margin-bottom: 4px;
+}
+
+.protected-folders-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-top: 6px;
+}
+
+#add-protected-folder {
+    width: 100px;
+    flex-shrink: 0;
+}
+
+.protected-folder-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.protected-folder-path {
+    flex-grow: 1;
+}
 
 #split {
     flex-grow: 1;

@@ -32,14 +32,15 @@ namespace IPTech.EditorTools {
     public static class ProjectCleanerCleanup {
         public static string DefaultBackupDirectory => Path.Combine(ProjectCleanerPaths.ProjectRoot, "Backups", "ProjectCleaner");
 
-        public static List<CleanerOutcome> Preview(IEnumerable<ProjectCleanerItem> selected, bool reviewedScripts) {
+        public static List<CleanerOutcome> Preview(IEnumerable<ProjectCleanerItem> selected, bool reviewedScripts, IProjectCleanerSettings settings) {
+            if(settings == null) throw new ArgumentNullException(nameof(settings));
             var requested = selected.ToList();
             var blocked = EditorBlockReason();
             if(blocked != null) return requested.Select(i => Failure(i.AssetPath, blocked)).ToList();
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
             blocked = EditorBlockReason();
             if(blocked != null) return requested.Select(i => Failure(i.AssetPath, blocked)).ToList();
-            var scan = ProjectCleaner.Scan(showProgress: true);
+            var scan = ProjectCleaner.Scan(settings, showProgress: true);
             if(!scan.CanClean) {
                 return requested.Select(i => Failure(i.AssetPath, scan.Cancelled ? "Revalidation cancelled; no assets deleted."
                     : "Revalidation failed: " + string.Join("; ", scan.Errors))).ToList();
@@ -65,9 +66,10 @@ namespace IPTech.EditorTools {
             }).ToList();
         }
 
-        public static List<CleanerOutcome> Delete(IEnumerable<ProjectCleanerItem> selected, bool reviewedScripts, bool backup, string backupRoot) {
+        public static List<CleanerOutcome> Delete(IEnumerable<ProjectCleanerItem> selected, bool reviewedScripts, bool backup, string backupRoot,
+            IProjectCleanerSettings settings) {
             var items = selected.GroupBy(i => i.AssetPath).Select(g => g.First()).ToList();
-            var outcomes = Preview(items, reviewedScripts);
+            var outcomes = Preview(items, reviewedScripts, settings);
             if(outcomes.Any(o => !o.Success)) {
                 return outcomes.Select(o => o.Success ? Failure(o.AssetPath, "Batch blocked because another selection failed revalidation.") : o).ToList();
             }
@@ -82,7 +84,7 @@ namespace IPTech.EditorTools {
                     return items.Select(i => Failure(i.AssetPath, "No assets deleted: backup failed. " + exception.Message)).ToList();
                 }
             }
-            outcomes = Preview(items, reviewedScripts);
+            outcomes = Preview(items, reviewedScripts, settings);
             if(outcomes.Any(o => !o.Success)) {
                 return outcomes.Select(o => o.Success ? Failure(o.AssetPath, "Batch blocked by final revalidation.") : o).ToList();
             }
@@ -94,9 +96,9 @@ namespace IPTech.EditorTools {
                     ProjectCleanerPaths.RejectLinks(full);
                     ProjectCleanerPaths.RejectLinks(full + ".meta");
                     var saved = manifest?.Entries.Single(e => e.AssetPath == item.AssetPath);
-                    if(!ProjectCleanerPaths.IsWritableTarget(item.AssetPath, ProjectCleanerSettings.instance.IncludeEditablePackages)
-                        || ProjectCleanerSettings.instance.IsKept(item.AssetPath)
-                        || ProjectCleanerSettings.instance.IsProtectedFolder(item.AssetPath)) {
+                    if(!ProjectCleanerPaths.IsWritableTarget(item.AssetPath, settings.IncludeEditablePackages)
+                        || settings.IsKept(item.AssetPath)
+                        || settings.IsProtectedFolder(item.AssetPath)) {
                         outcomes.Add(Failure(item.AssetPath, "Scope or Keep protection changed; deletion blocked."));
                     } else if(item.IsDirectory && !IsPhysicallyEmptyTree(full)) {
                         outcomes.Add(Failure(item.AssetPath, "Folder is no longer empty; deletion blocked."));
@@ -177,7 +179,8 @@ namespace IPTech.EditorTools {
             return session;
         }
 
-        public static List<CleanerOutcome> Restore(string session, bool apply) {
+        public static List<CleanerOutcome> Restore(string session, bool apply, IProjectCleanerSettings settings) {
+            if(settings == null) throw new ArgumentNullException(nameof(settings));
             var blocked = EditorBlockReason(false);
             if(blocked != null) throw new InvalidOperationException(blocked);
             session = Path.GetFullPath(session);
@@ -188,7 +191,7 @@ namespace IPTech.EditorTools {
             }
             var outcomes = new List<CleanerOutcome>();
             foreach(var entry in manifest.Entries) {
-                if(!ProjectCleanerPaths.IsWritableTarget(entry.AssetPath, ProjectCleanerSettings.instance.IncludeEditablePackages)) {
+                if(!ProjectCleanerPaths.IsWritableTarget(entry.AssetPath, settings.IncludeEditablePackages)) {
                     outcomes.Add(Failure(entry.AssetPath, "Restore target is out of scope. Enable editable packages if appropriate."));
                     continue;
                 }

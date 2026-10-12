@@ -5,8 +5,21 @@ using UnityEditor;
 using UnityEngine;
 
 namespace IPTech.EditorTools {
+    public interface IProjectCleanerSettings {
+        bool IncludeEditablePackages { get; set; }
+        IEnumerable<string> KeptPaths { get; }
+        IReadOnlyList<string> ProtectedFolders { get; }
+        IEnumerable<string> UnresolvedKeptGuids { get; }
+        bool IsKept(string assetPath);
+        bool IsProtectedFolder(string path);
+        void SetKeep(string assetPath, bool keep);
+        void SetProtectedFolders(IEnumerable<string> paths);
+        void RemoveMissingKeep(string guid);
+        void MigrateKeepPaths();
+    }
+
     [FilePath("ProjectSettings/IPTech/ProjectCleanerSettings.asset", FilePathAttribute.Location.ProjectFolder)]
-    public class ProjectCleanerSettings : ScriptableSingleton<ProjectCleanerSettings> {
+    public class ProjectCleanerSettings : ScriptableSingleton<ProjectCleanerSettings>, IProjectCleanerSettings {
         [SerializeField] private List<string> _keptPaths = new List<string>();
         [SerializeField] private List<string> _keptGuids = new List<string>();
         [SerializeField] private List<string> _protectedFolders = new List<string>();

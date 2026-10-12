@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using NSubstitute;
 using NUnit.Framework;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.UIElements.TestFramework;
@@ -40,7 +42,10 @@ namespace IPTech.EditorTools.Tests {
             var candidate = ProjectCleanerSessionTests.Item("Assets/T/candidate.asset", CleanerStatus.Candidate);
             CreateView(ProjectCleanerSessionTests.Session(candidate));
 
-            foreach(var name in new[] { "project-cleaner-main", "project-cleaner-preview", "message", "progress", "summary", "details",
+            foreach(var name in new[] { "project-cleaner-main", "project-cleaner-preview", "scan-tab-button", "settings-tab-button",
+                "scan-tab", "settings-tab", "settings-header", "protected-folders-box", "editable-packages", "protected-folders",
+                "add-protected-folder", "save-protection",
+                "message", "progress", "summary", "details",
                 "scan", "cancel-scan", "select-visible", "clear-selection", "export-csv", "restore-backup", "search", "status",
                 "scope", "sort", "split", "results", "script-acknowledgement", "backup", "backup-root", "preview-selected" }) {
                 Assert.That(rootVisualElement.Q(name), Is.Not.Null, name);
@@ -48,6 +53,8 @@ namespace IPTech.EditorTools.Tests {
             Assert.That(rootVisualElement.Q("project-cleaner-main").resolvedStyle.position, Is.EqualTo(Position.Absolute),
                 "ProjectCleanerEditor.uss must be applied.");
             Assert.That(rootVisualElement.Q("project-cleaner-preview").resolvedStyle.display, Is.EqualTo(DisplayStyle.None));
+            Assert.That(rootVisualElement.Q("scan-tab").resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
+            Assert.That(rootVisualElement.Q("settings-tab").resolvedStyle.display, Is.EqualTo(DisplayStyle.None));
             var table = rootVisualElement.Q<MultiColumnListView>("results");
             Assert.That(table.sortingMode, Is.EqualTo(ColumnSortingMode.Custom));
             Assert.That(table.columns.All(c => c.sortable), Is.True);
@@ -65,6 +72,132 @@ namespace IPTech.EditorTools.Tests {
             simulate.Click(rootVisualElement.Q<Button>("clear-selection"));
             Assert.That(_session.Selected, Is.Empty);
             Assert.That(rootVisualElement.Q<Button>("preview-selected").enabledSelf, Is.False);
+        }
+
+        [Test]
+        public void SettingsTabSeparatesScopeProtectionControlsFromScanFlow() {
+            CreateView(ProjectCleanerSessionTests.Session());
+            var scanTab = rootVisualElement.Q("scan-tab");
+            var settingsTab = rootVisualElement.Q("settings-tab");
+            var scanButton = rootVisualElement.Q<ToolbarToggle>("scan-tab-button");
+            var settingsButton = rootVisualElement.Q<ToolbarToggle>("settings-tab-button");
+
+            simulate.Click(settingsButton);
+
+            Assert.That(scanTab.resolvedStyle.visibility, Is.EqualTo(Visibility.Hidden));
+            Assert.That(settingsTab.resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
+            Assert.That(settingsButton.value, Is.True);
+            Assert.That(scanButton.value, Is.False);
+            Assert.That(settingsTab.Q<Label>("settings-header").text, Is.EqualTo("Scope and protection settings (project-local)"));
+            Assert.That(settingsTab.Q("protected-folders-box").Q<Button>("add-protected-folder"), Is.Not.Null);
+            Assert.That(settingsTab.Q<Toggle>("backup"), Is.Not.Null);
+            Assert.That(settingsTab.Q<TextField>("backup-root"), Is.Not.Null);
+            Assert.That(scanTab.Q("backup"), Is.Null);
+            Assert.That(scanTab.Q("backup-root"), Is.Null);
+
+            simulate.Click(scanButton);
+
+            Assert.That(scanTab.resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
+            Assert.That(scanTab.resolvedStyle.visibility, Is.EqualTo(Visibility.Visible));
+            Assert.That(settingsTab.resolvedStyle.display, Is.EqualTo(DisplayStyle.None));
+            Assert.That(scanButton.value, Is.True);
+            Assert.That(settingsButton.value, Is.False);
+        }
+
+        [Test]
+        public void SplitterDefaultsToThreeQuartersOfAvailableWidth() {
+            CreateView(ProjectCleanerSessionTests.Session());
+            simulate.FrameUpdate();
+
+            var split = rootVisualElement.Q<TwoPaneSplitView>("split");
+            Assert.That(split.fixedPane.resolvedStyle.width, Is.EqualTo(split.resolvedStyle.width * 0.75f).Within(1));
+            Assert.That(split.Q("unity-dragline-anchor").resolvedStyle.left,
+                Is.EqualTo(split.resolvedStyle.width * 0.75f).Within(1), "The divider must align with the fixed pane.");
+        }
+
+        [Test]
+        public void SettingsVisitAndResultsRefreshPreserveSplitterPosition() {
+            CreateView(ProjectCleanerSessionTests.Session());
+            var split = rootVisualElement.Q<TwoPaneSplitView>("split");
+            split.fixedPaneInitialDimension = 360;
+            simulate.FrameUpdate();
+
+            simulate.Click(rootVisualElement.Q<ToolbarToggle>("settings-tab-button"));
+            simulate.FrameUpdate();
+            simulate.Click(rootVisualElement.Q<ToolbarToggle>("scan-tab-button"));
+            simulate.Click(rootVisualElement.Q<Button>("clear-selection"));
+            simulate.FrameUpdate();
+
+            Assert.That(split.fixedPane.resolvedStyle.width, Is.EqualTo(360).Within(1));
+            Assert.That(split.Q("unity-dragline-anchor").resolvedStyle.left, Is.EqualTo(360).Within(1));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ScanCompletionOrCancellationAfterSettingsVisitPreservesSplitterPosition(bool cancel) {
+            CreateView(ProjectCleanerSessionTests.Session());
+            var split = rootVisualElement.Q<TwoPaneSplitView>("split");
+            split.fixedPaneInitialDimension = 360;
+            simulate.FrameUpdate();
+            simulate.Click(rootVisualElement.Q<ToolbarToggle>("settings-tab-button"));
+            simulate.Click(rootVisualElement.Q<ToolbarToggle>("scan-tab-button"));
+            _services.ScannerPaths = Array.Empty<string>();
+            simulate.Click(rootVisualElement.Q<Button>("scan"));
+            if(cancel) {
+                simulate.Click(rootVisualElement.Q<Button>("cancel-scan"));
+            } else {
+                for(var tick = 0; tick < 100 && _view.IsScanning; tick++) {
+                    foreach(var callback in _services.Ticks.ToArray()) callback();
+                }
+            }
+            simulate.FrameUpdate();
+
+            Assert.That(_view.IsScanning, Is.False);
+            Assert.That(_session.Scan.Cancelled, Is.EqualTo(cancel));
+            Assert.That(split.fixedPane.resolvedStyle.width, Is.EqualTo(360).Within(1));
+            Assert.That(split.Q("unity-dragline-anchor").resolvedStyle.left, Is.EqualTo(360).Within(1));
+        }
+
+        [Test]
+        public void SettingsControlsReadAndWriteOnlyInjectedSettings() {
+            var session = ProjectCleanerSessionTests.Session();
+            session.Settings.IncludeEditablePackages.Returns(true);
+            session.Settings.ProtectedFolders.Returns(new[] { "Assets/Protected" });
+            CreateView(session);
+            simulate.Click(rootVisualElement.Q<ToolbarToggle>("settings-tab-button"));
+            simulate.FrameUpdate();
+
+            var packages = rootVisualElement.Q<Toggle>("editable-packages");
+            Assert.That(packages.value, Is.True);
+            packages.value = false;
+            session.Settings.Received().IncludeEditablePackages = false;
+            Assert.That(_session.Stale, Is.True);
+            Assert.That(rootVisualElement.Q<ScrollView>("protected-folders").Query<Label>().ToList()
+                .Any(label => label.text == "Assets/Protected"), Is.True);
+            simulate.Click(rootVisualElement.Q<Button>("save-protection"));
+
+            session.Settings.Received(1).SetProtectedFolders(Arg.Is<IEnumerable<string>>(paths =>
+                paths.SequenceEqual(new[] { "Assets/Protected" })));
+        }
+
+        [Test]
+        public void ProtectedFolderCanBeAddedWithDirectoryChooserAndRemovedFromList() {
+            AssetDatabase.CreateFolder("Assets", Path.GetFileName(_root));
+            CreateView(ProjectCleanerSessionTests.Session());
+            simulate.Click(rootVisualElement.Q<ToolbarToggle>("settings-tab-button"));
+            simulate.FrameUpdate();
+            _services.SelectedFolder = ProjectCleanerPaths.FullPath(_root);
+
+            simulate.Click(rootVisualElement.Q<Button>("add-protected-folder"));
+
+            var folders = rootVisualElement.Q<ScrollView>("protected-folders");
+            Assert.That(_services.ChooseFolderCalls, Is.EqualTo(1));
+            Assert.That(folders.Query<Label>().ToList().Any(label => label.text == _root), Is.True);
+            simulate.FrameUpdate();
+            simulate.Click(folders.Query<Button>().ToList().Single());
+
+            Assert.That(folders.Query<Label>().ToList().Any(label => label.text == _root), Is.False);
+            Assert.That(folders.Query<Label>().ToList().Single().text, Is.EqualTo("No protected folders."));
         }
 
         [Test]
@@ -247,9 +380,14 @@ namespace IPTech.EditorTools.Tests {
             public List<CleanerOutcome> DeleteResult = new List<CleanerOutcome>();
             public List<CleanerOutcome> Outcomes;
             public bool UseRealDelete;
+            public string SelectedFolder;
+            public int ChooseFolderCalls;
+            public IEnumerable<string> ScannerPaths;
 
             public string ScanBlockedReason { get; set; }
-            public ProjectCleanerScanner CreateScanner() => throw new NotSupportedException("Scans are not exercised by view tests.");
+            public ProjectCleanerScanner CreateScanner(IProjectCleanerSettings settings) => ScannerPaths == null
+                ? throw new NotSupportedException("Set ScannerPaths to exercise a scoped scan.")
+                : new ProjectCleanerScanner(settings, ScannerPaths);
 
             public IDisposable EveryUpdate(Action tick) {
                 Ticks.Add(tick);
@@ -258,17 +396,20 @@ namespace IPTech.EditorTools.Tests {
 
             public bool IsFolder(string assetPath) => AssetDatabase.IsValidFolder(assetPath);
 
-            public List<CleanerOutcome> Delete(IEnumerable<ProjectCleanerItem> items, bool reviewedScripts, bool backup, string backupRoot) {
+            public List<CleanerOutcome> Delete(IEnumerable<ProjectCleanerItem> items, bool reviewedScripts, bool backup, string backupRoot, IProjectCleanerSettings settings) {
                 var list = items.ToList();
                 Deleted.AddRange(list);
-                Outcomes = UseRealDelete ? ProjectCleanerCleanup.Delete(list, reviewedScripts, backup, backupRoot) : DeleteResult;
+                Outcomes = UseRealDelete ? ProjectCleanerCleanup.Delete(list, reviewedScripts, backup, backupRoot, settings) : DeleteResult;
                 return Outcomes;
             }
 
-            public List<CleanerOutcome> Restore(string session, bool apply) => new List<CleanerOutcome>();
+            public List<CleanerOutcome> Restore(string session, bool apply, IProjectCleanerSettings settings) => new List<CleanerOutcome>();
             public void ShowMessage(string title, string message) => Messages.Add((title, message));
             public bool Confirm(string title, string message, string ok, string cancel) => false;
-            public string ChooseFolder(string title, string directory) => "";
+            public string ChooseFolder(string title, string directory) {
+                ChooseFolderCalls++;
+                return SelectedFolder ?? "";
+            }
             public string ChooseSaveFile(string title, string directory, string defaultName, string extension) => "/fake/" + defaultName + "." + extension;
             public void WriteFile(string path, string contents) => Written[path] = contents;
             public void Ping(string assetPath) { }

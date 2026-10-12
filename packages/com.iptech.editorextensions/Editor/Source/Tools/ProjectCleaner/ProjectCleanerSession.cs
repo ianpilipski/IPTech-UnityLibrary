@@ -32,6 +32,24 @@ namespace IPTech.EditorTools {
         [NonSerialized] public ProjectCleanerScan Scan;
         [NonSerialized] public bool Stale;
         [NonSerialized] private List<ProjectCleanerItem> _visible;
+        [NonSerialized] private readonly IProjectCleanerSettings _settings;
+
+        public IProjectCleanerSettings Settings => _settings;
+
+        public ProjectCleanerSession(IProjectCleanerSettings settings, ProjectCleanerSession previous = null) {
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            if(previous == null) return;
+            Search = previous.Search;
+            Status = previous.Status;
+            Scope = previous.Scope;
+            Sort = previous.Sort;
+            Selected = previous.Selected == null ? new List<string>() : new List<string>(previous.Selected);
+            BackupDirectory = previous.BackupDirectory;
+            Backup = previous.Backup;
+            ReviewedScripts = previous.ReviewedScripts;
+            Scan = previous.Scan;
+            Stale = previous.Stale;
+        }
 
         public List<ProjectCleanerItem> Visible => _visible ?? (_visible = new List<ProjectCleanerItem>());
         public string SortColumn => SortColumns.FirstOrDefault(s => s.Label == Sort.Replace(Descending, "")).Column ?? "path";

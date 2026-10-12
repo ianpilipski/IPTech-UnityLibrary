@@ -13,12 +13,12 @@ namespace IPTech.EditorTools {
     internal interface IProjectCleanerServices {
         /// <summary>Null when a scan may start; otherwise the reason it cannot.</summary>
         string ScanBlockedReason { get; }
-        ProjectCleanerScanner CreateScanner();
+        ProjectCleanerScanner CreateScanner(IProjectCleanerSettings settings);
         /// <summary>Invokes <paramref name="tick"/> every editor update until the returned handle is disposed.</summary>
         IDisposable EveryUpdate(Action tick);
         bool IsFolder(string assetPath);
-        List<CleanerOutcome> Delete(IEnumerable<ProjectCleanerItem> items, bool reviewedScripts, bool backup, string backupRoot);
-        List<CleanerOutcome> Restore(string session, bool apply);
+        List<CleanerOutcome> Delete(IEnumerable<ProjectCleanerItem> items, bool reviewedScripts, bool backup, string backupRoot, IProjectCleanerSettings settings);
+        List<CleanerOutcome> Restore(string session, bool apply, IProjectCleanerSettings settings);
         void ShowMessage(string title, string message);
         bool Confirm(string title, string message, string ok, string cancel);
         string ChooseFolder(string title, string directory);
@@ -36,7 +36,7 @@ namespace IPTech.EditorTools {
             EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling || EditorApplication.isUpdating
                 ? "Stop Play Mode and wait for compilation/imports before scanning." : null;
 
-        public ProjectCleanerScanner CreateScanner() => new ProjectCleanerScanner(ProjectCleanerSettings.instance);
+        public ProjectCleanerScanner CreateScanner(IProjectCleanerSettings settings) => new ProjectCleanerScanner(settings);
 
         public IDisposable EveryUpdate(Action tick) {
             EditorApplication.CallbackFunction callback = () => tick();
@@ -46,10 +46,10 @@ namespace IPTech.EditorTools {
 
         public bool IsFolder(string assetPath) => AssetDatabase.IsValidFolder(assetPath);
 
-        public List<CleanerOutcome> Delete(IEnumerable<ProjectCleanerItem> items, bool reviewedScripts, bool backup, string backupRoot) =>
-            ProjectCleanerCleanup.Delete(items, reviewedScripts, backup, backupRoot);
+        public List<CleanerOutcome> Delete(IEnumerable<ProjectCleanerItem> items, bool reviewedScripts, bool backup, string backupRoot, IProjectCleanerSettings settings) =>
+            ProjectCleanerCleanup.Delete(items, reviewedScripts, backup, backupRoot, settings);
 
-        public List<CleanerOutcome> Restore(string session, bool apply) => ProjectCleanerCleanup.Restore(session, apply);
+        public List<CleanerOutcome> Restore(string session, bool apply, IProjectCleanerSettings settings) => ProjectCleanerCleanup.Restore(session, apply, settings);
         public void ShowMessage(string title, string message) => EditorUtility.DisplayDialog(title, message, "OK");
         public bool Confirm(string title, string message, string ok, string cancel) => EditorUtility.DisplayDialog(title, message, ok, cancel);
         public string ChooseFolder(string title, string directory) => EditorUtility.OpenFolderPanel(title, directory, "");

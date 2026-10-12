@@ -46,8 +46,8 @@ namespace IPTech.EditorTools {
     }
 
     public static class ProjectCleaner {
-        public static ProjectCleanerScan Scan(ProjectCleanerSettings settings = null, bool showProgress = false) {
-            using(var operation = new ProjectCleanerScanner(settings ?? ProjectCleanerSettings.instance)) {
+        public static ProjectCleanerScan Scan(IProjectCleanerSettings settings, bool showProgress = false) {
+            using(var operation = new ProjectCleanerScanner(settings)) {
                 try {
                     var nextProgress = 0d;
                     while(operation.Step()) {
@@ -65,43 +65,44 @@ namespace IPTech.EditorTools {
             }
         }
 
-        public static List<ProjectCleanerItem> ScanProject() {
-            var scan = Scan();
+        public static List<ProjectCleanerItem> ScanProject(IProjectCleanerSettings settings) {
+            var scan = Scan(settings);
             if(!scan.CanClean) {
                 UnityEngine.Debug.LogError("Project Cleaner scan is incomplete: " + string.Join("\n", scan.Errors));
             }
             return scan.Items.Where(i => i.Status != CleanerStatus.Referenced).ToList();
         }
 
-        public static List<ProjectCleanerItem> FindEmptyDirectories(ProjectCleanerSettings settings = null) {
+        public static List<ProjectCleanerItem> FindEmptyDirectories(IProjectCleanerSettings settings) {
             return Scan(settings).Items.Where(i => i.IsDirectory && i.Category == "Empty Directory").ToList();
         }
 
-        public static List<ProjectCleanerItem> FindUnusedScripts(ProjectCleanerSettings settings = null) {
+        public static List<ProjectCleanerItem> FindUnusedScripts(IProjectCleanerSettings settings) {
             return Scan(settings).Items.Where(i => i.Category == "C# Script" && i.Status != CleanerStatus.Referenced).ToList();
         }
 
-        public static List<ProjectCleanerItem> FindUnreferencedMonoBehaviours(ProjectCleanerSettings settings = null) {
+        public static List<ProjectCleanerItem> FindUnreferencedMonoBehaviours(IProjectCleanerSettings settings) {
             return Scan(settings).Items.Where(i => i.Category == "MonoBehaviour" && i.Status != CleanerStatus.Referenced).ToList();
         }
 
-        public static List<string> GetEmptyDirectories() {
-            return FindEmptyDirectories().Where(i => i.CanDelete).Select(i => i.AssetPath).ToList();
+        public static List<string> GetEmptyDirectories(IProjectCleanerSettings settings) {
+            return FindEmptyDirectories(settings).Where(i => i.CanDelete).Select(i => i.AssetPath).ToList();
         }
 
-        public static List<string> DeleteEmptyDirectories() {
-            var items = FindEmptyDirectories();
-            return ProjectCleanerCleanup.Delete(items, false, true, ProjectCleanerCleanup.DefaultBackupDirectory)
+        public static List<string> DeleteEmptyDirectories(IProjectCleanerSettings settings) {
+            var items = FindEmptyDirectories(settings);
+            return ProjectCleanerCleanup.Delete(items, false, true, ProjectCleanerCleanup.DefaultBackupDirectory, settings)
                 .Where(o => o.Success).Select(o => o.AssetPath).ToList();
         }
 
-        public static int DeleteItems(List<ProjectCleanerItem> items) {
-            return ProjectCleanerCleanup.Delete(items, false, true, ProjectCleanerCleanup.DefaultBackupDirectory)
+        public static int DeleteItems(List<ProjectCleanerItem> items, IProjectCleanerSettings settings) {
+            return ProjectCleanerCleanup.Delete(items, false, true, ProjectCleanerCleanup.DefaultBackupDirectory, settings)
                 .Count(o => o.Success);
         }
 
-        public static void Reclassify(ProjectCleanerScan scan, ProjectCleanerSettings settings = null) {
-            ProjectCleanerScanner.Classify(scan, settings ?? ProjectCleanerSettings.instance);
+        public static void Reclassify(ProjectCleanerScan scan, IProjectCleanerSettings settings) {
+            if(settings == null) throw new ArgumentNullException(nameof(settings));
+            ProjectCleanerScanner.Classify(scan, settings);
         }
     }
 }

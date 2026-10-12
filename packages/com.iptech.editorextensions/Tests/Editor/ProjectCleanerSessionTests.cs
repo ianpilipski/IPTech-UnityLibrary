@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace IPTech.EditorTools.Tests {
@@ -90,12 +91,45 @@ namespace IPTech.EditorTools.Tests {
         }
 
         internal static ProjectCleanerSession Session(params ProjectCleanerItem[] items) {
-            var session = new ProjectCleanerSession { BackupDirectory = "Temp/unused" };
+            var session = new ProjectCleanerSession(CreateSettings()) { BackupDirectory = "Temp/unused" };
             session.Normalize();
             var scan = new ProjectCleanerScan { Complete = true };
             scan.Items.AddRange(items);
             session.Scan = scan;
             return session;
+        }
+
+        internal static IProjectCleanerSettings CreateSettings() {
+            var settings = Substitute.For<IProjectCleanerSettings>();
+            settings.KeptPaths.Returns(Array.Empty<string>());
+            settings.ProtectedFolders.Returns(Array.Empty<string>());
+            settings.UnresolvedKeptGuids.Returns(Array.Empty<string>());
+            return settings;
+        }
+
+        [Test]
+        public void RebindingSettingsPreservesSerializedSessionChoices() {
+            Assert.Throws<ArgumentNullException>(() => new ProjectCleanerSession(null));
+            var previous = Session();
+            previous.Search = "candidate";
+            previous.Status = "All";
+            previous.Scope = "Assets";
+            previous.Sort = "Size descending";
+            previous.Backup = false;
+            previous.Selected.Add("selected-guid");
+            var settings = CreateSettings();
+
+            var rebound = new ProjectCleanerSession(settings, previous);
+
+            Assert.That(rebound.Settings, Is.SameAs(settings));
+            Assert.That(rebound.Search, Is.EqualTo(previous.Search));
+            Assert.That(rebound.Status, Is.EqualTo(previous.Status));
+            Assert.That(rebound.Scope, Is.EqualTo(previous.Scope));
+            Assert.That(rebound.Sort, Is.EqualTo(previous.Sort));
+            Assert.That(rebound.Backup, Is.EqualTo(previous.Backup));
+            Assert.That(rebound.BackupDirectory, Is.EqualTo(previous.BackupDirectory));
+            Assert.That(rebound.Selected, Is.EqualTo(previous.Selected));
+            Assert.That(rebound.Selected, Is.Not.SameAs(previous.Selected));
         }
 
         internal static ProjectCleanerItem Item(string path, CleanerStatus status) {

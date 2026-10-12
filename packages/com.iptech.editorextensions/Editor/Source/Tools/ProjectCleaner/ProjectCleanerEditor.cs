@@ -7,7 +7,7 @@ namespace IPTech.EditorTools {
     /// the UI in <see cref="ProjectCleanerView"/>, so both can be tested without opening this window.
     /// </summary>
     public class ProjectCleanerEditor : EditorWindow {
-        [SerializeField] private ProjectCleanerSession _session = new ProjectCleanerSession();
+        [SerializeField] private ProjectCleanerSession _session;
         private ProjectCleanerView _view;
 
         [MenuItem("IPTech/Project/Cleaner ...")]
@@ -34,7 +34,10 @@ namespace IPTech.EditorTools {
             window._view.BeginScan();
         }
 
-        private void OnEnable() => EditorApplication.projectChanged += OnProjectChanged;
+        private void OnEnable() {
+            _session = new ProjectCleanerSession(ProjectCleanerSettings.instance, _session);
+            EditorApplication.projectChanged += OnProjectChanged;
+        }
 
         private void OnDisable() {
             EditorApplication.projectChanged -= OnProjectChanged;

@@ -25,9 +25,15 @@ namespace IPTech.EditorTools {
         private readonly Button _delete;
         private readonly Button _cancel;
         private readonly Button _scanButton;
+        private readonly ToolbarToggle _scanTabButton;
+        private readonly ToolbarToggle _settingsTabButton;
+        private readonly VisualElement _scanTab;
+        private readonly VisualElement _settingsTab;
         private readonly DropdownField _scopeField;
         private readonly DropdownField _sortField;
         private readonly Toggle _scriptAcknowledgement;
+        private readonly ScrollView _protectedFoldersList;
+        private readonly List<string> _protectedFolders;
         private readonly ProjectCleanerPreview _preview;
         private ProjectCleanerScanner _operation;
         private IDisposable _ticking;
@@ -40,6 +46,14 @@ namespace IPTech.EditorTools {
             _session.Normalize();
             root.Clear();
             LoadTree("ProjectCleanerEditor.uxml").CloneTree(root);
+            _scanTabButton = Require<ToolbarToggle>("scan-tab-button");
+            _settingsTabButton = Require<ToolbarToggle>("settings-tab-button");
+            _scanTab = Require<VisualElement>("scan-tab");
+            _settingsTab = Require<VisualElement>("settings-tab");
+            _scanTabButton.RegisterValueChangedCallback(evt => { if(evt.newValue) SelectTab(false); });
+            _settingsTabButton.RegisterValueChangedCallback(evt => { if(evt.newValue) SelectTab(true); });
+            SelectTab(false);
+            Require<TwoPaneSplitView>("split").RegisterCallback<GeometryChangedEvent>(InitializeSplitPosition);
             _message = Require<HelpBox>("message");
             _progress = Require<ProgressBar>("progress");
             _summary = Require<Label>("summary");
@@ -76,17 +90,19 @@ namespace IPTech.EditorTools {
                 UpdateView();
             });
             var packages = Require<Toggle>("editable-packages");
-            packages.SetValueWithoutNotify(ProjectCleanerSettings.instance.IncludeEditablePackages);
+            packages.SetValueWithoutNotify(_session.Settings.IncludeEditablePackages);
             packages.RegisterValueChangedCallback(evt => {
-                ProjectCleanerSettings.instance.IncludeEditablePackages = evt.newValue;
+                _session.Settings.IncludeEditablePackages = evt.newValue;
                 MarkStale("Cleanup scope changed. Scan again to include empty package folders.");
             });
-            var folders = Require<TextField>("protected-folders");
-            folders.SetValueWithoutNotify(string.Join("\n", ProjectCleanerSettings.instance.ProtectedFolders));
+            _protectedFoldersList = Require<ScrollView>("protected-folders");
+            _protectedFolders = _session.Settings.ProtectedFolders.ToList();
+            RebuildProtectedFolders();
+            Require<Button>("add-protected-folder").clicked += AddProtectedFolder;
             Require<Button>("save-protection").clicked += () => {
                 try {
-                    ProjectCleanerSettings.instance.SetProtectedFolders(folders.value.Split('\n').Select(s => s.Trim()));
-                    if(_session.Scan != null) ProjectCleaner.Reclassify(_session.Scan);
+                    _session.Settings.SetProtectedFolders(_protectedFolders);
+                    if(_session.Scan != null) ProjectCleaner.Reclassify(_session.Scan, _session.Settings);
                     UpdateView();
                 } catch(ArgumentException exception) { ShowError(exception); }
             };
@@ -135,6 +151,60 @@ namespace IPTech.EditorTools {
 
         public bool IsScanning => _operation != null;
 
+        private void SelectTab(bool showSettings) {
+            _scanTabButton.SetValueWithoutNotify(!showSettings);
+            _settingsTabButton.SetValueWithoutNotify(showSettings);
+            // Keep the splitter laid out while Settings is visible; display:none resets its divider.
+            _scanTab.style.visibility = showSettings ? Visibility.Hidden : Visibility.Visible;
+            _scanTab.SetEnabled(!showSettings);
+            _settingsTab.style.display = showSettings ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        private static void InitializeSplitPosition(GeometryChangedEvent evt) {
+            if(evt.newRect.width <= 0) return;
+            var split = (TwoPaneSplitView)evt.currentTarget;
+            split.UnregisterCallback<GeometryChangedEvent>(InitializeSplitPosition);
+            split.fixedPaneInitialDimension = evt.newRect.width * 0.75f;
+        }
+
+        private void AddProtectedFolder() {
+            var selectedPath = _services.ChooseFolder("Choose a protected project folder", ProjectCleanerPaths.ProjectRoot);
+            if(string.IsNullOrEmpty(selectedPath)) return;
+            try {
+                var projectRoot = ProjectCleanerPaths.ProjectRoot;
+                var fullPath = Path.GetFullPath(selectedPath);
+                var relativePath = Path.GetRelativePath(projectRoot, fullPath).Replace('\\', '/');
+                if(Path.IsPathRooted(relativePath) || relativePath == ".." || relativePath.StartsWith("../", StringComparison.Ordinal)
+                    || !ProjectCleanerPaths.IsLogicalPath(relativePath)) {
+                    throw new ArgumentException("Choose a folder under this project's Assets or Packages directory.");
+                }
+                if(!_protectedFolders.Contains(relativePath, StringComparer.Ordinal)) {
+                    _protectedFolders.Add(relativePath);
+                    RebuildProtectedFolders();
+                }
+            } catch(ArgumentException exception) { ShowError(exception); }
+        }
+
+        private void RebuildProtectedFolders() {
+            _protectedFoldersList.Clear();
+            if(_protectedFolders.Count == 0) {
+                _protectedFoldersList.Add(new Label("No protected folders."));
+                return;
+            }
+            foreach(var path in _protectedFolders.ToArray()) {
+                var row = new VisualElement();
+                row.AddToClassList("protected-folder-row");
+                var label = new Label(path);
+                label.AddToClassList("protected-folder-path");
+                row.Add(label);
+                row.Add(new Button(() => {
+                    _protectedFolders.Remove(path);
+                    RebuildProtectedFolders();
+                }) { text = "Remove" });
+                _protectedFoldersList.Add(row);
+            }
+        }
+
         public void Dispose() {
             StopTicking();
             _operation?.Cancel();
@@ -150,7 +220,7 @@ namespace IPTech.EditorTools {
                 MarkStale(blocked);
                 return;
             }
-            _operation = _services.CreateScanner();
+            _operation = _services.CreateScanner(_session.Settings);
             _session.StartScan(_operation.Result);
             _scanButton.SetEnabled(false);
             _cancel.SetEnabled(true);
@@ -182,7 +252,7 @@ namespace IPTech.EditorTools {
             _preview.DisableConfirmation();
             List<CleanerOutcome> outcomes;
             try {
-                outcomes = _services.Delete(_preview.Items, _session.ReviewedScripts, _session.Backup, _session.BackupDirectory);
+                outcomes = _services.Delete(_preview.Items, _session.ReviewedScripts, _session.Backup, _session.BackupDirectory, _session.Settings);
             } catch(Exception exception) {
                 _preview.Cancel();
                 ShowError(exception);
@@ -313,8 +383,8 @@ namespace IPTech.EditorTools {
             _details.Add(DetailButton("Ping asset", () => _services.Ping(item.AssetPath)));
             _details.Add(DetailButton("Open asset", () => _services.Open(item.AssetPath)));
             _details.Add(DetailButton(item.IsKept ? "Remove exact Keep (parent Keep may still apply)" : "Keep asset / folder", () => {
-                ProjectCleanerSettings.instance.SetKeep(item.AssetPath, !item.IsKept);
-                ProjectCleaner.Reclassify(_session.Scan);
+                _session.Settings.SetKeep(item.AssetPath, !item.IsKept);
+                ProjectCleaner.Reclassify(_session.Scan, _session.Settings);
                 _session.SetSelected(item, false);
                 UpdateView();
                 DrawDetails(item);
@@ -337,19 +407,19 @@ namespace IPTech.EditorTools {
 
         private void DrawKeepManager() {
             var kept = new Foldout { text = "Manage all Keep decisions", value = false };
-            foreach(var path in ProjectCleanerSettings.instance.KeptPaths.ToArray()) {
+            foreach(var path in _session.Settings.KeptPaths.ToArray()) {
                 var captured = path;
                 kept.Add(DetailButton("Unkeep: " + path, () => {
-                    ProjectCleanerSettings.instance.SetKeep(captured, false);
-                    if(_session.Scan != null) ProjectCleaner.Reclassify(_session.Scan);
+                    _session.Settings.SetKeep(captured, false);
+                    if(_session.Scan != null) ProjectCleaner.Reclassify(_session.Scan, _session.Settings);
                     UpdateView();
                     DrawDetails(null);
                 }));
             }
-            foreach(var guid in ProjectCleanerSettings.instance.UnresolvedKeptGuids.ToArray()) {
+            foreach(var guid in _session.Settings.UnresolvedKeptGuids.ToArray()) {
                 var captured = guid;
                 kept.Add(DetailButton("Remove missing Keep GUID: " + guid, () => {
-                    ProjectCleanerSettings.instance.RemoveMissingKeep(captured);
+                    _session.Settings.RemoveMissingKeep(captured);
                     DrawDetails(null);
                 }));
             }
@@ -369,14 +439,14 @@ namespace IPTech.EditorTools {
                 _session.BackupDirectory ?? ProjectCleanerCleanup.DefaultBackupDirectory);
             if(string.IsNullOrEmpty(folder)) return;
             try {
-                var preview = _services.Restore(folder, false);
+                var preview = _services.Restore(folder, false, _session.Settings);
                 if(preview.Any(o => !o.Success)) {
                     _services.ShowMessage("Restore blocked", ProjectCleanerSession.FormatOutcomes(preview));
                     return;
                 }
                 if(!_services.Confirm("Restore preview", "Restore these assets without overwriting existing content?\n\n"
                     + string.Join("\n", preview.Select(o => o.AssetPath)), "Restore", "Cancel")) return;
-                var outcomes = _services.Restore(folder, true);
+                var outcomes = _services.Restore(folder, true, _session.Settings);
                 MarkStale("Restore completed. Rescan to refresh references.");
                 _services.ShowMessage("Restore results", ProjectCleanerSession.FormatOutcomes(outcomes));
             } catch(Exception exception) { ShowError(exception); }

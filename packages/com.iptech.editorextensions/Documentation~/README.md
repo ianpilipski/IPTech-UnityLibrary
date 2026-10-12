@@ -145,3 +145,14 @@ the user's groups/settings.
 Tests access private scanner behavior through its internal, editor-only nested
 `SpyImp` via `scanner.Spy`, not reflection. Reflection in the optional Addressables
 tests is limited to third-party APIs so Addressables remains an optional dependency.
+## Project Cleaner settings and tests
+
+Project Cleaner takes an `IProjectCleanerSettings` dependency. The editor window
+injects `ProjectCleanerSettings.instance` into `ProjectCleanerSession`; the view,
+scanner, reclassification, deletion revalidation, and restore use that same
+dependency. Public scan and cleanup helpers require an explicit settings argument.
+The window rebinds settings after domain reload while retaining serialized UI choices.
+
+Tests use NSubstitute settings rather than reading or writing the project's
+settings asset. NSubstitute is referenced only by the test assembly and must be
+available in the project running the tests; it is not a package dependency.

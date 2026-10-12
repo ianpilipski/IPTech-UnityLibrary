@@ -104,5 +104,7 @@ MonoBehaviour:
   - a93ea8e42a4924582919d0e661a7efe5
   - 74b35cd8b8088d142bb2f1cfc7fc7ed4
   - a4fd4d7a6742d43efa7c30f88278ed7d
-  _protectedFolders: []
-  _includeEditablePackages: 0
+  _protectedFolders:
+  - Assets/BuildConfigs
+  - Assets/TextMesh Pro
+  _includeEditablePackages: 1
