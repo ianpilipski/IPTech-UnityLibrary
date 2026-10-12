@@ -1,0 +1,25 @@
+{
+  "name": "com.unity.ui.test-framework",
+  "displayName": "UI Test Framework",
+  "version": "6.6.0",
+  "description": "UIToolkit Test framework for running Edit mode and Play mode tests in Unity.",
+  "keywords": [
+    "Test",
+    "TestFramework",
+    "UITestFramework"
+  ],
+  "category": "Unity Test Framework",
+  "dependencies": {
+    "com.unity.ext.nunit": "2.0.3",
+    "com.unity.modules.imgui": "1.0.0",
+    "com.unity.modules.uielements": "1.0.0"
+  },
+  "samples": [
+    {
+      "displayName": "Documentation code samples",
+      "description": "UI Test Framework Manual documentation samples",
+      "path": "Samples~"
+    }
+  ],
+  "_fingerprint": "4c9182418ce96732e749f829edcd620b1bcdf1ac"
+}

@@ -1,0 +1,57 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:Style src="ProjectCleanerEditor.uss" />
+    <ui:VisualElement name="project-cleaner-main" class="page">
+        <uie:Toolbar>
+            <ui:Button name="scan" text="Scan" />
+            <ui:Button name="cancel-scan" text="Cancel" />
+            <ui:Button name="select-visible" text="Select visible eligible" />
+            <ui:Button name="clear-selection" text="Clear selection" />
+            <ui:Button name="export-csv" text="Export CSV" />
+            <ui:Button name="restore-backup" text="Restore backup..." />
+        </uie:Toolbar>
+        <ui:HelpBox name="message" class="no-shrink" message-type="Info" text="Scan, review detected evidence, select assets, then preview. Zero references does not prove an asset is unused. Deletion is not Undo." />
+        <ui:ProgressBar name="progress" title="Not scanned" low-value="0" high-value="100" />
+        <uie:Toolbar>
+            <uie:ToolbarSearchField name="search" />
+            <ui:DropdownField name="status" label="Show" class="filter" />
+            <ui:DropdownField name="scope" label="Scope" class="filter" />
+            <ui:DropdownField name="sort" label="Sort" class="filter" />
+        </uie:Toolbar>
+        <ui:Foldout text="Scope and protection settings (project-local)" value="false" class="no-shrink">
+            <ui:HelpBox message-type="Info" text="Always-on detectors: direct Unity dependencies, ProjectSettings GUID roots, optional Addressables registration, serialized AssetReferences / TerrainData, and lexical C# identifiers. Runtime string loads and reflection remain review risks." />
+            <ui:Toggle name="editable-packages" label="Allow cleanup in local / embedded packages" />
+            <ui:TextField name="protected-folders" label="Protected folders (one asset path per line)" multiline="true" />
+            <ui:Button name="save-protection" text="Save protection rules" />
+        </ui:Foldout>
+        <ui:Label name="summary" />
+        <ui:TwoPaneSplitView name="split" fixed-pane-index="0" fixed-pane-initial-dimension="570" orientation="Horizontal">
+            <ui:MultiColumnListView name="results" selection-type="Single" fixed-item-height="24" sorting-mode="Custom" show-alternating-row-backgrounds="ContentOnly" view-data-key="project-cleaner-results">
+                <ui:Columns>
+                    <ui:Column name="selected" title="Pick" width="42" sortable="true" />
+                    <ui:Column name="path" title="Asset" width="300" resizable="true" sortable="true" />
+                    <ui:Column name="type" title="Type" width="110" resizable="true" sortable="true" />
+                    <ui:Column name="status" title="Status" width="110" resizable="true" sortable="true" />
+                    <ui:Column name="bytes" title="Size" width="85" resizable="true" sortable="true" />
+                    <ui:Column name="refs" title="Referrers" width="70" resizable="true" sortable="true" />
+                </ui:Columns>
+            </ui:MultiColumnListView>
+            <ui:ScrollView name="details" view-data-key="project-cleaner-details" />
+        </ui:TwoPaneSplitView>
+        <ui:VisualElement class="cleanup no-shrink">
+            <ui:Toggle name="script-acknowledgement" label="I reviewed the selected scripts, including dynamic/reflection and Unity entry-point use" />
+            <ui:Toggle name="backup" label="Verify backups before deleting (recommended)" />
+            <ui:TextField name="backup-root" label="Backup root" />
+            <ui:Button name="preview-selected" text="Preview selected..." />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="project-cleaner-preview" class="page">
+        <ui:Label text="Deletion preview" class="preview-title" />
+        <ui:Label name="preview-summary" class="wrapped-label" />
+        <ui:HelpBox name="preview-message" class="no-shrink" />
+        <ui:ListView name="project-cleaner-preview-assets" fixed-item-height="24" selection-type="None" show-alternating-row-backgrounds="ContentOnly" />
+        <ui:VisualElement class="preview-buttons no-shrink">
+            <ui:Button name="project-cleaner-preview-cancel" text="Cancel" />
+            <ui:Button name="project-cleaner-preview-confirm" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

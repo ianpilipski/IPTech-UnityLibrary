@@ -1,0 +1,4 @@
+{
+  "name": "IPTech.EditorExtensions.TestFixtures",
+  "optionalUnityReferences": ["TestAssemblies"]
+}
