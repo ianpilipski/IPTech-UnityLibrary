@@ -20,7 +20,21 @@ MonoBehaviour:
   BuildProcessors:
   - {fileID: 2}
   - {fileID: 3}
+  - {fileID: 4}
 --- !u!114 &2
+MonoBehaviour:
+  m_ObjectHideFlags: 53
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38bf1b818fda4636a507af43042e1c93, type: 3}
+  m_Name: SetApplicationVersion
+  m_EditorClassIdentifier: IPTech.BuildTool.Editor::IPTech.BuildTool.Processors.SetApplicationVersion
+  CommandLineArgument: -appVersion
+--- !u!114 &3
 MonoBehaviour:
   m_ObjectHideFlags: 53
   m_CorrespondingSourceObject: {fileID: 0}
@@ -32,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19f634fcf40e84c29ab481e3b607efc3, type: 3}
   m_Name: MoveKeyStoreToGradleProject
   m_EditorClassIdentifier: 
---- !u!114 &3
+--- !u!114 &4
 MonoBehaviour:
   m_ObjectHideFlags: 53
   m_CorrespondingSourceObject: {fileID: 0}
