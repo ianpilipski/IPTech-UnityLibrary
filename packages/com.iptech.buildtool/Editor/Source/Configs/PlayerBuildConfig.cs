@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -23,7 +26,9 @@ namespace IPTech.BuildTool
 
         protected override void OnValidate() {
             // migration code for older configs
+            #pragma warning disable 0618
             var mods = LoadConfigModifiers();
+            #pragma warning restore 0618
             if(mods.Any()) {
                 BuildToolLogger.Log($"migrating configmodifiers {mods.Select(m => m.name).Aggregate((a,b) => $"{a}, {b}")}");
                 foreach(var mod in mods) {
@@ -40,7 +45,9 @@ namespace IPTech.BuildTool
         }
 
         protected override bool IsSubAssetValid(UnityEngine.Object subAsset) {
+            #pragma warning disable 0618
             if(subAsset is ConfigModifier cm) {
+            #pragma warning restore 0618
                 return true;
             } else if(subAsset is BuildProcessor bp) {
                 return BuildProcessors?.Contains(bp) == true;
@@ -52,20 +59,21 @@ namespace IPTech.BuildTool
             AssertEditorPlatformMatchesBuildTarget();
             CurrentlyBuildingConfig = this;
 
+            var readonlyArgs = new ReadOnlyDictionary<string, string>(args);
             using(new CurrentBuildSettings.Scoped()) {
                 try {
                     InstanceBuildProcessors();
 
-                    BuildPlayerOptions options = GetBuildPlayerOptions(args);
-                    options = ModifyEditorProperties(args, options);
+                    BuildPlayerOptions options = GetBuildPlayerOptions(readonlyArgs);
+                    options = ModifyEditorProperties(readonlyArgs, options);
                     BuildReport buildReport = BuildPipeline.BuildPlayer(options);
                     if(buildReport.summary.result != BuildResult.Succeeded) {
                         throw new System.Exception("Build Failed");
                     }
 
-                    UndoModifications();
+                    UndoModifications(readonlyArgs);
                 } finally {
-                    UndoModifications(false);
+                    UndoModifications(readonlyArgs, false);
                     DestroyBuildProcessorInstances();
                     CurrentlyBuildingConfig = null;
                     AssetDatabase.SaveAssets();
@@ -92,34 +100,34 @@ namespace IPTech.BuildTool
             cachedBuildProcessors = null;
         }
 
-        protected virtual BuildPlayerOptions ModifyEditorProperties(IDictionary<string,string> args, BuildPlayerOptions options) {
+        protected virtual BuildPlayerOptions ModifyEditorProperties(IReadOnlyDictionary<string,string> args, BuildPlayerOptions options) {
             SetBuildNumber(args);
             
             foreach(var cm in cachedBuildProcessors) {
                 try {
-                    options = ApplyModification(cm, options);
+                    options = ApplyModification(cm, options, args);
                 } catch {
-                    UndoModifications(false);
+                    UndoModifications(args, false);
                     throw;
                 }
             }
             return options;
         }
 
-        BuildPlayerOptions ApplyModification(BuildProcessor modifier, BuildPlayerOptions options) {
+        BuildPlayerOptions ApplyModification(BuildProcessor modifier, BuildPlayerOptions options, IReadOnlyDictionary<string,string> args) {
             BuildToolLogger.Log($"[IPTech.BuildTool] {modifier.name} modifying build properties.");
-            modifier.ModifyProject(BuildTarget);
+            modifier.ModifyProject(BuildTarget, args);
             undoModifiers.Push(modifier);
-            return modifier.ModifyBuildPlayerOptions(options);
+            return modifier.ModifyBuildPlayerOptions(options, args);
         }
 
-        void UndoModifications(bool throwOnError = true) {
+        void UndoModifications(IReadOnlyDictionary<string,string> args, bool throwOnError = true) {
             bool hadError = false;
             while(undoModifiers.Count>0) {
                 var cm = undoModifiers.Pop();
                 try {
                     BuildToolLogger.Log($"[IPTech.BuildTool] {cm.name} restoring build properties.");
-                    cm.RestoreProject(BuildTarget);
+                    cm.RestoreProject(BuildTarget, args);
                 } catch(Exception e) {
                     hadError = true;
                     BuildToolLogger.LogException(e);
@@ -131,7 +139,7 @@ namespace IPTech.BuildTool
             }
         }
 
-        protected void SetBuildNumber(IDictionary<string,string> args) {
+        protected void SetBuildNumber(IReadOnlyDictionary<string,string> args) {
             if(args.TryGetValue("-buildNumber", out string val)) {
                 BuildToolLogger.Log("Setting buildNumber / bundleVersionCode from -buildNumber commandline argument to " + val);
                 
@@ -143,7 +151,7 @@ namespace IPTech.BuildTool
             }
         }
 
-        protected virtual BuildPlayerOptions GetBuildPlayerOptions(IDictionary<string, string> args) {
+        protected virtual BuildPlayerOptions GetBuildPlayerOptions(IReadOnlyDictionary<string, string> args) {
             return new BuildPlayerOptions {
                 locationPathName = GetLocationPathName(args),
                 options = BuildOptions,
@@ -152,7 +160,7 @@ namespace IPTech.BuildTool
             };
         }
         
-        protected virtual string GetLocationPathName(IDictionary<string, string> args) {
+        protected virtual string GetLocationPathName(IReadOnlyDictionary<string, string> args) {
             string outPath = OutputPath;
             if(string.IsNullOrWhiteSpace(outPath)) {
                 outPath = Path.Combine("build", name);

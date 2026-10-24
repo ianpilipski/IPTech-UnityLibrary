@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEditor;
+using System;
 
 namespace IPTech.BuildTool
 {
+    [Obsolete("ConfigModifierEditor is obsolete. Use the BuildProcessor system instead.")]
     [CustomEditor(typeof(ConfigModifier), true)]
     public class ConfigModifierEditor : Editor {
         public override void OnInspectorGUI() {

@@ -2,11 +2,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
+using System;
+using Object = UnityEngine.Object;
 
 namespace IPTech.BuildTool
 {
     public abstract class BuildConfig : ScriptableObject {
         
+        [Obsolete("LoadConfigModifiers is obsolete. Use the new configuration system instead.")]
         public IEnumerable<ConfigModifier> LoadConfigModifiers() {
             var subs = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this));
             foreach(var sub in subs) {

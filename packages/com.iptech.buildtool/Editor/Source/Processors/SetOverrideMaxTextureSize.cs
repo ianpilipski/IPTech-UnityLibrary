@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 
 namespace IPTech.BuildTool.Processors {
@@ -16,12 +17,12 @@ namespace IPTech.BuildTool.Processors {
 
         int origValue;
 
-        public override void ModifyProject(BuildTarget buildTarget) {
+        public override void ModifyProject(BuildTarget buildTarget, IReadOnlyDictionary<string,string> args) {
             origValue = EditorUserBuildSettings.overrideMaxTextureSize;
             EditorUserBuildSettings.overrideMaxTextureSize = (int)OverrideMaxTextureSize;
         }
 
-        public override void RestoreProject(BuildTarget buildTarget) {
+        public override void RestoreProject(BuildTarget buildTarget, IReadOnlyDictionary<string,string> args) {
             EditorUserBuildSettings.overrideMaxTextureSize = origValue;
         }
     }

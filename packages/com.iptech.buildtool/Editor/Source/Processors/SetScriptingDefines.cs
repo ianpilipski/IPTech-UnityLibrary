@@ -8,12 +8,12 @@ namespace IPTech.BuildTool.Processors {
 
         string[] previousScriptingDefines;
 
-        public override void ModifyProject(BuildTarget buildTarget) {
+        public override void ModifyProject(BuildTarget buildTarget, IReadOnlyDictionary<string,string> args) {
             previousScriptingDefines = EditorUserBuildSettings.activeScriptCompilationDefines;
             PlayerSettings.SetScriptingDefineSymbols(GetNamedBuildTarget(buildTarget), ScriptingDefines.ToArray());
         }
 
-        public override void RestoreProject(BuildTarget buildTarget) {
+        public override void RestoreProject(BuildTarget buildTarget, IReadOnlyDictionary<string,string> args) {
             PlayerSettings.SetScriptingDefineSymbols(GetNamedBuildTarget(buildTarget), previousScriptingDefines);
         }
 

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 
 #if ENABLE_UNITY_ADDRESSABLES
@@ -11,8 +12,8 @@ namespace IPTech.BuildTool.Processors {
 
         private string origValue;
 
-        public override void ModifyProject(BuildTarget buildTarget) {
-            base.ModifyProject(buildTarget);
+        public override void ModifyProject(BuildTarget buildTarget, IReadOnlyDictionary<string,string> args) {
+            base.ModifyProject(buildTarget, args);
 #if ENABLE_UNITY_ADDRESSABLES
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             string profileId = settings.profileSettings.GetProfileId(ProfileName);
@@ -22,8 +23,8 @@ namespace IPTech.BuildTool.Processors {
 #endif
         }
 
-        public override void RestoreProject(BuildTarget buildTarget) {
-            base.RestoreProject(buildTarget);
+        public override void RestoreProject(BuildTarget buildTarget, IReadOnlyDictionary<string,string> args) {
+            base.RestoreProject(buildTarget, args);
 #if ENABLE_UNITY_ADDRESSABLES
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             settings.activeProfileId = origValue;

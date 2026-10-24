@@ -1,7 +1,9 @@
+using System;
 using IPTech.BuildTool.Processors;
 using UnityEditor;
 
 namespace IPTech.BuildTool {
+    [Obsolete("ConfigModifierBuildAsAppBundle is obsolete. Use SetBuildAsAppBundle instead.")]
     public class ConfigModifierBuildAsAppBundle : ConfigModifier {
         public bool BuildAsAppBundle;
 

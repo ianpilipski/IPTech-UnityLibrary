@@ -1,7 +1,10 @@
+using System;
 using IPTech.BuildTool.Processors;
 
 namespace IPTech.BuildTool
 {
+
+    [Obsolete("ConfigModifierOverrideMaxTextureSize is obsolete. Use SetOverrideMaxTextureSize instead.")]
     public class ConfigModifierOverrideMaxTextureSize : ConfigModifier {
         public EMaxTextureSize OverrideMaxTextureSize;
 

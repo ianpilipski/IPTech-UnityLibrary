@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using IPTech.BuildTool.Encryption;
 using UnityEditor;
@@ -10,7 +11,7 @@ namespace IPTech.BuildTool.Processors {
         OrigSettings origSettings;
         string tmpKeyStoreFilePath;
 
-        public override void ModifyProject(BuildTarget buildTarget) {
+        public override void ModifyProject(BuildTarget buildTarget, IReadOnlyDictionary<string,string> args) {
             var settings = GetDecryptedItem(KeyStoreSettings);
 
             tmpKeyStoreFilePath = SaveTempKeyStore(settings.KeyStoreFile);
@@ -30,7 +31,7 @@ namespace IPTech.BuildTool.Processors {
             PlayerSettings.Android.keystoreName = tmpKeyStoreFilePath;
         }
 
-        public override void RestoreProject(BuildTarget buildTarget) {
+        public override void RestoreProject(BuildTarget buildTarget, IReadOnlyDictionary<string,string> args) {
             PlayerSettings.Android.useCustomKeystore = origSettings.useCustomKeystore;
             PlayerSettings.Android.keystorePass = origSettings.keystorePass;
             PlayerSettings.Android.keyaliasName = origSettings.keyaliasName;

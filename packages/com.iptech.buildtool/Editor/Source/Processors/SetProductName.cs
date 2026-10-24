@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,12 +14,12 @@ namespace IPTech.BuildTool.Processors {
             }
         }
 
-        public override void ModifyProject(BuildTarget buildTarget) {
+        public override void ModifyProject(BuildTarget buildTarget, IReadOnlyDictionary<string,string> args) {
             orignalValue = PlayerSettings.productName;
             PlayerSettings.productName = ProductName;
         }
 
-        public override void RestoreProject(BuildTarget buildTarget) {
+        public override void RestoreProject(BuildTarget buildTarget, IReadOnlyDictionary<string,string> args) {
             PlayerSettings.productName = orignalValue;
         }
     }

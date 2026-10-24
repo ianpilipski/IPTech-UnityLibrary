@@ -9,7 +9,9 @@ namespace IPTech.BuildTool.Internal {
             ListGenerator = new ReflectionListGenerator(
                 typeof(BuildConfig), 
                 typeof(EncryptedItem),
+                #pragma warning disable 0618
                 typeof(ConfigModifier));
+                #pragma warning restore 0618
         }
     }
 }

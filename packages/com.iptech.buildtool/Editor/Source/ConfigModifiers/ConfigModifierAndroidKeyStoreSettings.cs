@@ -1,12 +1,11 @@
-using UnityEditor;
-using UnityEngine;
-using UnityEditor.Build;
-using System.IO;
+
 
 namespace IPTech.BuildTool {
+    using System;
     using Encryption;
     using IPTech.BuildTool.Processors;
 
+    [Obsolete("ConfigModifierAndroidKeyStoreSettings is obsolete. Use SetAndroidKeyStoreSettings instead.")]
     public class ConfigModifierAndroidKeyStoreSettings : ConfigModifier {
         public EncryptedItemAndroidKeyStoreSettings.Reference KeyStoreSettings;
 

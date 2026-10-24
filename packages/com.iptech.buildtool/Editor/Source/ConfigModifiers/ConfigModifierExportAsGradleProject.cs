@@ -1,7 +1,10 @@
+using System;
 using IPTech.BuildTool.Processors;
 
 namespace IPTech.BuildTool
 {
+
+    [Obsolete("ConfigModifierExportAsGradleProject is obsolete. Use SetExportAsGradleProject instead.")]
     public class ConfigModifierExportAsGradleProject : ConfigModifier {
         public bool ExportAsGradleProject;
 

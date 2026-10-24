@@ -1,6 +1,8 @@
+using System;
 using IPTech.BuildTool.Processors;
 
 namespace IPTech.BuildTool {
+    [Obsolete("ConfigModifierApplicationIdentifier is obsolete. Use SetApplicationIdentifier instead.")]
     public class ConfigModifierApplicationIdentifier : ConfigModifier {
         public string ApplicationIdentifier;
 
