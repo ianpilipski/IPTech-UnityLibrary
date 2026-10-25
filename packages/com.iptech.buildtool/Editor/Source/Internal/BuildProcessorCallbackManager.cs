@@ -16,6 +16,20 @@ namespace IPTech.BuildTool.Internal {
     {
         public int callbackOrder => 0;
 
+        // we need to cache these so they can persist data they may keep during the build
+        // otherwise unity will re-create them after the domain load
+        static List<BuildProcessor> cachedGlobalBuildProcessors;
+
+        // these are listed in call order
+
+        public void OnPreprocessBuild(BuildReport report) {
+            CacheGlobalBuildProcessors();
+            ForEachBuildProcessor(bp => {
+                BuildToolLogger.Log($"Calling PreprocessBuild on {bp.name}");
+                bp.PreprocessBuild(report);
+            });
+        }
+
         public void OnPostGenerateGradleAndroidProject(string path) {
             ForEachBuildProcessor(bp => {
                 BuildToolLogger.Log($"Calling PostGenerateGradleAndroidProject on {bp.name}");
@@ -28,21 +42,40 @@ namespace IPTech.BuildTool.Internal {
                 BuildToolLogger.Log($"Calling PostProcessBuild on {bp.name}");
                 bp.PostProcessBuild(report);
             });
+            ClearCachedBuildProcessors();
         }
 
-        public void OnPreprocessBuild(BuildReport report) {
-            ForEachBuildProcessor(bp => {
-                BuildToolLogger.Log($"Calling PreprocessBuild on {bp.name}");
-                bp.PreprocessBuild(report);
-            });
+        // end of call order
+
+        static void CacheGlobalBuildProcessors()
+        {
+            if(PlayerBuildConfig.CurrentlyBuildingConfig != null) return;
+            if(BuildToolsSettings.instance.BuildProcessors == null) return;
+            foreach(var bp in BuildToolsSettings.instance.BuildProcessors)
+            {
+                if(bp != null) {
+                    var inst = (BuildProcessor)ScriptableObject.Instantiate(bp);
+                    cachedGlobalBuildProcessors ??= new List<BuildProcessor>();
+                    cachedGlobalBuildProcessors.Add(inst);
+                }
+            }
+        }
+
+        static void ClearCachedBuildProcessors()
+        {
+            if(cachedGlobalBuildProcessors != null) {
+                foreach(var bp in cachedGlobalBuildProcessors) {
+                    ScriptableObject.DestroyImmediate(bp);
+                }
+                cachedGlobalBuildProcessors.Clear();
+            }
         }
 
         void ForEachBuildProcessor(Action<BuildProcessor> action) {
             try {
-                List<BuildProcessor> bps = BuildToolsSettings.instance.BuildProcessors;
-                if(PlayerBuildConfig.CurrentlyBuildingConfig != null) {
-                    bps = bps.Concat(PlayerBuildConfig.CurrentlyBuildingConfig.BuildProcessors).ToList();
-                }
+                var bps = (PlayerBuildConfig.CurrentlyBuildingConfig != null) 
+                    ? PlayerBuildConfig.CurrentlyBuildingConfig.cachedBuildProcessors
+                    : cachedGlobalBuildProcessors;
 
                 if(bps != null) {
                     foreach(var pp in bps) {

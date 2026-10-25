@@ -18,12 +18,12 @@ namespace IPTech.BuildTool
         public string OutputPath;
         public BuildTarget BuildTarget;
         public BuildOptions BuildOptions;
-        [InlineCreation]
-        public List<BuildProcessor> BuildProcessors;
+        [InlineCreation] public List<BuildProcessor> BuildProcessors;
         
         Stack<BuildProcessor> undoModifiers = new Stack<BuildProcessor>();
-        List<BuildProcessor> cachedBuildProcessors;
+        [NonSerialized] public List<BuildProcessor> cachedBuildProcessors;
 
+        
         protected override void OnValidate() {
             // migration code for older configs
             #pragma warning disable 0618
@@ -82,11 +82,14 @@ namespace IPTech.BuildTool
         }
 
         void InstanceBuildProcessors() {
-            if(BuildProcessors == null) return;
+            var globalBuildProcessors = BuildToolsSettings.instance.BuildProcessors ?? new List<BuildProcessor>();
+            var buildConfigBuildProcessors = BuildProcessors ?? new List<BuildProcessor>();
+            
+            var allBuildProcessors = globalBuildProcessors.Concat(buildConfigBuildProcessors);
 
-            //Doing this allows the configModifiers list to survive after the build and the editor
+            //Doing this allows the buildprocessors to survive after the build and the editor
             //does a domain reload.  If we referenced the saved scriptable objects they would null out
-            cachedBuildProcessors = BuildProcessors.Select(cm => {
+            cachedBuildProcessors = allBuildProcessors.Select(cm => {
                 var inst = (BuildProcessor)ScriptableObject.Instantiate(cm);
                 inst.hideFlags = (HideFlags.DontUnloadUnusedAsset | HideFlags.HideAndDontSave) & ~HideFlags.NotEditable;
                 return inst;
@@ -115,7 +118,7 @@ namespace IPTech.BuildTool
         }
 
         BuildPlayerOptions ApplyModification(BuildProcessor modifier, BuildPlayerOptions options, IReadOnlyDictionary<string,string> args) {
-            BuildToolLogger.Log($"[IPTech.BuildTool] {modifier.name} modifying build properties.");
+            BuildToolLogger.Log($"[BuildProcessor] {modifier.name} modifying build properties.");
             modifier.ModifyProject(BuildTarget, args);
             undoModifiers.Push(modifier);
             return modifier.ModifyBuildPlayerOptions(options, args);
@@ -126,7 +129,7 @@ namespace IPTech.BuildTool
             while(undoModifiers.Count>0) {
                 var cm = undoModifiers.Pop();
                 try {
-                    BuildToolLogger.Log($"[IPTech.BuildTool] {cm.name} restoring build properties.");
+                    BuildToolLogger.Log($"[BuildProcessor] {cm.name} restoring build properties.");
                     cm.RestoreProject(BuildTarget, args);
                 } catch(Exception e) {
                     hadError = true;
