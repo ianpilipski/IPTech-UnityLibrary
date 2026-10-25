@@ -1,7 +1,7 @@
 {
   "name": "com.iptech.consentscreen",
   "displayName": "IPTech.ConsentScreen",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "unity": "6000.6",
   "unityRelease": "5f1",
   "keywords": [],
@@ -14,6 +14,6 @@
   },
   "dependencies": {
     "com.unity.ads.ios-support": "1.0.0",
-    "com.iptech.ageverification": "0.0.1"
+    "com.iptech.ageverification": "1.0.0"
   }
 }
