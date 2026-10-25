@@ -1,6 +1,6 @@
 {
   "name": "com.iptech.coroutines",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "displayName": "IPTech.Coroutines",
   "description": "A coroutine library that allows error handling and debug visualization",
   "unity": "6000.6",
@@ -18,7 +18,7 @@
     "url": "https://github.com/ianpilipski/IPTech-UnityLibrary.git"
   },
   "dependencies": {
-    "com.iptech.nsubstitute": "2.0.4"
+    "com.iptech.nsubstitute": "3.0.0"
   },
   "samples": [
     {

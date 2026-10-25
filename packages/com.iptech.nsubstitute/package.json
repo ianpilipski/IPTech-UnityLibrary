@@ -1,6 +1,6 @@
 {
 	"name": "com.iptech.nsubstitute",
-	"version": "2.0.4",
+	"version": "3.0.0",
 	"displayName": "IPTech.NSubstitute",
 	"description": "A distribution of NSubstitute to use with Unity package dependencies",
 	"unity": "6000.6",
