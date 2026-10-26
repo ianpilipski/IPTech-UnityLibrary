@@ -105,7 +105,8 @@ namespace IPTech.DebugConsoleService.InGameConsole
             var navButtons = main.Q<VisualElement>("navButtons");
             navButtonsScrollView = navButtons.Q<ScrollView>();
             var buttonConsole = main.Q<Button>("buttonConsole");
-            refToDragHandler = new DragHandler(buttonConsole, HandleConsoleButtonClicked, HandleCategoryButtonDragged);
+            refToDragHandler = new DragHandler(navButtonsScrollView);
+            buttonConsole.clicked += HandleConsoleButtonClicked;
 
             panelAliasButtons = main.Q<VisualElement>("panelAliasButtons");
 
@@ -250,6 +251,7 @@ namespace IPTech.DebugConsoleService.InGameConsole
 
         private void HandleConsoleButtonClicked()
         {
+            if(refToDragHandler.IsDragging) return;
             ShowConsoleView(true);
         }
 
@@ -347,38 +349,16 @@ namespace IPTech.DebugConsoleService.InGameConsole
             var cat = categories.FirstOrDefault(c => c.name == category);
             if (cat == null)
             {
-                cat = new CategoryData(category, HandleCategoryClicked, HandleCategoryDragged);
+                cat = new CategoryData(category, HandleCategoryClicked);
                 navButtonsScrollView.Add(cat.button);
                 categories.Add(cat);
             }
             return cat;
         }
 
-        private void HandleCategoryDragged(CategoryData arg1, MouseMoveEvent arg2)
-        {
-            HandleCategoryButtonDragged(arg2);
-        }
-
-        void HandleCategoryButtonDragged(MouseMoveEvent arg2)
-        {
-            var delta = arg2.mouseDelta;
-            delta.y = 0;
-            delta.x = -delta.x;
-            var newOffset = navButtonsScrollView.scrollOffset + delta;
-            if (newOffset.x < 0)
-            {
-                newOffset.x = 0;
-            }
-            var max = navButtonsScrollView.contentContainer.resolvedStyle.width - navButtonsScrollView.contentRect.width;
-            if (newOffset.x > max)
-            {
-                newOffset.x = max;
-            }
-            navButtonsScrollView.scrollOffset = newOffset;
-        }
-
         private void HandleCategoryClicked(CategoryData obj)
         {
+            if(refToDragHandler.IsDragging) return;
             ShowConsoleView(false);
 
             foreach (var cat in categories)
@@ -479,25 +459,14 @@ namespace IPTech.DebugConsoleService.InGameConsole
             public Button button;
             public List<AliasButtonData> aliasButtons;
             public Action<CategoryData> clickHandler;
-            public Action<CategoryData, MouseMoveEvent> dragHandler;
 
-            DragHandler dragHandlerObj;
-
-            public CategoryData(string name, Action<CategoryData> clickHandler, Action<CategoryData, MouseMoveEvent> dragHandler)
+            public CategoryData(string name, Action<CategoryData> clickHandler)
             {
                 this.name = name;
                 button = new Button(HandleClick);
                 button.text = name;
                 aliasButtons = new();
                 this.clickHandler = clickHandler;
-                this.dragHandler = dragHandler;
-
-                dragHandlerObj = new DragHandler(button, HandleClick, HandleMouseMove);
-            }
-
-            void HandleMouseMove(MouseMoveEvent evt)
-            {
-                dragHandler?.Invoke(this, evt);
             }
 
             void HandleClick()
@@ -513,7 +482,6 @@ namespace IPTech.DebugConsoleService.InGameConsole
                 }
                 button.RemoveFromHierarchy();
                 clickHandler = null;
-                dragHandler = null;
             }
         }
 
